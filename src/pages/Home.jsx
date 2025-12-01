@@ -13,17 +13,37 @@ export default function Home({ user, onLogout }) {
     totalFaculty: 0,
     totalStudents: 0,
   })
+  const [connectionStatus, setConnectionStatus] = useState("Checking...")
 
   useEffect(() => {
+    checkConnection()
     fetchStats()
   }, [])
 
+  const checkConnection = async () => {
+    try {
+      console.log("[v0] Checking connection to:", API_URL)
+      const response = await axios.get(`${API_URL}/health`, { timeout: 5000 })
+      console.log("[v0] Connection successful:", response.data)
+      setConnectionStatus("Connected")
+    } catch (error) {
+      console.error("[v0] Connection failed:", {
+        message: error.message,
+        url: API_URL,
+        code: error.code,
+        status: error.response?.status,
+      })
+      setConnectionStatus("Disconnected - Check server")
+    }
+  }
+
   const fetchStats = async () => {
     try {
+      console.log("[v0] Fetching stats from:", API_URL)
       const [courses, faculty, students] = await Promise.all([
-        axios.get(`${API_URL}/courses?limit=1000`),
-        axios.get(`${API_URL}/users/role/faculty`),
-        axios.get(`${API_URL}/users/role/student`),
+        axios.get(`${API_URL}/courses?limit=1000`, { timeout: 10000 }),
+        axios.get(`${API_URL}/users/role/faculty`, { timeout: 10000 }),
+        axios.get(`${API_URL}/users/role/student`, { timeout: 10000 }),
       ])
 
       const courseCount = courses.data.courses ? courses.data.courses.length : courses.data.length
@@ -38,7 +58,8 @@ export default function Home({ user, onLogout }) {
         totalStudents: students.data.length,
       })
     } catch (error) {
-      console.error("Failed to fetch stats:", error)
+      console.error("[v0] Failed to fetch stats:", error.message)
+      setConnectionStatus("Stats fetch failed")
     }
   }
 
