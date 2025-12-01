@@ -7,15 +7,9 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://biology-trunk-server.vercel.app",
+        target: "https://biology-trunk-server.vercel.app/",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '/api'), // Optional: keep as-is
       },
     },
   },
-  // For production builds
-  build: {
-    outDir: 'dist',
-    sourcemap: false,
-  }
 })
