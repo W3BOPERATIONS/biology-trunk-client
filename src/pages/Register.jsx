@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import axios from "axios"
 
-const API_URL = "http://localhost:5000/api"
+const API_URL = "https://biology-trunk-server.vercel.app/api"
 
 export default function Register({ setUser }) {
   const [formData, setFormData] = useState({

@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react"
 import axios from "axios"
 
-const API_URL = "http://localhost:5000/api"
+const API_URL = "https://biology-trunk-server.vercel.app/api"
 
 export default function Home({ user, onLogout }) {
   const navigate = useNavigate()
