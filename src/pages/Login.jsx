@@ -3,8 +3,7 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import axios from "axios"
-
-const API_URL = "http://localhost:5000/api"
+import API_URL from "../config/api"
 
 export default function Login({ setUser }) {
   const [email, setEmail] = useState("")
@@ -127,8 +126,8 @@ export default function Login({ setUser }) {
           <div className="text-center mt-8 pt-6 border-t border-gray-100">
             <p className="text-gray-600 font-medium">
               Don't have an account?{" "}
-              <Link 
-                to="/register" 
+              <Link
+                to="/register"
                 className="text-blue-600 hover:text-blue-700 font-bold transition-colors duration-200 flex items-center justify-center gap-2 mt-2"
               >
                 <i className="fas fa-user-plus text-sm"></i>
@@ -158,14 +157,17 @@ export default function Login({ setUser }) {
                 Test the platform with these accounts
               </h3>
             </div>
-            
+
             <div className="grid gap-4">
               {[
                 { role: "Student", email: "ajha97575@gmail.com", password: "password123", color: "green" },
                 { role: "Faculty", email: "abhishekjha2707@gmail.com", password: "faculty123", color: "purple" },
-                { role: "Admin", email: "abhishek.flyanytrip@gmail.com", password: "admin123", color: "red" }
+                { role: "Admin", email: "abhishek.flyanytrip@gmail.com", password: "admin123", color: "red" },
               ].map((account, index) => (
-                <div key={index} className="bg-white p-4 rounded-xl border border-gray-200 hover:border-blue-300 transition-all duration-200">
+                <div
+                  key={index}
+                  className="bg-white p-4 rounded-xl border border-gray-200 hover:border-blue-300 transition-all duration-200"
+                >
                   <div className="flex items-center gap-3 mb-3">
                     <div className={`w-8 h-8 bg-${account.color}-100 rounded-lg flex items-center justify-center`}>
                       <i className={`fas fa-user text-${account.color}-600 text-sm`}></i>

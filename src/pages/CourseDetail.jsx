@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import axios from "axios"
-
-const API_URL = "http://localhost:5000/api"
+import API_URL from "../config/api"
 
 export default function CourseDetail({ user, onLogout }) {
   const { courseId } = useParams()
@@ -37,11 +36,11 @@ export default function CourseDetail({ user, onLogout }) {
       setCourse(courseRes.data)
       const sortedContent = contentRes.data.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
       setContent(sortedContent)
-      
+
       if (sortedContent.length > 0) {
         setSelectedContent(sortedContent[0])
       }
-      
+
       setLoading(false)
     } catch (error) {
       console.error("Failed to fetch course:", error)
@@ -54,7 +53,7 @@ export default function CourseDetail({ user, onLogout }) {
       const enrollmentsRes = await axios.get(`${API_URL}/enrollments/student/${user._id}`)
       const isEnrolledInCourse = enrollmentsRes.data.some((e) => e.course._id === courseId)
       setIsEnrolled(isEnrolledInCourse)
-      
+
       if (isEnrolledInCourse) {
         fetchProgress()
       }
@@ -67,7 +66,7 @@ export default function CourseDetail({ user, onLogout }) {
     try {
       const progressRes = await axios.get(`${API_URL}/progress/course/${courseId}/student/${user._id}`)
       setProgress(progressRes.data || {})
-      
+
       if (progressRes.data?.completedContent) {
         setCompletedItems(new Set(progressRes.data.completedContent))
       }
@@ -81,9 +80,9 @@ export default function CourseDetail({ user, onLogout }) {
       await axios.post(`${API_URL}/progress/mark-completed`, {
         studentId: user._id,
         courseId,
-        contentId
+        contentId,
       })
-      
+
       const updatedCompleted = new Set(completedItems)
       if (updatedCompleted.has(contentId)) {
         updatedCompleted.delete(contentId)
@@ -91,10 +90,9 @@ export default function CourseDetail({ user, onLogout }) {
         updatedCompleted.add(contentId)
       }
       setCompletedItems(updatedCompleted)
-      
+
       const newProgress = (updatedCompleted.size / content.length) * 100
-      setProgress(prev => ({ ...prev, percentage: Math.round(newProgress) }))
-      
+      setProgress((prev) => ({ ...prev, percentage: Math.round(newProgress) }))
     } catch (error) {
       console.error("Failed to update progress:", error)
     }
@@ -117,9 +115,10 @@ export default function CourseDetail({ user, onLogout }) {
     loadNotes()
   }, [courseId, user._id])
 
-  const filteredContent = content.filter(item => {
-    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredContent = content.filter((item) => {
+    const matchesSearch =
+      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesFilter = contentFilter === "all" || item.type === contentFilter
     return matchesSearch && matchesFilter
   })
@@ -153,31 +152,31 @@ export default function CourseDetail({ user, onLogout }) {
   // Function to get YouTube embed URL
   const getYouTubeEmbedUrl = (url) => {
     if (!url) return null
-    
+
     // Handle YouTube URLs
-    if (url.includes('youtube.com/watch?v=')) {
-      const videoId = url.split('v=')[1]?.split('&')[0]
+    if (url.includes("youtube.com/watch?v=")) {
+      const videoId = url.split("v=")[1]?.split("&")[0]
       return videoId ? `https://www.youtube.com/embed/${videoId}` : null
-    } else if (url.includes('youtu.be/')) {
-      const videoId = url.split('youtu.be/')[1]?.split('?')[0]
+    } else if (url.includes("youtu.be/")) {
+      const videoId = url.split("youtu.be/")[1]?.split("?")[0]
       return videoId ? `https://www.youtube.com/embed/${videoId}` : null
-    } else if (url.includes('youtube.com/embed/')) {
+    } else if (url.includes("youtube.com/embed/")) {
       return url
     }
-    
+
     // Handle Vimeo URLs
-    if (url.includes('vimeo.com/')) {
-      const videoId = url.split('vimeo.com/')[1]?.split('/')[1] || url.split('vimeo.com/')[1]
+    if (url.includes("vimeo.com/")) {
+      const videoId = url.split("vimeo.com/")[1]?.split("/")[1] || url.split("vimeo.com/")[1]
       return videoId ? `https://player.vimeo.com/video/${videoId}` : null
     }
-    
+
     // Return original URL for other cases (might be direct video URL)
     return url
   }
 
   // Function to check if URL is a video streaming service
   const isStreamingService = (url) => {
-    return url.includes('youtube') || url.includes('youtu.be') || url.includes('vimeo')
+    return url.includes("youtube") || url.includes("youtu.be") || url.includes("vimeo")
   }
 
   const renderContent = (item) => {
@@ -185,9 +184,7 @@ export default function CourseDetail({ user, onLogout }) {
       case "pdf":
         return (
           <div className="space-y-4">
-            <p className="text-gray-700 whitespace-pre-wrap break-words">
-              {item.description || "PDF Document"}
-            </p>
+            <p className="text-gray-700 whitespace-pre-wrap break-words">{item.description || "PDF Document"}</p>
             {item.pdfUrl && (
               <div className="flex gap-3 flex-wrap">
                 <a
@@ -215,11 +212,11 @@ export default function CourseDetail({ user, onLogout }) {
       case "video":
         const embedUrl = getYouTubeEmbedUrl(item.videoUrl)
         const isStreaming = isStreamingService(item.videoUrl)
-        
+
         return (
           <div className="space-y-4">
             <p className="text-gray-700">{item.description}</p>
-            
+
             {item.videoUrl && (
               <div className="space-y-4">
                 {isStreaming && embedUrl ? (
@@ -235,8 +232,8 @@ export default function CourseDetail({ user, onLogout }) {
                 ) : (
                   <div className="space-y-3">
                     <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-lg">
-                      <video 
-                        controls 
+                      <video
+                        controls
                         className="w-full h-full"
                         poster={item.thumbnail || "/default-video-thumbnail.jpg"}
                       >
@@ -259,7 +256,7 @@ export default function CourseDetail({ user, onLogout }) {
                     </div>
                   </div>
                 )}
-                
+
                 {/* Video fallback message */}
                 {!isStreaming && (
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
@@ -306,9 +303,7 @@ export default function CourseDetail({ user, onLogout }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg transition font-semibold ${
-                    isUpcoming 
-                      ? "bg-green-600 hover:bg-green-700" 
-                      : "bg-gray-600 hover:bg-gray-700"
+                    isUpcoming ? "bg-green-600 hover:bg-green-700" : "bg-gray-600 hover:bg-gray-700"
                   }`}
                 >
                   <i className="fas fa-video"></i>
@@ -429,7 +424,7 @@ export default function CourseDetail({ user, onLogout }) {
                   </div>
                 )}
               </div>
-              
+
               <div className="flex gap-6 flex-wrap">
                 <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
                   <div className="text-gray-600 text-sm">Category</div>
@@ -458,7 +453,7 @@ export default function CourseDetail({ user, onLogout }) {
                   <span className="text-sm text-gray-600">{progress.percentage}% Complete</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-3">
-                  <div 
+                  <div
                     className="bg-blue-600 h-3 rounded-full transition-all duration-500"
                     style={{ width: `${progress.percentage}%` }}
                   ></div>
@@ -495,8 +490,8 @@ export default function CourseDetail({ user, onLogout }) {
             </div>
 
             {/* Course Content Section */}
-            {activeTab === "content" && (
-              content.length === 0 ? (
+            {activeTab === "content" &&
+              (content.length === 0 ? (
                 <div className="bg-white border border-gray-200 rounded-xl p-8 text-center">
                   <i className="fas fa-book-open text-6xl text-gray-300 mb-4"></i>
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">No Content Available</h2>
@@ -512,7 +507,7 @@ export default function CourseDetail({ user, onLogout }) {
                           <i className="fas fa-list-ul mr-2"></i>
                           Course Materials
                         </h3>
-                        
+
                         {/* Search and Filter */}
                         <div className="space-y-3 mb-4">
                           <div className="relative">
@@ -525,7 +520,7 @@ export default function CourseDetail({ user, onLogout }) {
                             />
                             <i className="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                           </div>
-                          
+
                           <select
                             value={contentFilter}
                             onChange={(e) => setContentFilter(e.target.value)}
@@ -551,31 +546,39 @@ export default function CourseDetail({ user, onLogout }) {
                             }`}
                           >
                             <div className="flex items-center gap-3">
-                              <div className={`p-2 rounded-lg ${
-                                selectedContent?._id === item._id 
-                                  ? 'bg-blue-500 text-white'  // Blue background with white icon for selected
-                                  : 'bg-white text-gray-600'
-                              }`}>
+                              <div
+                                className={`p-2 rounded-lg ${
+                                  selectedContent?._id === item._id
+                                    ? "bg-blue-500 text-white" // Blue background with white icon for selected
+                                    : "bg-white text-gray-600"
+                                }`}
+                              >
                                 <i className={`${getContentIcon(item.type)}`}></i>
                               </div>
                               <div className="flex-1 overflow-hidden">
-                                <div className={`font-semibold truncate text-sm ${
-                                  selectedContent?._id === item._id ? 'text-blue-900' : 'text-gray-900'
-                                }`}>
+                                <div
+                                  className={`font-semibold truncate text-sm ${
+                                    selectedContent?._id === item._id ? "text-blue-900" : "text-gray-900"
+                                  }`}
+                                >
                                   {item.title}
                                 </div>
                                 <div className="flex items-center justify-between mt-1">
-                                  <span className={`text-xs px-2 py-1 rounded-full capitalize ${
-                                    selectedContent?._id === item._id 
-                                      ? 'bg-blue-200 text-blue-800'  // Light blue with dark blue text for selected
-                                      : getContentTypeColor(item.type)
-                                  }`}>
+                                  <span
+                                    className={`text-xs px-2 py-1 rounded-full capitalize ${
+                                      selectedContent?._id === item._id
+                                        ? "bg-blue-200 text-blue-800" // Light blue with dark blue text for selected
+                                        : getContentTypeColor(item.type)
+                                    }`}
+                                  >
                                     {item.type.replace("_", " ")}
                                   </span>
                                   {completedItems.has(item._id) && (
-                                    <i className={`fas fa-check-circle text-xs ${
-                                      selectedContent?._id === item._id ? 'text-blue-600' : 'text-green-500'
-                                    }`}></i>
+                                    <i
+                                      className={`fas fa-check-circle text-xs ${
+                                        selectedContent?._id === item._id ? "text-blue-600" : "text-green-500"
+                                      }`}
+                                    ></i>
                                   )}
                                 </div>
                               </div>
@@ -598,12 +601,13 @@ export default function CourseDetail({ user, onLogout }) {
                             <div>
                               <h2 className="text-2xl font-bold text-gray-900">{selectedContent.title}</h2>
                               <p className="text-gray-600 text-sm capitalize">
-                                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full ${getContentTypeColor(selectedContent.type)}`}>
+                                <span
+                                  className={`inline-flex items-center gap-1 px-2 py-1 rounded-full ${getContentTypeColor(selectedContent.type)}`}
+                                >
                                   <i className={`${getContentIcon(selectedContent.type)} text-xs`}></i>
                                   {selectedContent.type.replace(/_/g, " ")}
                                 </span>
-                                {" • "}Uploaded{" "}
-                                {new Date(selectedContent.createdAt).toLocaleDateString()}
+                                {" • "}Uploaded {new Date(selectedContent.createdAt).toLocaleDateString()}
                               </p>
                             </div>
                           </div>
@@ -616,7 +620,9 @@ export default function CourseDetail({ user, onLogout }) {
                                   : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                               }`}
                             >
-                              <i className={`fas ${completedItems.has(selectedContent._id) ? 'fa-check-circle' : 'fa-circle'} mr-2`}></i>
+                              <i
+                                className={`fas ${completedItems.has(selectedContent._id) ? "fa-check-circle" : "fa-circle"} mr-2`}
+                              ></i>
                               {completedItems.has(selectedContent._id) ? "Completed" : "Mark Complete"}
                             </button>
                             <button
@@ -648,7 +654,10 @@ export default function CourseDetail({ user, onLogout }) {
                             />
                             <div className="flex justify-between items-center mt-2">
                               <span className="text-sm text-gray-500">
-                                Auto-saved {notes[selectedContent._id] ? `• ${notes[selectedContent._id]?.length || 0} characters` : ''}
+                                Auto-saved{" "}
+                                {notes[selectedContent._id]
+                                  ? `• ${notes[selectedContent._id]?.length || 0} characters`
+                                  : ""}
                               </span>
                               <button
                                 onClick={() => setShowNotes(false)}
@@ -669,8 +678,7 @@ export default function CourseDetail({ user, onLogout }) {
                     )}
                   </div>
                 </div>
-              )
-            )}
+              ))}
 
             {/* Course Overview Tab */}
             {activeTab === "overview" && course && (
