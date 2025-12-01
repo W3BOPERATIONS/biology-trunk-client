@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import axios from "axios"
-import API_URL from "../config/api"
+
+const API_URL = "http://localhost:5000/api"
 
 export default function AdminDashboard({ user, onLogout }) {
   const [students, setStudents] = useState([])
@@ -23,19 +24,19 @@ export default function AdminDashboard({ user, onLogout }) {
     totalCourses: 0,
     totalEnrollments: 0,
     totalRevenue: 0,
-    activeEnrollments: 0,
+    activeEnrollments: 0
   })
 
   // Advanced filters for courses
   const [courseFilters, setCourseFilters] = useState({
     class: "",
     faculty: "",
-    category: "",
+    category: ""
   })
 
   // Get unique classes and categories from courses
-  const availableClasses = [...new Set(courses.map((course) => course.class).filter(Boolean))]
-  const availableCategories = [...new Set(courses.map((course) => course.category).filter(Boolean))]
+  const availableClasses = [...new Set(courses.map(course => course.class).filter(Boolean))]
+  const availableCategories = [...new Set(courses.map(course => course.category).filter(Boolean))]
 
   useEffect(() => {
     fetchData()
@@ -67,14 +68,14 @@ export default function AdminDashboard({ user, onLogout }) {
       // Calculate statistics with proper enrollment counting
       const totalRevenue = calculateTotalRevenue(enrollmentsData, coursesData)
       const totalEnrollments = enrollmentsData.length // Each enrollment is one student in one course
-
+      
       setStats({
         totalStudents: studentsData.length,
         totalFaculty: facultyData.length,
         totalCourses: coursesData.length,
         totalEnrollments: totalEnrollments,
         totalRevenue: totalRevenue,
-        activeEnrollments: totalEnrollments, // Since all enrollments are considered active
+        activeEnrollments: totalEnrollments // Since all enrollments are considered active
       })
 
       setLoading(false)
@@ -115,9 +116,9 @@ export default function AdminDashboard({ user, onLogout }) {
 
   const calculateTotalRevenue = (enrollmentsData, coursesData) => {
     return enrollmentsData.reduce((total, enrollment) => {
-      const course = coursesData.find((c) => c._id === enrollment.course?._id || c._id === enrollment.course)
+      const course = coursesData.find(c => c._id === enrollment.course?._id || c._id === enrollment.course)
       const price = course?.price || 0
-      return total + (typeof price === "number" ? price : Number.parseInt(price) || 0)
+      return total + (typeof price === 'number' ? price : parseInt(price) || 0)
     }, 0)
   }
 
@@ -128,30 +129,34 @@ export default function AdminDashboard({ user, onLogout }) {
       if (courseId) {
         const course = courses.find((c) => c._id === courseId)
         const price = course?.price || 0
-        const numericPrice = typeof price === "number" ? price : Number.parseInt(price) || 0
+        const numericPrice = typeof price === 'number' ? price : parseInt(price) || 0
         revenue[courseId] = (revenue[courseId] || 0) + numericPrice
       }
     })
     return Object.entries(revenue)
       .map(([courseId, amount]) => {
         const course = courses.find((c) => c._id === courseId)
-        return {
-          course: course?.title || "Unknown Course",
-          amount,
+        return { 
+          course: course?.title || "Unknown Course", 
+          amount, 
           faculty: course?.faculty?.name || "Unassigned",
           students: course?.students?.length || 0,
-          class: course?.class || "Not Specified",
+          class: course?.class || "Not Specified"
         }
       })
       .sort((a, b) => b.amount - a.amount)
   }
 
   const getRecentEnrollments = () => {
-    return [...enrollments].sort((a, b) => new Date(b.enrolledAt) - new Date(a.enrolledAt)).slice(0, 5)
+    return [...enrollments]
+      .sort((a, b) => new Date(b.enrolledAt) - new Date(a.enrolledAt))
+      .slice(0, 5)
   }
 
   const getTopCourses = () => {
-    return [...courses].sort((a, b) => (b.students?.length || 0) - (a.students?.length || 0)).slice(0, 5)
+    return [...courses]
+      .sort((a, b) => (b.students?.length || 0) - (a.students?.length || 0))
+      .slice(0, 5)
   }
 
   const handleCloseNotification = () => {
@@ -185,17 +190,17 @@ export default function AdminDashboard({ user, onLogout }) {
 
     // Apply advanced filters
     if (courseFilters.class) {
-      filtered = filtered.filter((course) => course.class === courseFilters.class)
+      filtered = filtered.filter(course => course.class === courseFilters.class)
     }
-
+    
     if (courseFilters.faculty) {
-      filtered = filtered.filter(
-        (course) => course.faculty?._id === courseFilters.faculty || course.faculty === courseFilters.faculty,
+      filtered = filtered.filter(course => 
+        course.faculty?._id === courseFilters.faculty || course.faculty === courseFilters.faculty
       )
     }
-
+    
     if (courseFilters.category) {
-      filtered = filtered.filter((course) => course.category === courseFilters.category)
+      filtered = filtered.filter(course => course.category === courseFilters.category)
     }
 
     return filtered
@@ -212,7 +217,7 @@ export default function AdminDashboard({ user, onLogout }) {
   const markNotificationAsRead = async (notificationId) => {
     try {
       await axios.put(`${API_URL}/notifications/${notificationId}/read`)
-      setNotifications(notifications.filter((n) => n._id !== notificationId))
+      setNotifications(notifications.filter(n => n._id !== notificationId))
     } catch (error) {
       console.error("Failed to mark notification as read:", error)
     }
@@ -222,7 +227,7 @@ export default function AdminDashboard({ user, onLogout }) {
     setCourseFilters({
       class: "",
       faculty: "",
-      category: "",
+      category: ""
     })
   }
 
@@ -265,11 +270,7 @@ export default function AdminDashboard({ user, onLogout }) {
                 </div>
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
                   <span className="text-white font-bold text-sm">
-                    {user.name
-                      ?.split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                      .toUpperCase()}
+                    {user.name?.split(' ').map(n => n[0]).join('').toUpperCase()}
                   </span>
                 </div>
                 <button
@@ -430,10 +431,7 @@ export default function AdminDashboard({ user, onLogout }) {
                         <div className="space-y-3">
                           {getRecentEnrollments().length > 0 ? (
                             getRecentEnrollments().map((enrollment) => (
-                              <div
-                                key={enrollment._id}
-                                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                              >
+                              <div key={enrollment._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                 <div>
                                   <p className="font-semibold text-gray-900">{enrollment.student?.name}</p>
                                   <p className="text-sm text-gray-600">{enrollment.course?.title}</p>
@@ -463,10 +461,7 @@ export default function AdminDashboard({ user, onLogout }) {
                         <div className="space-y-3">
                           {getTopCourses().length > 0 ? (
                             getTopCourses().map((course, index) => (
-                              <div
-                                key={course._id}
-                                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                              >
+                              <div key={course._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                 <div className="flex items-center gap-3">
                                   <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                                     <span className="text-blue-600 font-bold text-sm">{index + 1}</span>
@@ -494,34 +489,30 @@ export default function AdminDashboard({ user, onLogout }) {
                       <h3 className="text-lg font-bold text-gray-900 mb-4">Revenue Overview</h3>
                       <div className="space-y-4">
                         {getRevenueByCourse().length > 0 ? (
-                          getRevenueByCourse()
-                            .slice(0, 3)
-                            .map((item, idx) => (
-                              <div key={idx} className="bg-white p-4 rounded-lg border border-gray-200">
-                                <div className="flex justify-between items-center mb-2">
-                                  <div>
-                                    <div className="font-bold text-gray-900">{item.course}</div>
-                                    <div className="text-sm text-gray-600">
-                                      Faculty: {item.faculty} • Students: {item.students}
-                                    </div>
-                                  </div>
-                                  <div className="text-right">
-                                    <div className="text-xl font-bold text-blue-600">
-                                      ₹{item.amount.toLocaleString("en-IN")}
-                                    </div>
-                                    <div className="text-xs text-gray-500">
-                                      {Math.round((item.amount / stats.totalRevenue) * 100)}% of total
-                                    </div>
+                          getRevenueByCourse().slice(0, 3).map((item, idx) => (
+                            <div key={idx} className="bg-white p-4 rounded-lg border border-gray-200">
+                              <div className="flex justify-between items-center mb-2">
+                                <div>
+                                  <div className="font-bold text-gray-900">{item.course}</div>
+                                  <div className="text-sm text-gray-600">
+                                    Faculty: {item.faculty} • Students: {item.students}
                                   </div>
                                 </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                  <div
-                                    className="bg-blue-600 h-2 rounded-full transition-all duration-500"
-                                    style={{ width: `${(item.amount / stats.totalRevenue) * 100}%` }}
-                                  />
+                                <div className="text-right">
+                                  <div className="text-xl font-bold text-blue-600">₹{item.amount.toLocaleString("en-IN")}</div>
+                                  <div className="text-xs text-gray-500">
+                                    {Math.round((item.amount / stats.totalRevenue) * 100)}% of total
+                                  </div>
                                 </div>
                               </div>
-                            ))
+                              <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div
+                                  className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                                  style={{ width: `${(item.amount / stats.totalRevenue) * 100}%` }}
+                                />
+                              </div>
+                            </div>
+                          ))
                         ) : (
                           <p className="text-gray-600 text-center py-4">No revenue data available</p>
                         )}
@@ -546,18 +537,14 @@ export default function AdminDashboard({ user, onLogout }) {
                         </thead>
                         <tbody className="divide-y divide-gray-200">
                           {getFilteredStudents().map((student) => {
-                            const studentEnrollments = enrollments.filter((e) => e.student?._id === student._id).length
+                            const studentEnrollments = enrollments.filter(e => e.student?._id === student._id).length
                             return (
                               <tr key={student._id} className="hover:bg-gray-50 transition">
                                 <td className="px-6 py-4">
                                   <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                                       <span className="text-blue-600 font-bold text-sm">
-                                        {student.name
-                                          ?.split(" ")
-                                          .map((n) => n[0])
-                                          .join("")
-                                          .toUpperCase()}
+                                        {student.name?.split(' ').map(n => n[0]).join('').toUpperCase()}
                                       </span>
                                     </div>
                                     <span className="text-gray-900 font-medium">{student.name}</span>
@@ -565,9 +552,7 @@ export default function AdminDashboard({ user, onLogout }) {
                                 </td>
                                 <td className="px-6 py-4 text-gray-600">{student.email}</td>
                                 <td className="px-6 py-4 text-gray-600">{student.phone || "N/A"}</td>
-                                <td className="px-6 py-4 text-gray-600">
-                                  {new Date(student.createdAt).toLocaleDateString()}
-                                </td>
+                                <td className="px-6 py-4 text-gray-600">{new Date(student.createdAt).toLocaleDateString()}</td>
                                 <td className="px-6 py-4">
                                   <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
                                     {studentEnrollments}
@@ -598,9 +583,7 @@ export default function AdminDashboard({ user, onLogout }) {
                         </thead>
                         <tbody className="divide-y divide-gray-200">
                           {getFilteredFaculty().map((fac) => {
-                            const assignedCourses = courses.filter(
-                              (c) => c.faculty === fac._id || c.faculty?._id === fac._id,
-                            )
+                            const assignedCourses = courses.filter((c) => c.faculty === fac._id || c.faculty?._id === fac._id)
                             const totalStudents = assignedCourses.reduce((sum, c) => sum + (c.students?.length || 0), 0)
                             return (
                               <tr key={fac._id} className="hover:bg-gray-50 transition">
@@ -608,11 +591,7 @@ export default function AdminDashboard({ user, onLogout }) {
                                   <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                                       <span className="text-green-600 font-bold text-sm">
-                                        {fac.name
-                                          ?.split(" ")
-                                          .map((n) => n[0])
-                                          .join("")
-                                          .toUpperCase()}
+                                        {fac.name?.split(' ').map(n => n[0]).join('').toUpperCase()}
                                       </span>
                                     </div>
                                     <span className="text-gray-900 font-medium">{fac.name}</span>
@@ -648,7 +627,7 @@ export default function AdminDashboard({ user, onLogout }) {
                         onClick={() => setShowCourseManagement(!showCourseManagement)}
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center gap-2"
                       >
-                        <i className={`fas fa-${showCourseManagement ? "times" : "cogs"}`}></i>
+                        <i className={`fas fa-${showCourseManagement ? 'times' : 'cogs'}`}></i>
                         {showCourseManagement ? "Close Management" : "Manage Faculty"}
                       </button>
                     </div>
@@ -664,7 +643,7 @@ export default function AdminDashboard({ user, onLogout }) {
                           <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Class</label>
                           <select
                             value={courseFilters.class}
-                            onChange={(e) => setCourseFilters((prev) => ({ ...prev, class: e.target.value }))}
+                            onChange={(e) => setCourseFilters(prev => ({ ...prev, class: e.target.value }))}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           >
                             <option value="">All Classes</option>
@@ -680,7 +659,7 @@ export default function AdminDashboard({ user, onLogout }) {
                           <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Faculty</label>
                           <select
                             value={courseFilters.faculty}
-                            onChange={(e) => setCourseFilters((prev) => ({ ...prev, faculty: e.target.value }))}
+                            onChange={(e) => setCourseFilters(prev => ({ ...prev, faculty: e.target.value }))}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           >
                             <option value="">All Faculty</option>
@@ -696,7 +675,7 @@ export default function AdminDashboard({ user, onLogout }) {
                           <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Category</label>
                           <select
                             value={courseFilters.category}
-                            onChange={(e) => setCourseFilters((prev) => ({ ...prev, category: e.target.value }))}
+                            onChange={(e) => setCourseFilters(prev => ({ ...prev, category: e.target.value }))}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           >
                             <option value="">All Categories</option>
@@ -746,11 +725,7 @@ export default function AdminDashboard({ user, onLogout }) {
                                     <div className="flex items-center gap-3">
                                       <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                                         <span className="text-green-600 font-bold text-xs">
-                                          {course.faculty.name
-                                            ?.split(" ")
-                                            .map((n) => n[0])
-                                            .join("")
-                                            .toUpperCase()}
+                                          {course.faculty.name?.split(' ').map(n => n[0]).join('').toUpperCase()}
                                         </span>
                                       </div>
                                       <span className="text-gray-700">
@@ -833,11 +808,7 @@ export default function AdminDashboard({ user, onLogout }) {
                                     <div className="flex items-center gap-2">
                                       <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
                                         <span className="text-green-600 font-bold text-xs">
-                                          {course.faculty.name
-                                            ?.split(" ")
-                                            .map((n) => n[0])
-                                            .join("")
-                                            .toUpperCase()}
+                                          {course.faculty.name?.split(' ').map(n => n[0]).join('').toUpperCase()}
                                         </span>
                                       </div>
                                       <span className="text-gray-700">{course.faculty.name}</span>
@@ -884,20 +855,14 @@ export default function AdminDashboard({ user, onLogout }) {
                         </thead>
                         <tbody className="divide-y divide-gray-200">
                           {getFilteredEnrollments().map((enrollment) => {
-                            const course = courses.find(
-                              (c) => c._id === enrollment.course?._id || c._id === enrollment.course,
-                            )
+                            const course = courses.find(c => c._id === enrollment.course?._id || c._id === enrollment.course)
                             return (
                               <tr key={enrollment._id} className="hover:bg-gray-50 transition">
                                 <td className="px-6 py-4">
                                   <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                                       <span className="text-blue-600 font-bold text-sm">
-                                        {enrollment.student?.name
-                                          ?.split(" ")
-                                          .map((n) => n[0])
-                                          .join("")
-                                          .toUpperCase()}
+                                        {enrollment.student?.name?.split(' ').map(n => n[0]).join('').toUpperCase()}
                                       </span>
                                     </div>
                                     <span className="text-gray-900 font-medium">{enrollment.student?.name}</span>
@@ -913,7 +878,9 @@ export default function AdminDashboard({ user, onLogout }) {
                                 <td className="px-6 py-4 text-gray-600">
                                   {new Date(enrollment.enrolledAt).toLocaleDateString()}
                                 </td>
-                                <td className="px-6 py-4 text-green-600 font-semibold">₹{course?.price || 0}</td>
+                                <td className="px-6 py-4 text-green-600 font-semibold">
+                                  ₹{course?.price || 0}
+                                </td>
                                 <td className="px-6 py-4">
                                   <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
                                     {enrollment.status || "Active"}
@@ -959,7 +926,9 @@ export default function AdminDashboard({ user, onLogout }) {
                                 </div>
                                 <div className="text-right">
                                   <div className="font-bold text-blue-600">₹{item.amount.toLocaleString("en-IN")}</div>
-                                  <div className="text-xs text-gray-500">{item.students} students</div>
+                                  <div className="text-xs text-gray-500">
+                                    {item.students} students
+                                  </div>
                                 </div>
                               </div>
                             ))
@@ -972,24 +941,22 @@ export default function AdminDashboard({ user, onLogout }) {
                       <div className="bg-white border border-gray-200 rounded-xl p-6">
                         <h4 className="text-lg font-bold text-gray-900 mb-4">Revenue Distribution</h4>
                         <div className="space-y-4">
-                          {getRevenueByCourse()
-                            .slice(0, 5)
-                            .map((item, idx) => (
-                              <div key={idx} className="space-y-2">
-                                <div className="flex justify-between text-sm">
-                                  <span className="text-gray-700 truncate">{item.course}</span>
-                                  <span className="text-gray-900 font-medium">
-                                    {Math.round((item.amount / stats.totalRevenue) * 100)}%
-                                  </span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                  <div
-                                    className="bg-blue-600 h-2 rounded-full transition-all duration-500"
-                                    style={{ width: `${(item.amount / stats.totalRevenue) * 100}%` }}
-                                  />
-                                </div>
+                          {getRevenueByCourse().slice(0, 5).map((item, idx) => (
+                            <div key={idx} className="space-y-2">
+                              <div className="flex justify-between text-sm">
+                                <span className="text-gray-700 truncate">{item.course}</span>
+                                <span className="text-gray-900 font-medium">
+                                  {Math.round((item.amount / stats.totalRevenue) * 100)}%
+                                </span>
                               </div>
-                            ))}
+                              <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div
+                                  className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                                  style={{ width: `${(item.amount / stats.totalRevenue) * 100}%` }}
+                                />
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </div>
@@ -1035,7 +1002,9 @@ export default function AdminDashboard({ user, onLogout }) {
                       </div>
                       <span className="w-2 h-2 bg-blue-600 rounded-full mt-2"></span>
                     </div>
-                    <p className="text-xs text-gray-500 mt-2">{new Date(notification.createdAt).toLocaleString()}</p>
+                    <p className="text-xs text-gray-500 mt-2">
+                      {new Date(notification.createdAt).toLocaleString()}
+                    </p>
                   </div>
                 ))
               ) : (
@@ -1057,7 +1026,7 @@ function getTabIcon(tab) {
     faculty: "chalkboard-teacher",
     courses: "book",
     enrollments: "clipboard-list",
-    revenue: "rupee-sign",
+    revenue: "rupee-sign"
   }
   return icons[tab] || "chart-bar"
 }

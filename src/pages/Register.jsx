@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import axios from "axios"
-import API_URL from "../config/api"
+
+const API_URL = "http://localhost:5000/api"
 
 export default function Register({ setUser }) {
   const [formData, setFormData] = useState({
@@ -97,7 +98,7 @@ export default function Register({ setUser }) {
                 <i className="fas fa-user text-blue-500"></i>
                 Personal Information
               </h3>
-
+              
               <div className="space-y-2">
                 <label className="block text-gray-700 text-sm font-semibold mb-2 flex items-center gap-2">
                   <i className="fas fa-user text-blue-500 text-sm"></i>
@@ -251,8 +252,8 @@ export default function Register({ setUser }) {
           <div className="text-center mt-8 pt-6 border-t border-gray-100">
             <p className="text-gray-600 font-medium">
               Already have an account?{" "}
-              <Link
-                to="/login"
+              <Link 
+                to="/login" 
                 className="text-blue-600 hover:text-blue-700 font-bold transition-colors duration-200 flex items-center justify-center gap-2 mt-2"
               >
                 <i className="fas fa-sign-in-alt text-sm"></i>
@@ -271,7 +272,7 @@ export default function Register({ setUser }) {
               {[
                 { icon: "fas fa-play-circle", text: "Free Trial Classes", color: "text-green-600" },
                 { icon: "fas fa-chart-line", text: "Progress Tracking", color: "text-blue-600" },
-                { icon: "fas fa-users", text: "Expert Faculty", color: "text-purple-600" },
+                { icon: "fas fa-users", text: "Expert Faculty", color: "text-purple-600" }
               ].map((benefit, index) => (
                 <div key={index} className="flex items-center justify-center gap-2 text-sm text-gray-700">
                   <i className={`${benefit.icon} ${benefit.color} text-lg`}></i>
