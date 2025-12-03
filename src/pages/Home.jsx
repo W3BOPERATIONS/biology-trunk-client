@@ -87,16 +87,19 @@ export default function Home({ user, onLogout }) {
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               {/* Logo Image - Increased size */}
-              <div className="w-16 h-16 rounded-lg flex items-center justify-center overflow-hidden">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg flex items-center justify-center overflow-hidden">
                 <img 
                   src={logo} 
                   alt="Biology.Trunk Logo" 
                   className="w-full h-full object-contain"
                 />
               </div>
-              <span className="text-gray-900 font-bold text-2xl sm:text-3xl">Biology.Trunk</span>
+              {/* Hide text on mobile, show on sm and above */}
+              <span className="text-gray-900 font-bold text-2xl sm:text-3xl hidden sm:block">
+                Biology.Trunk
+              </span>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
               {user ? (
@@ -106,9 +109,9 @@ export default function Home({ user, onLogout }) {
                   </span>
                   <button
                     onClick={onLogout}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold flex items-center gap-2 text-sm sm:text-base"
+                    className="px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
                   >
-                    <i className="fas fa-sign-out-alt"></i>
+                    <i className="fas fa-sign-out-alt text-sm"></i>
                     <span className="hidden sm:inline">Logout</span>
                   </button>
                 </>
@@ -116,16 +119,16 @@ export default function Home({ user, onLogout }) {
                 <>
                   <Link
                     to="/login"
-                    className="px-4 py-2 text-gray-700 hover:text-blue-600 transition font-medium flex items-center gap-2 text-sm sm:text-base"
+                    className="px-3 sm:px-4 py-2 text-gray-700 hover:text-blue-600 transition font-medium flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
                   >
-                    <i className="fas fa-sign-in-alt"></i>
+                    <i className="fas fa-sign-in-alt text-sm"></i>
                     <span className="hidden sm:inline">Login</span>
                   </Link>
                   <Link
                     to="/register"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center gap-2 text-sm sm:text-base"
+                    className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
                   >
-                    <i className="fas fa-user-plus"></i>
+                    <i className="fas fa-user-plus text-sm"></i>
                     <span className="hidden sm:inline">Register</span>
                   </Link>
                 </>
@@ -289,109 +292,121 @@ export default function Home({ user, onLogout }) {
         </div>
       </section>
 
-      {/* Why Choose Us - Restored original content */}
-      <section className="py-24 bg-white">
+      {/* Why Choose Us - FIXED: Cards with consistent height and alignment */}
+      <section className="py-16 md:py-20 lg:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Why Choose Biology.Trunk?</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">Why Choose Biology.Trunk?</h2>
+            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
               We combine cutting-edge technology with proven teaching methodologies to deliver exceptional learning
               outcomes for students across all competitive exam segments.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="bg-white p-8 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-blue-200 group">
-              <div className="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-colors">
-                <i className="fas fa-book-open text-blue-600 text-2xl group-hover:text-white"></i>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+            {/* Card 1: Comprehensive Curriculum */}
+            <div className="bg-white p-6 md:p-8 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-blue-200 group h-full flex flex-col">
+              <div className="w-14 h-14 md:w-16 md:h-16 bg-blue-100 rounded-xl flex items-center justify-center mb-4 md:mb-6 group-hover:bg-blue-600 transition-colors flex-shrink-0">
+                <i className="fas fa-book-open text-blue-600 text-xl md:text-2xl group-hover:text-white"></i>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Comprehensive Curriculum</h3>
-              <p className="text-gray-700 mb-6 leading-relaxed">
+              <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4 min-h-[72px] md:min-h-[96px] flex items-center">
+                Comprehensive Curriculum
+              </h3>
+              <p className="text-gray-700 mb-4 md:mb-6 leading-relaxed text-sm md:text-base flex-grow">
                 Structured learning paths covering all major competitive exams with updated syllabus and exam patterns.
               </p>
               <ul className="space-y-2">
-                <li className="flex items-center gap-2 text-gray-600">
-                  <i className="fas fa-check text-green-500 text-sm"></i>
-                  <span className="text-sm">Updated Content</span>
+                <li className="flex items-start gap-2 text-gray-600">
+                  <i className="fas fa-check text-green-500 text-sm mt-0.5 flex-shrink-0"></i>
+                  <span className="text-xs md:text-sm">Updated Content</span>
                 </li>
-                <li className="flex items-center gap-2 text-gray-600">
-                  <i className="fas fa-check text-green-500 text-sm"></i>
-                  <span className="text-sm">Structured Modules</span>
+                <li className="flex items-start gap-2 text-gray-600">
+                  <i className="fas fa-check text-green-500 text-sm mt-0.5 flex-shrink-0"></i>
+                  <span className="text-xs md:text-sm">Structured Modules</span>
                 </li>
-                <li className="flex items-center gap-2 text-gray-600">
-                  <i className="fas fa-check text-green-500 text-sm"></i>
-                  <span className="text-sm">Regular Revisions</span>
+                <li className="flex items-start gap-2 text-gray-600">
+                  <i className="fas fa-check text-green-500 text-sm mt-0.5 flex-shrink-0"></i>
+                  <span className="text-xs md:text-sm">Regular Revisions</span>
                 </li>
               </ul>
             </div>
 
-            <div className="bg-white p-8 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-green-200 group">
-              <div className="w-16 h-16 bg-green-100 rounded-xl flex items-center justify-center mb-6 group-hover:bg-green-600 transition-colors">
-                <i className="fas fa-video text-green-600 text-2xl group-hover:text-white"></i>
+            {/* Card 2: Live Interactive Classes */}
+            <div className="bg-white p-6 md:p-8 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-green-200 group h-full flex flex-col">
+              <div className="w-14 h-14 md:w-16 md:h-16 bg-green-100 rounded-xl flex items-center justify-center mb-4 md:mb-6 group-hover:bg-green-600 transition-colors flex-shrink-0">
+                <i className="fas fa-video text-green-600 text-xl md:text-2xl group-hover:text-white"></i>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Live Interactive Classes</h3>
-              <p className="text-gray-700 mb-6 leading-relaxed">
+              <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4 min-h-[72px] md:min-h-[96px] flex items-center">
+                Live Interactive Classes
+              </h3>
+              <p className="text-gray-700 mb-4 md:mb-6 leading-relaxed text-sm md:text-base flex-grow">
                 Real-time learning experience with expert faculty and interactive doubt-solving sessions.
               </p>
               <ul className="space-y-2">
-                <li className="flex items-center gap-2 text-gray-600">
-                  <i className="fas fa-check text-green-500 text-sm"></i>
-                  <span className="text-sm">Live Sessions</span>
+                <li className="flex items-start gap-2 text-gray-600">
+                  <i className="fas fa-check text-green-500 text-sm mt-0.5 flex-shrink-0"></i>
+                  <span className="text-xs md:text-sm">Live Sessions</span>
                 </li>
-                <li className="flex items-center gap-2 text-gray-600">
-                  <i className="fas fa-check text-green-500 text-sm"></i>
-                  <span className="text-sm">Recorded Lectures</span>
+                <li className="flex items-start gap-2 text-gray-600">
+                  <i className="fas fa-check text-green-500 text-sm mt-0.5 flex-shrink-0"></i>
+                  <span className="text-xs md:text-sm">Recorded Lectures</span>
                 </li>
-                <li className="flex items-center gap-2 text-gray-600">
-                  <i className="fas fa-check text-green-500 text-sm"></i>
-                  <span className="text-sm">Doubt Resolution</span>
+                <li className="flex items-start gap-2 text-gray-600">
+                  <i className="fas fa-check text-green-500 text-sm mt-0.5 flex-shrink-0"></i>
+                  <span className="text-xs md:text-sm">Doubt Resolution</span>
                 </li>
               </ul>
             </div>
 
-            <div className="bg-white p-8 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-purple-200 group">
-              <div className="w-16 h-16 bg-purple-100 rounded-xl flex items-center justify-center mb-6 group-hover:bg-purple-600 transition-colors">
-                <i className="fas fa-user-tie text-purple-600 text-2xl group-hover:text-white"></i>
+            {/* Card 3: Expert Faculty */}
+            <div className="bg-white p-6 md:p-8 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-purple-200 group h-full flex flex-col">
+              <div className="w-14 h-14 md:w-16 md:h-16 bg-purple-100 rounded-xl flex items-center justify-center mb-4 md:mb-6 group-hover:bg-purple-600 transition-colors flex-shrink-0">
+                <i className="fas fa-user-tie text-purple-600 text-xl md:text-2xl group-hover:text-white"></i>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Expert Faculty</h3>
-              <p className="text-gray-700 mb-6 leading-relaxed">
+              <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4 min-h-[72px] md:min-h-[96px] flex items-center">
+                Expert Faculty
+              </h3>
+              <p className="text-gray-700 mb-4 md:mb-6 leading-relaxed text-sm md:text-base flex-grow">
                 Learn from IIT/NIT alumni and industry experts with proven track records in competitive exam training.
               </p>
               <ul className="space-y-2">
-                <li className="flex items-center gap-2 text-gray-600">
-                  <i className="fas fa-check text-green-500 text-sm"></i>
-                  <span className="text-sm">IIT/NIT Alumni</span>
+                <li className="flex items-start gap-2 text-gray-600">
+                  <i className="fas fa-check text-green-500 text-sm mt-0.5 flex-shrink-0"></i>
+                  <span className="text-xs md:text-sm">IIT/NIT Alumni</span>
                 </li>
-                <li className="flex items-center gap-2 text-gray-600">
-                  <i className="fas fa-check text-green-500 text-sm"></i>
-                  <span className="text-sm">10+ Years Experience</span>
+                <li className="flex items-start gap-2 text-gray-600">
+                  <i className="fas fa-check text-green-500 text-sm mt-0.5 flex-shrink-0"></i>
+                  <span className="text-xs md:text-sm">10+ Years Experience</span>
                 </li>
-                <li className="flex items-center gap-2 text-gray-600">
-                  <i className="fas fa-check text-green-500 text-sm"></i>
-                  <span className="text-sm">Subject Experts</span>
+                <li className="flex items-start gap-2 text-gray-600">
+                  <i className="fas fa-check text-green-500 text-sm mt-0.5 flex-shrink-0"></i>
+                  <span className="text-xs md:text-sm">Subject Experts</span>
                 </li>
               </ul>
             </div>
 
-            <div className="bg-white p-8 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-orange-200 group">
-              <div className="w-16 h-16 bg-orange-100 rounded-xl flex items-center justify-center mb-6 group-hover:bg-orange-600 transition-colors">
-                <i className="fas fa-chart-bar text-orange-600 text-2xl group-hover:text-white"></i>
+            {/* Card 4: Performance Analytics */}
+            <div className="bg-white p-6 md:p-8 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-orange-200 group h-full flex flex-col">
+              <div className="w-14 h-14 md:w-16 md:h-16 bg-orange-100 rounded-xl flex items-center justify-center mb-4 md:mb-6 group-hover:bg-orange-600 transition-colors flex-shrink-0">
+                <i className="fas fa-chart-bar text-orange-600 text-xl md:text-2xl group-hover:text-white"></i>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Performance Analytics</h3>
-              <p className="text-gray-700 mb-6 leading-relaxed">
+              <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4 min-h-[72px] md:min-h-[96px] flex items-center">
+                Performance Analytics
+              </h3>
+              <p className="text-gray-700 mb-4 md:mb-6 leading-relaxed text-sm md:text-base flex-grow">
                 Detailed progress tracking with AI-powered insights and personalized improvement recommendations.
               </p>
               <ul className="space-y-2">
-                <li className="flex items-center gap-2 text-gray-600">
-                  <i className="fas fa-check text-green-500 text-sm"></i>
-                  <span className="text-sm">Progress Reports</span>
+                <li className="flex items-start gap-2 text-gray-600">
+                  <i className="fas fa-check text-green-500 text-sm mt-0.5 flex-shrink-0"></i>
+                  <span className="text-xs md:text-sm">Progress Reports</span>
                 </li>
-                <li className="flex items-center gap-2 text-gray-600">
-                  <i className="fas fa-check text-green-500 text-sm"></i>
-                  <span className="text-sm">AI Analysis</span>
+                <li className="flex items-start gap-2 text-gray-600">
+                  <i className="fas fa-check text-green-500 text-sm mt-0.5 flex-shrink-0"></i>
+                  <span className="text-xs md:text-sm">AI Analysis</span>
                 </li>
-                <li className="flex items-center gap-2 text-gray-600">
-                  <i className="fas fa-check text-green-500 text-sm"></i>
-                  <span className="text-sm">Personalized Feedback</span>
+                <li className="flex items-start gap-2 text-gray-600">
+                  <i className="fas fa-check text-green-500 text-sm mt-0.5 flex-shrink-0"></i>
+                  <span className="text-xs md:text-sm">Personalized Feedback</span>
                 </li>
               </ul>
             </div>
@@ -399,19 +414,20 @@ export default function Home({ user, onLogout }) {
         </div>
       </section>
 
-      {/* Course Categories */}
-      <section className="py-24 bg-gray-50">
+      {/* Course Categories - Fixed font sizes for mobile */}
+      <section className="py-16 md:py-20 lg:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Comprehensive Course Catalog</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">Comprehensive Course Catalog</h2>
+            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
               Explore our extensive range of courses designed for academic excellence and competitive success.
             </p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {[
               {
                 name: "Class 9",
+                shortName: "Class 9",
                 icon: "fas fa-atom",
                 iconColor: "text-blue-600",
                 bgColor: "bg-blue-100",
@@ -421,6 +437,7 @@ export default function Home({ user, onLogout }) {
               },
               {
                 name: "Class 10",
+                shortName: "Class 10",
                 icon: "fas fa-square-root-alt",
                 iconColor: "text-green-600",
                 bgColor: "bg-green-100",
@@ -430,6 +447,7 @@ export default function Home({ user, onLogout }) {
               },
               {
                 name: "Class 11",
+                shortName: "Class 11",
                 icon: "fas fa-flask",
                 iconColor: "text-purple-600",
                 bgColor: "bg-purple-100",
@@ -439,6 +457,7 @@ export default function Home({ user, onLogout }) {
               },
               {
                 name: "Class 12",
+                shortName: "Class 12",
                 icon: "fas fa-calculator",
                 iconColor: "text-orange-600",
                 bgColor: "bg-orange-100",
@@ -448,6 +467,7 @@ export default function Home({ user, onLogout }) {
               },
               {
                 name: "JEE Preparation",
+                shortName: "JEE",
                 icon: "fas fa-rocket",
                 iconColor: "text-red-600",
                 bgColor: "bg-red-100",
@@ -457,6 +477,7 @@ export default function Home({ user, onLogout }) {
               },
               {
                 name: "NEET Preparation",
+                shortName: "NEET",
                 icon: "fas fa-stethoscope",
                 iconColor: "text-pink-600",
                 bgColor: "bg-pink-100",
@@ -466,6 +487,7 @@ export default function Home({ user, onLogout }) {
               },
               {
                 name: "GUJCET",
+                shortName: "GUJCET",
                 icon: "fas fa-vial",
                 iconColor: "text-yellow-600",
                 bgColor: "bg-yellow-100",
@@ -475,6 +497,7 @@ export default function Home({ user, onLogout }) {
               },
               {
                 name: "All Courses",
+                shortName: "All",
                 icon: "fas fa-graduation-cap",
                 iconColor: "text-indigo-600",
                 bgColor: "bg-indigo-100",
@@ -486,20 +509,24 @@ export default function Home({ user, onLogout }) {
               <div
                 key={cat.name}
                 onClick={() => handleCategoryClick(cat.name === "All Courses" ? "" : cat.name)}
-                className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-blue-300 transition-all duration-300 cursor-pointer group"
+                className="bg-white p-4 md:p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-blue-300 transition-all duration-300 cursor-pointer group"
               >
-                <div className="flex items-center gap-4 mb-4">
+                <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
                   <div
-                    className={`w-12 h-12 ${cat.bgColor} rounded-lg flex items-center justify-center transition-colors ${cat.hoverBgColor}`}
+                    className={`w-10 h-10 md:w-12 md:h-12 ${cat.bgColor} rounded-lg flex items-center justify-center transition-colors ${cat.hoverBgColor}`}
                   >
-                    <i className={`${cat.icon} ${cat.iconColor} text-lg group-hover:text-white transition-colors`}></i>
+                    <i className={`${cat.icon} ${cat.iconColor} text-base md:text-lg group-hover:text-white transition-colors`}></i>
                   </div>
-                  <div>
-                    <div className="font-bold text-gray-900 text-lg">{cat.name}</div>
-                    <div className="text-gray-500 text-sm">{cat.courses} Courses</div>
+                  <div className="min-w-0 flex-1">
+                    {/* Show short name on mobile, full name on medium screens and above */}
+                    <div className="font-bold text-gray-900 text-sm md:text-lg line-clamp-1">
+                      <span className="md:hidden">{cat.shortName}</span>
+                      <span className="hidden md:inline">{cat.name}</span>
+                    </div>
+                    <div className="text-gray-500 text-xs md:text-sm">{cat.courses} Courses</div>
                   </div>
                 </div>
-                <div className="flex justify-between items-center text-sm text-gray-600">
+                <div className="flex justify-between items-center text-xs md:text-sm text-gray-600">
                   <span>{cat.students} Students</span>
                   <i className="fas fa-arrow-right text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity"></i>
                 </div>
@@ -510,16 +537,16 @@ export default function Home({ user, onLogout }) {
       </section>
 
       {/* Learning Methodology with Video */}
-      <section className="py-24 bg-white">
+      <section className="py-16 md:py-20 lg:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center">
             <div>
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Our Proven Learning Methodology</h2>
-              <p className="text-xl text-gray-600 mb-8">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 md:mb-6">Our Proven Learning Methodology</h2>
+              <p className="text-lg md:text-xl text-gray-600 mb-6 md:mb-8">
                 Our structured approach ensures comprehensive concept understanding and exam readiness through
                 systematic progression and continuous assessment.
               </p>
-              <div className="space-y-6">
+              <div className="space-y-4 md:space-y-6">
                 {[
                   {
                     icon: "fas fa-lightbulb",
@@ -538,21 +565,21 @@ export default function Home({ user, onLogout }) {
                   },
                   { icon: "fas fa-sync-alt", title: "Revision", desc: "Spaced repetition for better retention" },
                 ].map((step, index) => (
-                  <div key={index} className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <i className={`${step.icon} text-blue-600`}></i>
+                  <div key={index} className="flex items-center gap-3 md:gap-4">
+                    <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <i className={`${step.icon} text-blue-600 text-base md:text-lg`}></i>
                     </div>
                     <div>
-                      <h4 className="font-bold text-gray-900 text-lg">{step.title}</h4>
-                      <p className="text-gray-600">{step.desc}</p>
+                      <h4 className="font-bold text-gray-900 text-base md:text-lg">{step.title}</h4>
+                      <p className="text-gray-600 text-sm md:text-base">{step.desc}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="bg-gray-100 p-8 rounded-2xl">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Success Roadmap Video</h3>
-              <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-6">
+            <div className="bg-gray-100 p-6 md:p-8 rounded-2xl">
+              <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6 text-center">Success Roadmap Video</h3>
+              <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-4 md:mb-6">
                 <video
                   ref={videoRef}
                   src={roadmapVideo}
@@ -564,42 +591,42 @@ export default function Home({ user, onLogout }) {
                   Your browser does not support the video tag.
                 </video>
               </div>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 text-gray-700">
-                  <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+              <div className="space-y-2 md:space-y-3">
+                <div className="flex items-center gap-2 md:gap-3 text-gray-700">
+                  <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs md:text-sm font-bold flex-shrink-0">
                     1
                   </div>
-                  <span>Diagnostic Test & Goal Setting</span>
+                  <span className="text-sm md:text-base">Diagnostic Test & Goal Setting</span>
                 </div>
-                <div className="flex items-center gap-3 text-gray-700">
-                  <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                <div className="flex items-center gap-2 md:gap-3 text-gray-700">
+                  <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs md:text-sm font-bold flex-shrink-0">
                     2
                   </div>
-                  <span>Structured Learning Path</span>
+                  <span className="text-sm md:text-base">Structured Learning Path</span>
                 </div>
-                <div className="flex items-center gap-3 text-gray-700">
-                  <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                <div className="flex items-center gap-2 md:gap-3 text-gray-700">
+                  <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs md:text-sm font-bold flex-shrink-0">
                     3
                   </div>
-                  <span>Regular Practice & Assessments</span>
+                  <span className="text-sm md:text-base">Regular Practice & Assessments</span>
                 </div>
-                <div className="flex items-center gap-3 text-gray-700">
-                  <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                <div className="flex items-center gap-2 md:gap-3 text-gray-700">
+                  <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs md:text-sm font-bold flex-shrink-0">
                     4
                   </div>
-                  <span>Performance Analysis</span>
+                  <span className="text-sm md:text-base">Performance Analysis</span>
                 </div>
-                <div className="flex items-center gap-3 text-gray-700">
-                  <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                <div className="flex items-center gap-2 md:gap-3 text-gray-700">
+                  <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs md:text-sm font-bold flex-shrink-0">
                     5
                   </div>
-                  <span>Revision & Mock Tests</span>
+                  <span className="text-sm md:text-base">Revision & Mock Tests</span>
                 </div>
-                <div className="flex items-center gap-3 text-gray-700">
-                  <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                <div className="flex items-center gap-2 md:gap-3 text-gray-700">
+                  <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs md:text-sm font-bold flex-shrink-0">
                     6
                   </div>
-                  <span>Exam Readiness</span>
+                  <span className="text-sm md:text-base">Exam Readiness</span>
                 </div>
               </div>
             </div>
@@ -608,15 +635,15 @@ export default function Home({ user, onLogout }) {
       </section>
 
       {/* Testimonials */}
-      <section className="py-24 bg-gray-50">
+      <section className="py-16 md:py-20 lg:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Student Success Stories</h2>
-            <p className="text-xl text-gray-600">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">Student Success Stories</h2>
+            <p className="text-lg md:text-xl text-gray-600">
               Hear from our students who have achieved remarkable success in their academic journeys.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {[
               {
                 name: "Rohit Kumar",
@@ -643,19 +670,19 @@ export default function Home({ user, onLogout }) {
                 achievement: "School Topper",
               },
             ].map((testimonial, idx) => (
-              <div key={idx} className="bg-white p-8 rounded-xl border border-gray-200 hover:shadow-lg transition">
+              <div key={idx} className="bg-white p-6 md:p-8 rounded-xl border border-gray-200 hover:shadow-lg transition">
                 <div className="flex items-center mb-4">
                   {[...Array(5)].map((_, i) => (
-                    <i key={i} className="fas fa-star text-yellow-400 text-lg"></i>
+                    <i key={i} className="fas fa-star text-yellow-400 text-base md:text-lg"></i>
                   ))}
                 </div>
-                <p className="text-gray-700 mb-6 italic leading-relaxed">"{testimonial.feedback}"</p>
-                <div className="border-t border-gray-200 pt-4">
-                  <p className="font-bold text-gray-900 text-lg">{testimonial.name}</p>
-                  <p className="text-blue-600 font-semibold">
+                <p className="text-gray-700 mb-4 md:mb-6 italic leading-relaxed text-sm md:text-base">"{testimonial.feedback}"</p>
+                <div className="border-t border-gray-200 pt-3 md:pt-4">
+                  <p className="font-bold text-gray-900 text-base md:text-lg">{testimonial.name}</p>
+                  <p className="text-blue-600 font-semibold text-sm md:text-base">
                     {testimonial.score} • {testimonial.exam}
                   </p>
-                  <p className="text-green-600 text-sm font-medium mt-1">
+                  <p className="text-green-600 text-xs md:text-sm font-medium mt-1">
                     <i className="fas fa-trophy"></i> {testimonial.achievement}
                   </p>
                 </div>
@@ -666,37 +693,37 @@ export default function Home({ user, onLogout }) {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-24 bg-white">
+      <section className="py-16 md:py-20 lg:py-24 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
               Find answers to common questions about Biology.Trunk courses, enrollment, and learning experience.
             </p>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-3 md:space-y-4">
             {faqItems.map((item, index) => (
               <div key={index} className="border border-gray-200 rounded-xl overflow-hidden">
                 <button
-                  className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
+                  className="w-full px-4 md:px-6 py-3 md:py-4 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
                   onClick={() => setFaqOpen(faqOpen === index ? null : index)}
                 >
-                  <span className="font-semibold text-lg text-gray-900">{item.question}</span>
-                  <i className={`fas fa-chevron-${faqOpen === index ? 'up' : 'down'} text-blue-600`}></i>
+                  <span className="font-semibold text-gray-900 text-sm md:text-lg text-left pr-4">{item.question}</span>
+                  <i className={`fas fa-chevron-${faqOpen === index ? 'up' : 'down'} text-blue-600 flex-shrink-0`}></i>
                 </button>
                 {faqOpen === index && (
-                  <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
-                    <p className="text-gray-700">{item.answer}</p>
+                  <div className="px-4 md:px-6 py-3 md:py-4 bg-gray-50 border-t border-gray-200">
+                    <p className="text-gray-700 text-sm md:text-base">{item.answer}</p>
                   </div>
                 )}
               </div>
             ))}
           </div>
-          <div className="text-center mt-12">
-            <p className="text-gray-600 mb-4">Still have questions?</p>
+          <div className="text-center mt-8 md:mt-12">
+            <p className="text-gray-600 mb-3 md:mb-4">Still have questions?</p>
             <Link
               to="/contact"
-              className="inline-flex items-center gap-2 px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
+              className="inline-flex items-center gap-2 px-6 md:px-8 py-2.5 md:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm md:text-base"
             >
               <i className="fas fa-headset"></i>
               Contact Support
@@ -706,25 +733,25 @@ export default function Home({ user, onLogout }) {
       </section>
 
       {/* Call to Action */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-indigo-700">
+      <section className="py-12 md:py-16 lg:py-20 bg-gradient-to-r from-blue-600 to-indigo-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold text-white mb-6">Ready to Transform Your Academic Journey?</h2>
-          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 md:mb-6">Ready to Transform Your Academic Journey?</h2>
+          <p className="text-base md:text-xl text-blue-100 mb-6 md:mb-8 max-w-2xl mx-auto">
             Join thousands of successful students who have achieved their dreams with Biology.Trunk. Start your
             preparation today with our expert-led courses and comprehensive learning ecosystem.
           </p>
           {!user && (
-            <div className="flex gap-4 justify-center flex-wrap">
+            <div className="flex gap-3 md:gap-4 justify-center flex-wrap">
               <Link
                 to="/register"
-                className="px-8 py-4 bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition font-bold shadow-lg hover:shadow-xl flex items-center gap-2"
+                className="px-4 md:px-6 lg:px-8 py-2.5 md:py-3 lg:py-4 bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition font-bold shadow-lg hover:shadow-xl flex items-center gap-1 md:gap-2 text-sm md:text-base"
               >
                 <i className="fas fa-rocket"></i>
                 Start Free Trial
               </Link>
               <Link
                 to="/login"
-                className="px-8 py-4 border-2 border-white text-white rounded-lg hover:bg-blue-500 transition font-bold flex items-center gap-2"
+                className="px-4 md:px-6 lg:px-8 py-2.5 md:py-3 lg:py-4 border-2 border-white text-white rounded-lg hover:bg-blue-500 transition font-bold flex items-center gap-1 md:gap-2 text-sm md:text-base"
               >
                 <i className="fas fa-calendar-check"></i>
                 Schedule Demo
@@ -732,58 +759,58 @@ export default function Home({ user, onLogout }) {
             </div>
           )}
           {user && (
-            <div className="flex gap-4 justify-center flex-wrap">
+            <div className="flex gap-3 md:gap-4 justify-center flex-wrap">
               <Link
                 to={`/${user.role}-dashboard`}
-                className="px-8 py-4 bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition font-bold shadow-lg flex items-center gap-2"
+                className="px-4 md:px-6 lg:px-8 py-2.5 md:py-3 lg:py-4 bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition font-bold shadow-lg flex items-center gap-1 md:gap-2 text-sm md:text-base"
               >
                 <i className="fas fa-tachometer-alt"></i>
                 Continue Learning
               </Link>
               <Link
                 to="/courses"
-                className="px-8 py-4 border-2 border-white text-white rounded-lg hover:bg-blue-500 transition font-bold flex items-center gap-2"
+                className="px-4 md:px-6 lg:px-8 py-2.5 md:py-3 lg:py-4 border-2 border-white text-white rounded-lg hover:bg-blue-500 transition font-bold flex items-center gap-1 md:gap-2 text-sm md:text-base"
               >
                 <i className="fas fa-search"></i>
                 Explore Courses
               </Link>
             </div>
           )}
-          <p className="text-blue-200 mt-6 text-sm">
-            <i className="fas fa-shield-alt mr-2"></i>
+          <p className="text-blue-200 mt-4 md:mt-6 text-xs md:text-sm">
+            <i className="fas fa-shield-alt mr-1 md:mr-2"></i>
             7-day money back guarantee • 24/7 student support
           </p>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-16">
+      <footer className="bg-gray-900 text-gray-300 py-12 md:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mb-6 md:mb-8">
             <div>
-              <h4 className="text-white font-bold mb-4 text-lg">About Biology.Trunk</h4>
-              <p className="text-sm text-gray-400 leading-relaxed">
+              <h4 className="text-white font-bold mb-3 md:mb-4 text-base md:text-lg">About Biology.Trunk</h4>
+              <p className="text-xs md:text-sm text-gray-400 leading-relaxed">
                 Leading online learning platform providing quality education to students across India. Empowering the
                 next generation of achievers with cutting-edge technology and expert guidance.
               </p>
-              <div className="flex gap-4 mt-4">
+              <div className="flex gap-3 md:gap-4 mt-3 md:mt-4">
                 <a href="#" className="text-gray-400 hover:text-white transition">
-                  <i className="fab fa-facebook text-lg"></i>
+                  <i className="fab fa-facebook text-base md:text-lg"></i>
                 </a>
                 <a href="#" className="text-gray-400 hover:text-white transition">
-                  <i className="fab fa-twitter text-lg"></i>
+                  <i className="fab fa-twitter text-base md:text-lg"></i>
                 </a>
                 <a href="#" className="text-gray-400 hover:text-white transition">
-                  <i className="fab fa-linkedin text-lg"></i>
+                  <i className="fab fa-linkedin text-base md:text-lg"></i>
                 </a>
                 <a href="#" className="text-gray-400 hover:text-white transition">
-                  <i className="fab fa-instagram text-lg"></i>
+                  <i className="fab fa-instagram text-base md:text-lg"></i>
                 </a>
               </div>
             </div>
             <div>
-              <h4 className="text-white font-bold mb-4 text-lg">Courses</h4>
-              <ul className="text-sm space-y-3">
+              <h4 className="text-white font-bold mb-3 md:mb-4 text-base md:text-lg">Courses</h4>
+              <ul className="text-xs md:text-sm space-y-2 md:space-y-3">
                 {[
                   "Classes 9-12",
                   "JEE Preparation",
@@ -793,7 +820,7 @@ export default function Home({ user, onLogout }) {
                   "Crash Courses",
                 ].map((item) => (
                   <li key={item}>
-                    <a href="#" className="text-gray-400 hover:text-white transition flex items-center gap-2">
+                    <a href="#" className="text-gray-400 hover:text-white transition flex items-center gap-1 md:gap-2">
                       <i className="fas fa-chevron-right text-xs"></i>
                       {item}
                     </a>
@@ -802,11 +829,11 @@ export default function Home({ user, onLogout }) {
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-bold mb-4 text-lg">Support</h4>
-              <ul className="text-sm space-y-3">
+              <h4 className="text-white font-bold mb-3 md:mb-4 text-base md:text-lg">Support</h4>
+              <ul className="text-xs md:text-sm space-y-2 md:space-y-3">
                 {["Contact Us", "FAQ", "Help Center", "Live Chat", "Student Forum"].map((item) => (
                   <li key={item}>
-                    <a href="#" className="text-gray-400 hover:text-white transition flex items-center gap-2">
+                    <a href="#" className="text-gray-400 hover:text-white transition flex items-center gap-1 md:gap-2">
                       <i className="fas fa-chevron-right text-xs"></i>
                       {item}
                     </a>
@@ -815,11 +842,11 @@ export default function Home({ user, onLogout }) {
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-bold mb-4 text-lg">Legal</h4>
-              <ul className="text-sm space-y-3">
+              <h4 className="text-white font-bold mb-3 md:mb-4 text-base md:text-lg">Legal</h4>
+              <ul className="text-xs md:text-sm space-y-2 md:space-y-3">
                 {["Privacy Policy", "Terms of Service", "Refund Policy", "Cookie Policy"].map((item) => (
                   <li key={item}>
-                    <a href="#" className="text-gray-400 hover:text-white transition flex items-center gap-2">
+                    <a href="#" className="text-gray-400 hover:text-white transition flex items-center gap-1 md:gap-2">
                       <i className="fas fa-chevron-right text-xs"></i>
                       {item}
                     </a>
@@ -828,9 +855,9 @@ export default function Home({ user, onLogout }) {
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 pt-8 text-center">
-            <p className="text-sm text-gray-400">
-              <i className="fas fa-copyright mr-2"></i>
+          <div className="border-t border-gray-800 pt-6 md:pt-8 text-center">
+            <p className="text-xs md:text-sm text-gray-400">
+              <i className="fas fa-copyright mr-1 md:mr-2"></i>
               2025 Biology.Trunk. All rights reserved. | Designed for educational excellence
             </p>
           </div>
