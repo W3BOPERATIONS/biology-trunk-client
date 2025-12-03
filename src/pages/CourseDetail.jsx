@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import axios from "axios"
 import { API_URL } from "../utils/api.js"
+import logo from "../assets/biology-trunk-logo.png"
 
 export default function CourseDetail({ user, onLogout }) {
   const { courseId } = useParams()
@@ -183,27 +184,27 @@ export default function CourseDetail({ user, onLogout }) {
     switch (item.type) {
       case "pdf":
         return (
-          <div className="space-y-4">
-            <p className="text-gray-700 whitespace-pre-wrap break-words">{item.description || "PDF Document"}</p>
+          <div className="space-y-3 sm:space-y-4">
+            <p className="text-gray-700 whitespace-pre-wrap break-words text-sm sm:text-base">{item.description || "PDF Document"}</p>
             {item.pdfUrl && (
-              <div className="flex gap-3 flex-wrap">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 flex-wrap">
                 <a
                   href={item.pdfUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold"
+                  className="inline-flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold text-sm sm:text-base"
                 >
-                  <i className="fas fa-download"></i>
-                  Download PDF
+                  <i className="fas fa-download text-xs sm:text-sm"></i>
+                  <span>Download PDF</span>
                 </a>
                 <a
                   href={`https://docs.google.com/viewer?url=${encodeURIComponent(item.pdfUrl)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
+                  className="inline-flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm sm:text-base"
                 >
-                  <i className="fas fa-eye"></i>
-                  View Online
+                  <i className="fas fa-eye text-xs sm:text-sm"></i>
+                  <span>View Online</span>
                 </a>
               </div>
             )}
@@ -214,44 +215,48 @@ export default function CourseDetail({ user, onLogout }) {
         const isStreaming = isStreamingService(item.videoUrl)
 
         return (
-          <div className="space-y-4">
-            <p className="text-gray-700">{item.description}</p>
+          <div className="space-y-3 sm:space-y-4">
+            <p className="text-gray-700 text-sm sm:text-base">{item.description}</p>
 
             {item.videoUrl && (
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {isStreaming && embedUrl ? (
-                  <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-lg">
-                    <iframe
-                      src={embedUrl}
-                      className="w-full h-full"
-                      allowFullScreen
-                      title={item.title}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    />
+                  <div className="bg-black rounded-lg overflow-hidden shadow-lg">
+                    <div className="relative pb-[56.25%]"> {/* 16:9 aspect ratio */}
+                      <iframe
+                        src={embedUrl}
+                        className="absolute top-0 left-0 w-full h-full"
+                        allowFullScreen
+                        title={item.title}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      />
+                    </div>
                   </div>
                 ) : (
-                  <div className="space-y-3">
-                    <div className="aspect-video bg-black rounded-lg overflow-hidden shadow-lg">
-                      <video
-                        controls
-                        className="w-full h-full"
-                        poster={item.thumbnail || "/default-video-thumbnail.jpg"}
-                      >
-                        <source src={item.videoUrl} type="video/mp4" />
-                        <source src={item.videoUrl} type="video/webm" />
-                        <source src={item.videoUrl} type="video/ogg" />
-                        Your browser does not support the video tag.
-                      </video>
+                  <div className="space-y-2 sm:space-y-3">
+                    <div className="bg-black rounded-lg overflow-hidden shadow-lg">
+                      <div className="relative pb-[56.25%]"> {/* 16:9 aspect ratio */}
+                        <video
+                          controls
+                          className="absolute top-0 left-0 w-full h-full"
+                          poster={item.thumbnail || "/default-video-thumbnail.jpg"}
+                        >
+                          <source src={item.videoUrl} type="video/mp4" />
+                          <source src={item.videoUrl} type="video/webm" />
+                          <source src={item.videoUrl} type="video/ogg" />
+                          Your browser does not support the video tag.
+                        </video>
+                      </div>
                     </div>
                     <div className="text-center">
                       <a
                         href={item.videoUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
+                        className="inline-flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm sm:text-base"
                       >
-                        <i className="fas fa-external-link-alt"></i>
-                        Open Video in New Tab
+                        <i className="fas fa-external-link-alt text-xs sm:text-sm"></i>
+                        <span>Open Video in New Tab</span>
                       </a>
                     </div>
                   </div>
@@ -259,12 +264,12 @@ export default function CourseDetail({ user, onLogout }) {
 
                 {/* Video fallback message */}
                 {!isStreaming && (
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                    <div className="flex items-start gap-3">
-                      <i className="fas fa-exclamation-triangle text-yellow-600 mt-1"></i>
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4">
+                    <div className="flex items-start gap-2 sm:gap-3">
+                      <i className="fas fa-exclamation-triangle text-yellow-600 mt-0.5 text-sm sm:text-base"></i>
                       <div>
-                        <p className="text-yellow-800 font-medium">Video Playback Note</p>
-                        <p className="text-yellow-700 text-sm">
+                        <p className="text-yellow-800 font-medium text-sm sm:text-base">Video Playback Note</p>
+                        <p className="text-yellow-700 text-xs sm:text-sm">
                           If the video doesn't play, try opening it in a new tab using the button above.
                         </p>
                       </div>
@@ -278,41 +283,40 @@ export default function CourseDetail({ user, onLogout }) {
       case "live_class":
         const isUpcoming = new Date(item.liveClassDate) > new Date()
         return (
-          <div className="space-y-4">
-            <p className="text-gray-700">{item.description}</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                <div className="flex items-center gap-2 mb-1">
-                  <i className="fas fa-calendar text-yellow-600"></i>
+          <div className="space-y-3 sm:space-y-4">
+            <p className="text-gray-700 text-sm sm:text-base">{item.description}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
+              <div className="bg-yellow-50 p-3 sm:p-4 rounded-lg border border-yellow-200">
+                <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                  <i className="fas fa-calendar text-yellow-600 text-sm"></i>
                   <span className="font-semibold text-gray-700">Date:</span>
                 </div>
                 <span className="text-gray-700">{new Date(item.liveClassDate).toLocaleDateString()}</span>
               </div>
-              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                <div className="flex items-center gap-2 mb-1">
-                  <i className="fas fa-clock text-yellow-600"></i>
+              <div className="bg-yellow-50 p-3 sm:p-4 rounded-lg border border-yellow-200">
+                <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                  <i className="fas fa-clock text-yellow-600 text-sm"></i>
                   <span className="font-semibold text-gray-700">Time:</span>
                 </div>
                 <span className="text-gray-700">{item.liveClassTime}</span>
               </div>
             </div>
             {item.liveClassUrl && (
-              <div className="flex gap-3 flex-wrap">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 flex-wrap">
                 <a
                   href={item.liveClassUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`inline-flex items-center gap-2 px-4 py-2 text-white rounded-lg transition font-semibold ${
-                    isUpcoming ? "bg-green-600 hover:bg-green-700" : "bg-gray-600 hover:bg-gray-700"
-                  }`}
+                  className={`inline-flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 text-white rounded-lg transition font-semibold text-sm sm:text-base ${isUpcoming ? "bg-green-600 hover:bg-green-700" : "bg-gray-600 hover:bg-gray-700"
+                    }`}
                 >
-                  <i className="fas fa-video"></i>
-                  {isUpcoming ? "Join Live Class" : "Watch Recording"}
+                  <i className="fas fa-video text-xs sm:text-sm"></i>
+                  <span>{isUpcoming ? "Join Live Class" : "Watch Recording"}</span>
                 </a>
                 {isUpcoming && (
-                  <button className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold">
-                    <i className="fas fa-bell"></i>
-                    Set Reminder
+                  <button className="inline-flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm sm:text-base">
+                    <i className="fas fa-bell text-xs sm:text-sm"></i>
+                    <span>Set Reminder</span>
                   </button>
                 )}
               </div>
@@ -321,17 +325,17 @@ export default function CourseDetail({ user, onLogout }) {
         )
       default:
         return (
-          <div className="space-y-4">
-            <p className="text-gray-700">{item.description}</p>
+          <div className="space-y-3 sm:space-y-4">
+            <p className="text-gray-700 text-sm sm:text-base">{item.description}</p>
             {item.url && (
               <a
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
+                className="inline-flex items-center justify-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm sm:text-base"
               >
-                <i className="fas fa-external-link-alt"></i>
-                Open Resource
+                <i className="fas fa-external-link-alt text-xs sm:text-sm"></i>
+                <span>Open Resource</span>
               </a>
             )}
           </div>
@@ -343,8 +347,8 @@ export default function CourseDetail({ user, onLogout }) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <i className="fas fa-spinner fa-spin text-4xl text-blue-600 mb-4"></i>
-          <div className="text-gray-600 text-xl">Loading course content...</div>
+          <i className="fas fa-spinner fa-spin text-3xl sm:text-4xl text-blue-600 mb-3 sm:mb-4"></i>
+          <div className="text-gray-600 text-lg sm:text-xl">Loading course content...</div>
         </div>
       </div>
     )
@@ -352,17 +356,17 @@ export default function CourseDetail({ user, onLogout }) {
 
   if (!isEnrolled) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center">
-        <div className="text-center">
-          <i className="fas fa-lock text-6xl text-gray-400 mb-4"></i>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Access Restricted</h1>
-          <p className="text-gray-600 mb-8">You must be enrolled in this course to view its content.</p>
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <i className="fas fa-lock text-4xl sm:text-6xl text-gray-400 mb-3 sm:mb-4"></i>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">Access Restricted</h1>
+          <p className="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base">You must be enrolled in this course to view its content.</p>
           <button
             onClick={() => navigate("/student-dashboard")}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
+            className="px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm sm:text-base flex items-center justify-center gap-1 sm:gap-2 mx-auto"
           >
-            <i className="fas fa-arrow-left mr-2"></i>
-            Back to Dashboard
+            <i className="fas fa-arrow-left text-xs sm:text-sm"></i>
+            <span>Back to Dashboard</span>
           </button>
         </div>
       </div>
@@ -373,31 +377,40 @@ export default function CourseDetail({ user, onLogout }) {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-3">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+          <div className="flex justify-between items-center h-14 sm:h-16">
+            <div className="flex items-center gap-2 sm:gap-3">
               <button
                 onClick={() => navigate("/student-dashboard")}
-                className="text-gray-600 hover:text-gray-900 text-lg"
+                className="text-gray-600 hover:text-gray-900 text-base sm:text-lg flex-shrink-0"
+                aria-label="Go back"
               >
                 <i className="fas fa-arrow-left"></i>
               </button>
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                <i className="fas fa-graduation-cap text-white"></i>
+              {/* Logo - Increased size and removed text on mobile */}
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                <img
+                  src={logo}
+                  alt="Biology.Trunk Logo"
+                  className="w-full h-full object-contain"
+                />
               </div>
-              <span className="text-gray-900 font-bold text-xl">EduTech</span>
+              <div className="hidden md:block">
+                <span className="text-gray-900 font-bold text-lg sm:text-xl">Biology.Trunk</span>
+                <p className="text-xs text-gray-500">Course Learning</p>
+              </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <span className="text-gray-700 font-medium block">{user.name}</span>
-                <span className="text-gray-500 text-sm">Student</span>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="hidden sm:block text-right">
+                <span className="text-gray-700 font-medium text-sm sm:text-base block">{user.name}</span>
+                <span className="text-gray-500 text-xs">Student</span>
               </div>
               <button
                 onClick={onLogout}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold"
+                className="px-2.5 sm:px-3 py-1.5 sm:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold text-xs sm:text-sm flex items-center gap-1 flex-shrink-0"
               >
-                <i className="fas fa-sign-out-alt mr-2"></i>
-                Logout
+                <i className="fas fa-sign-out-alt text-xs"></i>
+                <span className="hidden sm:inline">Logout</span>
               </button>
             </div>
           </div>
@@ -405,86 +418,84 @@ export default function CourseDetail({ user, onLogout }) {
       </header>
 
       {/* Course Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
         {course && (
           <>
-            {/* Course Header */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-8 mb-8 border border-blue-200">
-              <div className="flex justify-between items-start mb-4">
+            {/* Course Header - Made responsive */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 sm:p-6 lg:p-8 mb-4 sm:mb-6 lg:mb-8 border border-blue-200">
+              <div className="flex flex-col sm:flex-row justify-between items-start gap-4 sm:gap-6 mb-3 sm:mb-4">
                 <div className="flex-1">
-                  <h1 className="text-4xl font-bold text-gray-900 mb-2">{course.title}</h1>
-                  <p className="text-gray-700 text-lg mb-6">{course.description}</p>
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">{course.title}</h1>
+                  <p className="text-gray-700 text-sm sm:text-base lg:text-lg mb-3 sm:mb-4 lg:mb-6 line-clamp-2 sm:line-clamp-3">{course.description}</p>
                 </div>
                 {progress.percentage !== undefined && (
-                  <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+                  <div className="bg-white rounded-lg p-3 sm:p-4 border border-gray-200 shadow-sm self-start">
                     <div className="text-center">
-                      <div className="text-gray-600 text-sm mb-1">Progress</div>
-                      <div className="text-2xl font-bold text-blue-600">{progress.percentage}%</div>
+                      <div className="text-gray-600 text-xs sm:text-sm mb-1">Progress</div>
+                      <div className="text-xl sm:text-2xl font-bold text-blue-600">{progress.percentage}%</div>
                     </div>
                   </div>
                 )}
               </div>
 
-              <div className="flex gap-6 flex-wrap">
-                <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-                  <div className="text-gray-600 text-sm">Category</div>
-                  <div className="text-lg font-bold text-blue-600">{course.category}</div>
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
+                <div className="bg-white rounded-lg p-2 sm:p-3 lg:p-4 border border-gray-200 shadow-sm">
+                  <div className="text-gray-600 text-xs sm:text-sm">Category</div>
+                  <div className="text-base sm:text-lg font-bold text-blue-600 truncate">{course.category}</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-                  <div className="text-gray-600 text-sm">Instructor</div>
-                  <div className="text-lg font-bold text-gray-900">{course.faculty?.name || "N/A"}</div>
+                <div className="bg-white rounded-lg p-2 sm:p-3 lg:p-4 border border-gray-200 shadow-sm">
+                  <div className="text-gray-600 text-xs sm:text-sm">Instructor</div>
+                  <div className="text-base sm:text-lg font-bold text-gray-900 truncate">{course.faculty?.name || "N/A"}</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-                  <div className="text-gray-600 text-sm">Students Enrolled</div>
-                  <div className="text-lg font-bold text-green-600">{course.students?.length || 0}</div>
+                <div className="bg-white rounded-lg p-2 sm:p-3 lg:p-4 border border-gray-200 shadow-sm">
+                  <div className="text-gray-600 text-xs sm:text-sm">Students</div>
+                  <div className="text-base sm:text-lg font-bold text-green-600">{course.students?.length || 0}</div>
                 </div>
-                <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-                  <div className="text-gray-600 text-sm">Content Items</div>
-                  <div className="text-lg font-bold text-purple-600">{content.length}</div>
+                <div className="bg-white rounded-lg p-2 sm:p-3 lg:p-4 border border-gray-200 shadow-sm">
+                  <div className="text-gray-600 text-xs sm:text-sm">Content</div>
+                  <div className="text-base sm:text-lg font-bold text-purple-600">{content.length}</div>
                 </div>
               </div>
             </div>
 
             {/* Progress Bar */}
             {progress.percentage !== undefined && (
-              <div className="mb-8">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-gray-700">Course Progress</span>
-                  <span className="text-sm text-gray-600">{progress.percentage}% Complete</span>
+              <div className="mb-4 sm:mb-6 lg:mb-8">
+                <div className="flex justify-between items-center mb-1 sm:mb-2">
+                  <span className="text-xs sm:text-sm font-medium text-gray-700">Course Progress</span>
+                  <span className="text-xs sm:text-sm text-gray-600">{progress.percentage}% Complete</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-3">
+                <div className="w-full bg-gray-200 rounded-full h-2 sm:h-3">
                   <div
-                    className="bg-blue-600 h-3 rounded-full transition-all duration-500"
+                    className="bg-blue-600 h-2 sm:h-3 rounded-full transition-all duration-500"
                     style={{ width: `${progress.percentage}%` }}
                   ></div>
                 </div>
               </div>
             )}
 
-            {/* Content Navigation Tabs */}
-            <div className="border-b border-gray-200 mb-6">
-              <nav className="-mb-px flex space-x-8">
+            {/* Content Navigation Tabs - Made responsive */}
+            <div className="border-b border-gray-200 mb-3 sm:mb-4 lg:mb-6 overflow-x-auto">
+              <nav className="flex space-x-2 sm:space-x-4 lg:space-x-8 min-w-max">
                 <button
                   onClick={() => setActiveTab("content")}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === "content"
+                  className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${activeTab === "content"
                       ? "border-blue-500 text-blue-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
+                    }`}
                 >
-                  <i className="fas fa-book mr-2"></i>
-                  Course Content
+                  <i className="fas fa-book mr-1 sm:mr-2 text-xs sm:text-sm"></i>
+                  <span>Course Content</span>
                 </button>
                 <button
                   onClick={() => setActiveTab("overview")}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === "overview"
+                  className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap ${activeTab === "overview"
                       ? "border-blue-500 text-blue-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
+                    }`}
                 >
-                  <i className="fas fa-info-circle mr-2"></i>
-                  Course Overview
+                  <i className="fas fa-info-circle mr-1 sm:mr-2 text-xs sm:text-sm"></i>
+                  <span>Course Overview</span>
                 </button>
               </nav>
             </div>
@@ -492,39 +503,39 @@ export default function CourseDetail({ user, onLogout }) {
             {/* Course Content Section */}
             {activeTab === "content" &&
               (content.length === 0 ? (
-                <div className="bg-white border border-gray-200 rounded-xl p-8 text-center">
-                  <i className="fas fa-book-open text-6xl text-gray-300 mb-4"></i>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">No Content Available</h2>
-                  <p className="text-gray-600">The instructor will upload course materials soon. Check back later!</p>
+                <div className="bg-white border border-gray-200 rounded-xl p-6 sm:p-8 text-center">
+                  <i className="fas fa-book-open text-4xl sm:text-6xl text-gray-300 mb-3 sm:mb-4"></i>
+                  <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">No Content Available</h2>
+                  <p className="text-gray-600 text-sm sm:text-base">The instructor will upload course materials soon. Check back later!</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                  {/* Content Sidebar */}
-                  <div className="lg:col-span-1">
-                    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm sticky top-24">
-                      <div className="mb-4">
-                        <h3 className="text-xl font-bold text-gray-900 mb-4">
-                          <i className="fas fa-list-ul mr-2"></i>
-                          Course Materials
+                <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
+                  {/* Content Sidebar - Hidden on mobile when content is selected, shown as overlay */}
+                  <div className={`lg:w-1/4 ${!selectedContent ? 'block' : 'hidden lg:block'}`}>
+                    <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 lg:p-6 shadow-sm lg:sticky lg:top-24">
+                      <div className="mb-3 sm:mb-4">
+                        <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-2 sm:mb-3 lg:mb-4 flex items-center gap-1 sm:gap-2">
+                          <i className="fas fa-list-ul text-sm sm:text-base"></i>
+                          <span>Course Materials</span>
                         </h3>
 
                         {/* Search and Filter */}
-                        <div className="space-y-3 mb-4">
+                        <div className="space-y-2 sm:space-y-3 mb-3 sm:mb-4">
                           <div className="relative">
                             <input
                               type="text"
                               placeholder="Search content..."
                               value={searchTerm}
                               onChange={(e) => setSearchTerm(e.target.value)}
-                              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             />
-                            <i className="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            <i className="fas fa-search absolute left-2.5 sm:left-3 top-1.5 sm:top-2.5 text-gray-400 text-xs sm:text-sm"></i>
                           </div>
 
                           <select
                             value={contentFilter}
                             onChange={(e) => setContentFilter(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           >
                             <option value="all">All Types</option>
                             <option value="pdf">PDF Documents</option>
@@ -534,50 +545,47 @@ export default function CourseDetail({ user, onLogout }) {
                         </div>
                       </div>
 
-                      <div className="space-y-2 max-h-96 overflow-y-auto">
+                      <div className="space-y-1.5 sm:space-y-2 max-h-64 sm:max-h-80 lg:max-h-96 overflow-y-auto pr-1">
                         {filteredContent.map((item) => (
                           <button
                             key={item._id}
-                            onClick={() => setSelectedContent(item)}
-                            className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 ${
-                              selectedContent?._id === item._id
-                                ? "bg-blue-100 border-2 border-blue-500 shadow-md" // Changed to light blue background
+                            onClick={() => {
+                              setSelectedContent(item)
+                            }}
+                            className={`w-full text-left px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-all duration-200 text-xs sm:text-sm ${selectedContent?._id === item._id
+                                ? "bg-blue-100 border-2 border-blue-500 shadow-md"
                                 : "bg-gray-50 text-gray-900 border border-gray-200 hover:border-blue-300 hover:shadow-md"
-                            }`}
+                              }`}
                           >
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 sm:gap-3">
                               <div
-                                className={`p-2 rounded-lg ${
-                                  selectedContent?._id === item._id
-                                    ? "bg-blue-500 text-white" // Blue background with white icon for selected
+                                className={`p-1.5 sm:p-2 rounded-lg flex-shrink-0 ${selectedContent?._id === item._id
+                                    ? "bg-blue-500 text-white"
                                     : "bg-white text-gray-600"
-                                }`}
-                              >
-                                <i className={`${getContentIcon(item.type)}`}></i>
-                              </div>
-                              <div className="flex-1 overflow-hidden">
-                                <div
-                                  className={`font-semibold truncate text-sm ${
-                                    selectedContent?._id === item._id ? "text-blue-900" : "text-gray-900"
                                   }`}
+                              >
+                                <i className={`${getContentIcon(item.type)} text-xs sm:text-sm`}></i>
+                              </div>
+                              <div className="flex-1 overflow-hidden min-w-0">
+                                <div
+                                  className={`font-semibold truncate ${selectedContent?._id === item._id ? "text-blue-900" : "text-gray-900"
+                                    }`}
                                 >
                                   {item.title}
                                 </div>
-                                <div className="flex items-center justify-between mt-1">
+                                <div className="flex items-center justify-between mt-0.5">
                                   <span
-                                    className={`text-xs px-2 py-1 rounded-full capitalize ${
-                                      selectedContent?._id === item._id
-                                        ? "bg-blue-200 text-blue-800" // Light blue with dark blue text for selected
+                                    className={`text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full capitalize truncate ${selectedContent?._id === item._id
+                                        ? "bg-blue-200 text-blue-800"
                                         : getContentTypeColor(item.type)
-                                    }`}
+                                      }`}
                                   >
                                     {item.type.replace("_", " ")}
                                   </span>
                                   {completedItems.has(item._id) && (
                                     <i
-                                      className={`fas fa-check-circle text-xs ${
-                                        selectedContent?._id === item._id ? "text-blue-600" : "text-green-500"
-                                      }`}
+                                      className={`fas fa-check-circle flex-shrink-0 ${selectedContent?._id === item._id ? "text-blue-600" : "text-green-500"
+                                        } text-xs`}
                                     ></i>
                                   )}
                                 </div>
@@ -590,19 +598,30 @@ export default function CourseDetail({ user, onLogout }) {
                   </div>
 
                   {/* Content Display Area */}
-                  <div className="lg:col-span-3">
+                  <div className={`${!selectedContent ? 'hidden lg:block lg:w-3/4' : 'w-full lg:w-3/4'}`}>
                     {selectedContent ? (
-                      <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                        <div className="flex items-start justify-between mb-6">
-                          <div className="flex items-center gap-4">
-                            <div className={`p-3 rounded-lg ${getContentTypeColor(selectedContent.type)}`}>
-                              <i className={`${getContentIcon(selectedContent.type)} text-xl`}></i>
+                      <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 lg:p-6 shadow-sm">
+                        {/* Mobile sidebar toggle button */}
+                        <div className="lg:hidden mb-4">
+                          <button
+                            onClick={() => setSelectedContent(null)}
+                            className="flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm font-semibold"
+                          >
+                            <i className="fas fa-list-ul"></i>
+                            Show Content List
+                          </button>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+                          <div className="flex items-start gap-3 sm:gap-4">
+                            <div className={`p-2.5 sm:p-3 rounded-lg ${getContentTypeColor(selectedContent.type)} flex-shrink-0`}>
+                              <i className={`${getContentIcon(selectedContent.type)} text-lg sm:text-xl`}></i>
                             </div>
-                            <div>
-                              <h2 className="text-2xl font-bold text-gray-900">{selectedContent.title}</h2>
-                              <p className="text-gray-600 text-sm capitalize">
+                            <div className="min-w-0">
+                              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 break-words">{selectedContent.title}</h2>
+                              <p className="text-gray-600 text-xs sm:text-sm capitalize mt-1">
                                 <span
-                                  className={`inline-flex items-center gap-1 px-2 py-1 rounded-full ${getContentTypeColor(selectedContent.type)}`}
+                                  className={`inline-flex items-center gap-1 px-2 py-0.5 sm:py-1 rounded-full ${getContentTypeColor(selectedContent.type)}`}
                                 >
                                   <i className={`${getContentIcon(selectedContent.type)} text-xs`}></i>
                                   {selectedContent.type.replace(/_/g, " ")}
@@ -611,49 +630,48 @@ export default function CourseDetail({ user, onLogout }) {
                               </p>
                             </div>
                           </div>
-                          <div className="flex gap-2">
+                          <div className="flex flex-col sm:flex-row gap-2 self-start">
                             <button
                               onClick={() => markAsCompleted(selectedContent._id)}
-                              className={`px-4 py-2 rounded-lg transition font-semibold ${
-                                completedItems.has(selectedContent._id)
+                              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition font-semibold text-xs sm:text-sm ${completedItems.has(selectedContent._id)
                                   ? "bg-green-600 text-white hover:bg-green-700"
                                   : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                              }`}
+                                }`}
                             >
                               <i
-                                className={`fas ${completedItems.has(selectedContent._id) ? "fa-check-circle" : "fa-circle"} mr-2`}
+                                className={`fas ${completedItems.has(selectedContent._id) ? "fa-check-circle" : "fa-circle"} mr-1 sm:mr-2`}
                               ></i>
                               {completedItems.has(selectedContent._id) ? "Completed" : "Mark Complete"}
                             </button>
                             <button
                               onClick={() => setShowNotes(!showNotes)}
-                              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
+                              className="px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-xs sm:text-sm flex items-center justify-center gap-1 sm:gap-2"
                             >
-                              <i className="fas fa-edit mr-2"></i>
-                              Notes
+                              <i className="fas fa-edit text-xs sm:text-sm"></i>
+                              <span>Notes</span>
                             </button>
                           </div>
                         </div>
 
-                        <div className="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-4">
+                        <div className="bg-gray-50 rounded-lg p-3 sm:p-4 lg:p-6 border border-gray-200 mb-3 sm:mb-4">
                           {renderContent(selectedContent)}
                         </div>
 
                         {/* Notes Section */}
                         {showNotes && (
-                          <div className="bg-yellow-50 rounded-lg p-6 border border-yellow-200">
-                            <h4 className="font-semibold text-gray-900 mb-3">
-                              <i className="fas fa-edit mr-2"></i>
-                              Your Notes
+                          <div className="bg-yellow-50 rounded-lg p-3 sm:p-4 lg:p-6 border border-yellow-200">
+                            <h4 className="font-semibold text-gray-900 mb-2 sm:mb-3 text-sm sm:text-base flex items-center gap-1 sm:gap-2">
+                              <i className="fas fa-edit text-sm"></i>
+                              <span>Your Notes</span>
                             </h4>
                             <textarea
                               value={notes[selectedContent._id] || ""}
                               onChange={(e) => saveNote(selectedContent._id, e.target.value)}
                               placeholder="Add your notes here..."
-                              className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              className="w-full h-24 sm:h-32 text-xs sm:text-sm px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             />
-                            <div className="flex justify-between items-center mt-2">
-                              <span className="text-sm text-gray-500">
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mt-2">
+                              <span className="text-xs text-gray-500">
                                 Auto-saved{" "}
                                 {notes[selectedContent._id]
                                   ? `• ${notes[selectedContent._id]?.length || 0} characters`
@@ -661,7 +679,7 @@ export default function CourseDetail({ user, onLogout }) {
                               </span>
                               <button
                                 onClick={() => setShowNotes(false)}
-                                className="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition"
+                                className="px-2.5 sm:px-3 py-1 text-xs sm:text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition"
                               >
                                 Close
                               </button>
@@ -670,10 +688,10 @@ export default function CourseDetail({ user, onLogout }) {
                         )}
                       </div>
                     ) : (
-                      <div className="bg-white border border-gray-200 rounded-xl p-12 text-center">
-                        <i className="fas fa-hand-point-left text-6xl text-gray-300 mb-4"></i>
-                        <h3 className="text-xl font-semibold text-gray-900 mb-2">Select Content</h3>
-                        <p className="text-gray-600">Choose a material from the sidebar to start learning</p>
+                      <div className="bg-white border border-gray-200 rounded-xl p-8 sm:p-10 lg:p-12 text-center hidden lg:block">
+                        <i className="fas fa-hand-point-left text-4xl sm:text-6xl text-gray-300 mb-3 sm:mb-4"></i>
+                        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1 sm:mb-2">Select Content</h3>
+                        <p className="text-gray-600 text-sm sm:text-base">Choose a material from the sidebar to start learning</p>
                       </div>
                     )}
                   </div>
@@ -682,44 +700,44 @@ export default function CourseDetail({ user, onLogout }) {
 
             {/* Course Overview Tab */}
             {activeTab === "overview" && course && (
-              <div className="bg-white border border-gray-200 rounded-xl p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Course Overview</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 lg:p-8">
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Course Overview</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Course Details</h3>
-                    <div className="space-y-3">
-                      <div className="flex justify-between py-2 border-b border-gray-200">
-                        <span className="text-gray-600">Category:</span>
-                        <span className="font-medium">{course.category}</span>
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3 lg:mb-4">Course Details</h3>
+                    <div className="space-y-2 sm:space-y-3">
+                      <div className="flex justify-between py-1.5 sm:py-2 border-b border-gray-200">
+                        <span className="text-gray-600 text-sm sm:text-base">Category:</span>
+                        <span className="font-medium text-sm sm:text-base">{course.category}</span>
                       </div>
-                      <div className="flex justify-between py-2 border-b border-gray-200">
-                        <span className="text-gray-600">Instructor:</span>
-                        <span className="font-medium">{course.faculty?.name || "N/A"}</span>
+                      <div className="flex justify-between py-1.5 sm:py-2 border-b border-gray-200">
+                        <span className="text-gray-600 text-sm sm:text-base">Instructor:</span>
+                        <span className="font-medium text-sm sm:text-base">{course.faculty?.name || "N/A"}</span>
                       </div>
-                      <div className="flex justify-between py-2 border-b border-gray-200">
-                        <span className="text-gray-600">Total Students:</span>
-                        <span className="font-medium">{course.students?.length || 0}</span>
+                      <div className="flex justify-between py-1.5 sm:py-2 border-b border-gray-200">
+                        <span className="text-gray-600 text-sm sm:text-base">Total Students:</span>
+                        <span className="font-medium text-sm sm:text-base">{course.students?.length || 0}</span>
                       </div>
-                      <div className="flex justify-between py-2 border-b border-gray-200">
-                        <span className="text-gray-600">Content Items:</span>
-                        <span className="font-medium">{content.length}</span>
+                      <div className="flex justify-between py-1.5 sm:py-2 border-b border-gray-200">
+                        <span className="text-gray-600 text-sm sm:text-base">Content Items:</span>
+                        <span className="font-medium text-sm sm:text-base">{content.length}</span>
                       </div>
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Your Progress</h3>
-                    <div className="space-y-3">
-                      <div className="flex justify-between py-2 border-b border-gray-200">
-                        <span className="text-gray-600">Completion:</span>
-                        <span className="font-medium text-blue-600">{progress.percentage || 0}%</span>
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3 lg:mb-4">Your Progress</h3>
+                    <div className="space-y-2 sm:space-y-3">
+                      <div className="flex justify-between py-1.5 sm:py-2 border-b border-gray-200">
+                        <span className="text-gray-600 text-sm sm:text-base">Completion:</span>
+                        <span className="font-medium text-blue-600 text-sm sm:text-base">{progress.percentage || 0}%</span>
                       </div>
-                      <div className="flex justify-between py-2 border-b border-gray-200">
-                        <span className="text-gray-600">Completed Items:</span>
-                        <span className="font-medium text-green-600">{completedItems.size}</span>
+                      <div className="flex justify-between py-1.5 sm:py-2 border-b border-gray-200">
+                        <span className="text-gray-600 text-sm sm:text-base">Completed Items:</span>
+                        <span className="font-medium text-green-600 text-sm sm:text-base">{completedItems.size}</span>
                       </div>
-                      <div className="flex justify-between py-2 border-b border-gray-200">
-                        <span className="text-gray-600">Remaining Items:</span>
-                        <span className="font-medium text-orange-600">{content.length - completedItems.size}</span>
+                      <div className="flex justify-between py-1.5 sm:py-2 border-b border-gray-200">
+                        <span className="text-gray-600 text-sm sm:text-base">Remaining Items:</span>
+                        <span className="font-medium text-orange-600 text-sm sm:text-base">{content.length - completedItems.size}</span>
                       </div>
                     </div>
                   </div>

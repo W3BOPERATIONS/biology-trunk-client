@@ -5,6 +5,8 @@ import axios from "axios"
 import { API_URL } from "../utils/api.js"
 import { useNavigate } from "react-router-dom"
 import { useLocation } from "react-router-dom"
+import logo from "../assets/biology-trunk-logo.png" // Add logo import
+
 const ITEMS_PER_PAGE = 9
 
 export default function StudentDashboard({ user, onLogout }) {
@@ -58,7 +60,6 @@ export default function StudentDashboard({ user, onLogout }) {
         : `${API_URL}/courses?page=${page}&limit=${ITEMS_PER_PAGE}`
       const response = await axios.get(url)
 
-      // Handle both paginated and non-paginated responses
       if (response.data.courses) {
         setCourses(response.data.courses)
         setTotalPages(response.data.pages)
@@ -140,25 +141,34 @@ export default function StudentDashboard({ user, onLogout }) {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center shadow-md">
-                <i className="fas fa-graduation-cap text-white text-lg"></i>
+          <div className="flex justify-between items-center h-16 sm:h-20">
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Logo - Same as Home page */}
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center overflow-hidden">
+                <img 
+                  src={logo} 
+                  alt="Biology.Trunk Logo" 
+                  className="w-full h-full object-contain"
+                />
               </div>
-              <div>
-                <span className="text-gray-900 font-bold text-xl">EduTech Student</span>
+              <div className="hidden sm:block">
+                <span className="text-gray-900 font-bold text-lg sm:text-xl">Biology.Trunk</span>
                 <p className="text-xs text-gray-500">Welcome back, {user.name}</p>
               </div>
+              <div className="sm:hidden">
+                <span className="text-gray-900 font-bold text-base">Student</span>
+                <p className="text-xs text-gray-500">Hi, {user.name.split(' ')[0]}</p>
+              </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <div className="relative">
                 <button
                   onClick={() => setShowNotificationModal(true)}
                   className="relative p-2 text-gray-600 hover:text-blue-600 transition-colors"
                 >
-                  <i className="fas fa-bell text-xl"></i>
+                  <i className="fas fa-bell text-lg sm:text-xl"></i>
                   {notifications.length > 0 && (
-                    <span className="absolute top-0 right-0 w-5 h-5 bg-red-600 text-white text-xs rounded-full flex items-center justify-center">
+                    <span className="absolute top-0 right-0 w-4 h-4 sm:w-5 sm:h-5 bg-red-600 text-white text-xs rounded-full flex items-center justify-center">
                       {notifications.length}
                     </span>
                   )}
@@ -166,10 +176,10 @@ export default function StudentDashboard({ user, onLogout }) {
               </div>
               <button
                 onClick={onLogout}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold flex items-center gap-2"
+                className="px-3 sm:px-4 py-1.5 sm:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
               >
-                <i className="fas fa-sign-out-alt"></i>
-                Logout
+                <i className="fas fa-sign-out-alt text-sm"></i>
+                <span className="hidden sm:inline">Logout</span>
               </button>
             </div>
           </div>
@@ -177,95 +187,95 @@ export default function StudentDashboard({ user, onLogout }) {
       </header>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Dashboard Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl p-6 shadow-md border border-gray-200">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
+        {/* Dashboard Stats - Made responsive */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
+          <div className="bg-white rounded-xl p-3 sm:p-4 lg:p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm font-semibold uppercase tracking-wide">Courses Enrolled</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">{enrolledCourses.length}</p>
+                <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">Courses</p>
+                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">{enrolledCourses.length}</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <i className="fas fa-book-open text-blue-600 text-xl"></i>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i className="fas fa-book-open text-blue-600 text-sm sm:text-base lg:text-xl"></i>
               </div>
             </div>
-            <p className="text-xs text-gray-500 mt-2">Active learning courses</p>
+            <p className="text-xs text-gray-500 mt-1 sm:mt-2">Active courses</p>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-md border border-gray-200">
+          <div className="bg-white rounded-xl p-3 sm:p-4 lg:p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm font-semibold uppercase tracking-wide">Learning Hours</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">{learningStats.totalHours}+</p>
+                <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">Hours</p>
+                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">{learningStats.totalHours}+</p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <i className="fas fa-clock text-green-600 text-xl"></i>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <i className="fas fa-clock text-green-600 text-sm sm:text-base lg:text-xl"></i>
               </div>
             </div>
-            <p className="text-xs text-gray-500 mt-2">Total study time</p>
+            <p className="text-xs text-gray-500 mt-1 sm:mt-2">Study time</p>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-md border border-gray-200">
+          <div className="bg-white rounded-xl p-3 sm:p-4 lg:p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm font-semibold uppercase tracking-wide">Certificates</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">{learningStats.certificates}</p>
+                <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">Certificates</p>
+                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">{learningStats.certificates}</p>
               </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <i className="fas fa-award text-purple-600 text-xl"></i>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <i className="fas fa-award text-purple-600 text-sm sm:text-base lg:text-xl"></i>
               </div>
             </div>
-            <p className="text-xs text-gray-500 mt-2">Achievements earned</p>
+            <p className="text-xs text-gray-500 mt-1 sm:mt-2">Achievements</p>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-md border border-gray-200">
+          <div className="bg-white rounded-xl p-3 sm:p-4 lg:p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-sm font-semibold uppercase tracking-wide">Current Streak</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">{learningStats.streakDays} days</p>
+                <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">Streak</p>
+                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">{learningStats.streakDays} days</p>
               </div>
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <i className="fas fa-fire text-orange-600 text-xl"></i>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <i className="fas fa-fire text-orange-600 text-sm sm:text-base lg:text-xl"></i>
               </div>
             </div>
-            <p className="text-xs text-gray-500 mt-2">Keep learning!</p>
+            <p className="text-xs text-gray-500 mt-1 sm:mt-2">Keep learning!</p>
           </div>
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 mb-6">
+        {/* Navigation Tabs - Made responsive */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-4 sm:mb-6">
           <div className="border-b border-gray-200">
-            <nav className="flex space-x-8 px-6">
+            <nav className="flex space-x-2 sm:space-x-4 lg:space-x-8 px-3 sm:px-4 lg:px-6 overflow-x-auto">
               {[
-                { id: "discover", name: "Discover Courses", icon: "fas fa-compass" },
+                { id: "discover", name: "Discover", icon: "fas fa-compass" },
                 { id: "my-courses", name: "My Courses", icon: "fas fa-book" },
                 { id: "progress", name: "Progress", icon: "fas fa-chart-line" },
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
-                    activeTab === tab.id
+                  className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center gap-1 sm:gap-2 flex-shrink-0 ${activeTab === tab.id
                       ? "border-blue-600 text-blue-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
+                    }`}
                 >
                   <i className={tab.icon}></i>
-                  {tab.name}
+                  <span className="hidden sm:inline">{tab.name}</span>
+                  <span className="sm:hidden">{tab.name}</span>
                 </button>
               ))}
             </nav>
           </div>
 
-          <div className="p-6">
+          <div className="p-3 sm:p-4 lg:p-6">
             {/* Discover Courses Tab */}
             {activeTab === "discover" && (
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {/* Header Section */}
-                <div className="mb-8">
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">Discover Premium Courses</h1>
-                  <p className="text-gray-600 mb-6">Find and enroll in courses that match your learning goals</p>
+                <div className="mb-4 sm:mb-6 lg:mb-8">
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">Discover Premium Courses</h1>
+                  <p className="text-gray-600 text-sm sm:text-base mb-3 sm:mb-6">Find courses matching your learning goals</p>
 
                   {/* Search Bar */}
                   <div className="relative">
@@ -273,33 +283,32 @@ export default function StudentDashboard({ user, onLogout }) {
                       type="text"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Search courses by title, description, or faculty..."
-                      className="w-full pl-12 pr-6 py-4 bg-white border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition"
+                      placeholder="Search courses..."
+                      className="w-full pl-10 sm:pl-12 pr-4 py-2.5 sm:py-3 lg:py-4 bg-white border border-gray-300 rounded-lg sm:rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition text-sm sm:text-base"
                     />
-                    <i className="fas fa-search absolute left-4 top-4 text-gray-400 text-lg"></i>
+                    <i className="fas fa-search absolute left-3 sm:left-4 top-2.5 sm:top-3.5 lg:top-4 text-gray-400 text-sm sm:text-base"></i>
                   </div>
                 </div>
 
                 {/* Category Filter */}
-                <div className="mb-8">
-                  <p className="text-gray-600 text-sm font-semibold uppercase tracking-wide mb-4 flex items-center gap-2">
-                    <i className="fas fa-filter"></i>
+                <div className="mb-4 sm:mb-6 lg:mb-8">
+                  <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide mb-2 sm:mb-4 flex items-center gap-1 sm:gap-2">
+                    <i className="fas fa-filter text-xs sm:text-sm"></i>
                     Filter by Category
                   </p>
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap gap-2 sm:gap-3">
                     <button
                       onClick={() => {
                         setSelectedCategory("")
                         setCurrentPage(1)
                       }}
-                      className={`px-5 py-3 rounded-xl transition font-medium flex items-center gap-2 ${
-                        selectedCategory === ""
-                          ? "bg-blue-600 text-white shadow-lg"
-                          : "bg-white text-gray-700 border border-gray-300 hover:border-blue-500 hover:shadow-md"
-                      }`}
+                      className={`px-3 sm:px-4 lg:px-5 py-2 sm:py-3 rounded-lg sm:rounded-xl transition font-medium flex items-center gap-1 sm:gap-2 text-xs sm:text-sm ${selectedCategory === ""
+                          ? "bg-blue-600 text-white shadow-md"
+                          : "bg-white text-gray-700 border border-gray-300 hover:border-blue-500 hover:shadow-sm"
+                        }`}
                     >
-                      <i className="fas fa-th-large"></i>
-                      All Courses
+                      <i className="fas fa-th-large text-xs sm:text-sm"></i>
+                      All
                     </button>
                     {categories.map((cat) => (
                       <button
@@ -308,13 +317,12 @@ export default function StudentDashboard({ user, onLogout }) {
                           setSelectedCategory(cat)
                           setCurrentPage(1)
                         }}
-                        className={`px-5 py-3 rounded-xl transition font-medium flex items-center gap-2 ${
-                          selectedCategory === cat
-                            ? "bg-blue-600 text-white shadow-lg"
-                            : "bg-white text-gray-700 border border-gray-300 hover:border-blue-500 hover:shadow-md"
-                        }`}
+                        className={`px-3 sm:px-4 lg:px-5 py-2 sm:py-3 rounded-lg sm:rounded-xl transition font-medium flex items-center gap-1 sm:gap-2 text-xs sm:text-sm ${selectedCategory === cat
+                            ? "bg-blue-600 text-white shadow-md"
+                            : "bg-white text-gray-700 border border-gray-300 hover:border-blue-500 hover:shadow-sm"
+                          }`}
                       >
-                        <i className="fas fa-tag"></i>
+                        <i className="fas fa-tag text-xs sm:text-sm"></i>
                         {cat}
                       </button>
                     ))}
@@ -323,84 +331,84 @@ export default function StudentDashboard({ user, onLogout }) {
 
                 {/* Courses Grid */}
                 {loading ? (
-                  <div className="text-center py-20">
-                    <i className="fas fa-spinner fa-spin text-4xl mb-4 text-blue-600"></i>
-                    <div className="text-gray-600 text-xl">Loading courses...</div>
+                  <div className="text-center py-12 sm:py-16 lg:py-20">
+                    <i className="fas fa-spinner fa-spin text-3xl sm:text-4xl mb-3 sm:mb-4 text-blue-600"></i>
+                    <div className="text-gray-600 text-base sm:text-lg">Loading courses...</div>
                   </div>
                 ) : filteredCourses.length === 0 ? (
-                  <div className="text-center py-20">
-                    <i className="fas fa-search text-6xl mb-4 text-gray-300"></i>
-                    <div className="text-gray-600 text-xl mb-2">No courses found</div>
-                    <p className="text-gray-500">Try adjusting your search or filter criteria</p>
+                  <div className="text-center py-12 sm:py-16 lg:py-20">
+                    <i className="fas fa-search text-4xl sm:text-6xl mb-3 sm:mb-4 text-gray-300"></i>
+                    <div className="text-gray-600 text-base sm:text-lg mb-2">No courses found</div>
+                    <p className="text-gray-500 text-sm sm:text-base">Try adjusting your search</p>
                   </div>
                 ) : (
                   <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 mb-6 sm:mb-8">
                       {filteredCourses.map((course) => (
                         <div
                           key={course._id}
-                          className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-blue-600 hover:shadow-2xl transition-all duration-300 group"
+                          className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-blue-600 hover:shadow-lg transition-all duration-300 group"
                         >
                           {/* Course Image/Header */}
-                          <div className="h-40 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 flex items-center justify-center relative overflow-hidden">
+                          <div className="h-28 sm:h-32 lg:h-40 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 flex items-center justify-center relative overflow-hidden">
                             <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition"></div>
-                            <i className="fas fa-graduation-cap text-white text-4xl relative z-10"></i>
+                            <i className="fas fa-graduation-cap text-white text-2xl sm:text-3xl lg:text-4xl relative z-10"></i>
                             {enrolledCourses.includes(course._id) && (
-                              <div className="absolute top-3 right-3 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                                <i className="fas fa-check"></i>
-                                Enrolled
+                              <div className="absolute top-2 right-2 bg-green-500 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-bold flex items-center gap-0.5 sm:gap-1">
+                                <i className="fas fa-check text-xs"></i>
+                                <span className="hidden sm:inline">Enrolled</span>
                               </div>
                             )}
                           </div>
 
                           {/* Course Content */}
-                          <div className="p-6">
-                            <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{course.title}</h3>
-                            <p className="text-gray-600 text-sm mb-4 line-clamp-2">{course.description}</p>
+                          <div className="p-3 sm:p-4 lg:p-6">
+                            <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-1 sm:mb-2 line-clamp-2">{course.title}</h3>
+                            <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3 lg:mb-4 line-clamp-2">{course.description}</p>
 
                             {/* Course Meta */}
-                            <div className="flex justify-between items-center mb-4 py-3 border-y border-gray-200">
+                            <div className="flex justify-between items-center mb-2 sm:mb-3 lg:mb-4 py-2 border-y border-gray-200">
                               <div>
-                                <span className="text-blue-600 text-sm font-semibold bg-blue-50 px-3 py-1 rounded-full flex items-center gap-1">
-                                  <i className="fas fa-tag"></i>
+                                <span className="text-blue-600 text-xs sm:text-sm font-semibold bg-blue-50 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full flex items-center gap-0.5 sm:gap-1">
+                                  <i className="fas fa-tag text-xs"></i>
                                   {course.category}
                                 </span>
                               </div>
-                              <span className="text-lg font-bold text-gray-900 flex items-center gap-1">
-                                <i className="fas fa-rupee-sign"></i>
+                              <span className="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-0.5 sm:gap-1">
+                                <i className="fas fa-rupee-sign text-xs sm:text-sm"></i>
                                 {course.price}
                               </span>
                             </div>
 
                             {/* Student Count */}
-                            <div className="text-sm text-gray-600 mb-4 flex items-center gap-2">
-                              <i className="fas fa-users"></i>
-                              {course.students?.length || 0} students enrolled
+                            <div className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 flex items-center gap-1 sm:gap-2">
+                              <i className="fas fa-users text-xs sm:text-sm"></i>
+                              {course.students?.length || 0} students
                             </div>
 
                             {/* Buttons */}
                             {enrolledCourses.includes(course._id) ? (
                               <button
                                 onClick={() => handleViewCourse(course._id)}
-                                className="w-full py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition flex items-center justify-center gap-2"
+                                className="w-full py-2 sm:py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base"
                               >
-                                <i className="fas fa-play-circle"></i>
+                                <i className="fas fa-play-circle text-xs sm:text-sm"></i>
                                 Continue Learning
                               </button>
                             ) : (
                               <button
                                 onClick={() => handleEnroll(course._id)}
                                 disabled={enrollmentLoading[course._id]}
-                                className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                className="w-full py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base"
                               >
                                 {enrollmentLoading[course._id] ? (
                                   <>
-                                    <i className="fas fa-spinner fa-spin"></i>
+                                    <i className="fas fa-spinner fa-spin text-xs sm:text-sm"></i>
                                     Enrolling...
                                   </>
                                 ) : (
                                   <>
-                                    <i className="fas fa-shopping-cart"></i>
+                                    <i className="fas fa-shopping-cart text-xs sm:text-sm"></i>
                                     Enroll Now
                                   </>
                                 )}
@@ -413,24 +421,24 @@ export default function StudentDashboard({ user, onLogout }) {
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                      <div className="flex justify-center items-center gap-2 mb-10">
+                      <div className="flex justify-center items-center gap-1 sm:gap-2 mb-6 sm:mb-8 lg:mb-10">
                         <button
                           onClick={() => fetchCourses(currentPage - 1)}
                           disabled={currentPage === 1}
-                          className="px-4 py-2 bg-gray-200 text-gray-900 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 flex items-center gap-2"
+                          className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-200 text-gray-900 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
                         >
-                          <i className="fas fa-chevron-left"></i>
-                          Previous
+                          <i className="fas fa-chevron-left text-xs"></i>
+                          <span className="hidden sm:inline">Previous</span>
+                          <span className="sm:hidden">Prev</span>
                         </button>
                         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                           <button
                             key={page}
                             onClick={() => fetchCourses(page)}
-                            className={`px-4 py-2 rounded-lg transition flex items-center gap-1 ${
-                              page === currentPage
+                            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition flex items-center gap-0.5 sm:gap-1 text-xs sm:text-sm ${page === currentPage
                                 ? "bg-blue-600 text-white"
                                 : "bg-gray-200 text-gray-900 hover:bg-gray-300"
-                            }`}
+                              }`}
                           >
                             {page}
                           </button>
@@ -438,10 +446,11 @@ export default function StudentDashboard({ user, onLogout }) {
                         <button
                           onClick={() => fetchCourses(currentPage + 1)}
                           disabled={currentPage === totalPages}
-                          className="px-4 py-2 bg-gray-200 text-gray-900 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 flex items-center gap-2"
+                          className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-200 text-gray-900 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
                         >
-                          Next
-                          <i className="fas fa-chevron-right"></i>
+                          <span className="hidden sm:inline">Next</span>
+                          <span className="sm:hidden">Next</span>
+                          <i className="fas fa-chevron-right text-xs"></i>
                         </button>
                       </div>
                     )}
@@ -453,57 +462,57 @@ export default function StudentDashboard({ user, onLogout }) {
             {/* My Courses Tab */}
             {activeTab === "my-courses" && (
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Learning Journey</h2>
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Your Learning Journey</h2>
 
                 {enrolledCourses.length === 0 ? (
-                  <div className="text-center py-16">
-                    <i className="fas fa-book-open text-6xl mb-4 text-gray-300"></i>
-                    <div className="text-gray-600 text-xl mb-4">You haven't enrolled in any courses yet</div>
-                    <p className="text-gray-500 mb-6">Start your learning journey by exploring our courses</p>
+                  <div className="text-center py-8 sm:py-12 lg:py-16">
+                    <i className="fas fa-book-open text-4xl sm:text-6xl mb-3 sm:mb-4 text-gray-300"></i>
+                    <div className="text-gray-600 text-base sm:text-lg mb-2 sm:mb-4">No courses enrolled yet</div>
+                    <p className="text-gray-500 text-sm sm:text-base mb-4 sm:mb-6">Start by exploring our courses</p>
                     <button
                       onClick={() => setActiveTab("discover")}
-                      className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center gap-2 mx-auto"
+                      className="px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center gap-1 sm:gap-2 mx-auto text-sm sm:text-base"
                     >
-                      <i className="fas fa-compass"></i>
+                      <i className="fas fa-compass text-sm"></i>
                       Explore Courses
                     </button>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
                     {courses
                       .filter((course) => enrolledCourses.includes(course._id))
                       .map((course) => (
                         <div
                           key={course._id}
-                          className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-green-600/50 rounded-xl p-6 hover:shadow-xl transition-all duration-300"
+                          className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-green-600/50 rounded-xl p-3 sm:p-4 lg:p-6 hover:shadow-lg transition-all duration-300"
                         >
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                              <i className="fas fa-check text-green-600 text-xl"></i>
+                          <div className="flex items-start justify-between mb-2 sm:mb-3 lg:mb-4">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                              <i className="fas fa-check text-green-600 text-base sm:text-lg lg:text-xl"></i>
                             </div>
-                            <span className="text-green-600 font-bold flex items-center gap-1">
-                              <i className="fas fa-circle"></i>
+                            <span className="text-green-600 font-bold flex items-center gap-0.5 sm:gap-1 text-xs sm:text-sm">
+                              <i className="fas fa-circle text-xs"></i>
                               Active
                             </span>
                           </div>
-                          <h3 className="text-xl font-bold text-gray-900 mb-2">{course.title}</h3>
-                          <p className="text-gray-600 text-sm mb-4 line-clamp-2">{course.description}</p>
+                          <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-1 sm:mb-2 line-clamp-2">{course.title}</h3>
+                          <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3 lg:mb-4 line-clamp-2">{course.description}</p>
 
-                          <div className="mb-4">
-                            <div className="flex justify-between text-sm text-gray-600 mb-1">
+                          <div className="mb-3 sm:mb-4">
+                            <div className="flex justify-between text-xs sm:text-sm text-gray-600 mb-1">
                               <span>Progress</span>
                               <span>65%</span>
                             </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2">
-                              <div className="bg-green-600 h-2 rounded-full" style={{ width: "65%" }}></div>
+                            <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
+                              <div className="bg-green-600 h-1.5 sm:h-2 rounded-full" style={{ width: "65%" }}></div>
                             </div>
                           </div>
 
                           <button
                             onClick={() => handleViewCourse(course._id)}
-                            className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition flex items-center justify-center gap-2"
+                            className="w-full py-2 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base"
                           >
-                            <i className="fas fa-play"></i>
+                            <i className="fas fa-play text-xs sm:text-sm"></i>
                             Continue Learning
                           </button>
                         </div>
@@ -516,61 +525,61 @@ export default function StudentDashboard({ user, onLogout }) {
             {/* Progress Tab */}
             {activeTab === "progress" && (
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Learning Progress</h2>
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Your Learning Progress</h2>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                   {/* Progress Overview */}
-                  <div className="bg-white border border-gray-200 rounded-xl p-6">
-                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                      <i className="fas fa-chart-bar text-blue-600"></i>
+                  <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 lg:p-6">
+                    <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 lg:mb-4 flex items-center gap-1 sm:gap-2">
+                      <i className="fas fa-chart-bar text-blue-600 text-sm sm:text-base"></i>
                       Learning Analytics
                     </h3>
-                    <div className="space-y-4">
+                    <div className="space-y-2 sm:space-y-3 lg:space-y-4">
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Courses Completed</span>
-                        <span className="font-semibold text-green-600">{learningStats.completedCourses}/5</span>
+                        <span className="text-gray-600 text-sm sm:text-base">Courses Completed</span>
+                        <span className="font-semibold text-green-600 text-sm sm:text-base">{learningStats.completedCourses}/5</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Average Score</span>
-                        <span className="font-semibold text-blue-600">87%</span>
+                        <span className="text-gray-600 text-sm sm:text-base">Average Score</span>
+                        <span className="font-semibold text-blue-600 text-sm sm:text-base">87%</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Study Streak</span>
-                        <span className="font-semibold text-orange-600">{learningStats.streakDays} days</span>
+                        <span className="text-gray-600 text-sm sm:text-base">Study Streak</span>
+                        <span className="font-semibold text-orange-600 text-sm sm:text-base">{learningStats.streakDays} days</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Time Spent</span>
-                        <span className="font-semibold text-purple-600">{learningStats.totalHours} hours</span>
+                        <span className="text-gray-600 text-sm sm:text-base">Time Spent</span>
+                        <span className="font-semibold text-purple-600 text-sm sm:text-base">{learningStats.totalHours} hours</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Recent Activity */}
-                  <div className="bg-white border border-gray-200 rounded-xl p-6">
-                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                      <i className="fas fa-history text-green-600"></i>
+                  <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 lg:p-6">
+                    <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 lg:mb-4 flex items-center gap-1 sm:gap-2">
+                      <i className="fas fa-history text-green-600 text-sm sm:text-base"></i>
                       Recent Activity
                     </h3>
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-                        <i className="fas fa-video text-blue-600"></i>
+                    <div className="space-y-2 sm:space-y-3">
+                      <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-blue-50 rounded-lg">
+                        <i className="fas fa-video text-blue-600 text-sm sm:text-base"></i>
                         <div>
-                          <p className="font-medium text-gray-900">Watched: Algebra Basics</p>
-                          <p className="text-sm text-gray-600">2 hours ago</p>
+                          <p className="font-medium text-gray-900 text-sm sm:text-base">Watched: Algebra Basics</p>
+                          <p className="text-xs sm:text-sm text-gray-600">2 hours ago</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                        <i className="fas fa-check-circle text-green-600"></i>
+                      <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-green-50 rounded-lg">
+                        <i className="fas fa-check-circle text-green-600 text-sm sm:text-base"></i>
                         <div>
-                          <p className="font-medium text-gray-900">Completed: Physics Quiz</p>
-                          <p className="text-sm text-gray-600">1 day ago</p>
+                          <p className="font-medium text-gray-900 text-sm sm:text-base">Completed: Physics Quiz</p>
+                          <p className="text-xs sm:text-sm text-gray-600">1 day ago</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg">
-                        <i className="fas fa-book text-purple-600"></i>
+                      <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-purple-50 rounded-lg">
+                        <i className="fas fa-book text-purple-600 text-sm sm:text-base"></i>
                         <div>
-                          <p className="font-medium text-gray-900">Enrolled: Chemistry Advanced</p>
-                          <p className="text-sm text-gray-600">3 days ago</p>
+                          <p className="font-medium text-gray-900 text-sm sm:text-base">Enrolled: Chemistry Advanced</p>
+                          <p className="text-xs sm:text-sm text-gray-600">3 days ago</p>
                         </div>
                       </div>
                     </div>
@@ -578,25 +587,25 @@ export default function StudentDashboard({ user, onLogout }) {
                 </div>
 
                 {/* Achievement Badges */}
-                <div className="mt-8">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <i className="fas fa-trophy text-yellow-600"></i>
+                <div className="mt-4 sm:mt-6 lg:mt-8">
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 lg:mb-4 flex items-center gap-1 sm:gap-2">
+                    <i className="fas fa-trophy text-yellow-600 text-sm sm:text-base"></i>
                     Your Achievements
                   </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
                     {[
                       { name: "Quick Learner", icon: "fas fa-bolt", color: "yellow" },
                       { name: "Perfect Score", icon: "fas fa-star", color: "gold" },
                       { name: "Week Warrior", icon: "fas fa-calendar", color: "blue" },
                       { name: "Course Master", icon: "fas fa-graduation-cap", color: "purple" },
                     ].map((badge, index) => (
-                      <div key={index} className="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <div key={index} className="text-center p-2 sm:p-3 bg-gray-50 rounded-lg border border-gray-200">
                         <div
-                          className={`w-12 h-12 ${getBadgeColor(badge.color)} rounded-full flex items-center justify-center mx-auto mb-2`}
+                          className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 ${getBadgeColor(badge.color)} rounded-full flex items-center justify-center mx-auto mb-1 sm:mb-2`}
                         >
-                          <i className={`${badge.icon} text-white text-lg`}></i>
+                          <i className={`${badge.icon} text-white text-sm sm:text-base lg:text-lg`}></i>
                         </div>
-                        <p className="text-sm font-medium text-gray-900">{badge.name}</p>
+                        <p className="text-xs sm:text-sm font-medium text-gray-900">{badge.name}</p>
                       </div>
                     ))}
                   </div>
@@ -607,84 +616,84 @@ export default function StudentDashboard({ user, onLogout }) {
         </div>
       </div>
 
-      {/* Notification Modal */}
+      {/* Notification Modal - Made responsive */}
       {showNotificationModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-96 overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-full w-full sm:max-w-md max-h-[80vh] sm:max-h-96 overflow-y-auto">
             {selectedNotification ? (
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-xl font-bold text-gray-900">{selectedNotification.title}</h3>
+              <div className="p-4 sm:p-6">
+                <div className="flex justify-between items-start mb-3 sm:mb-4">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900">{selectedNotification.title}</h3>
                   <button
                     onClick={() => setSelectedNotification(null)}
-                    className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+                    className="text-gray-500 hover:text-gray-700 text-xl sm:text-2xl font-bold"
                   >
                     ×
                   </button>
                 </div>
-                <p className="text-gray-700 mb-4">{selectedNotification.message}</p>
-                <div className="text-sm text-gray-500 mb-4 flex items-center gap-2">
-                  <i className="fas fa-clock"></i>
+                <p className="text-gray-700 mb-3 sm:mb-4 text-sm sm:text-base">{selectedNotification.message}</p>
+                <div className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4 flex items-center gap-1 sm:gap-2">
+                  <i className="fas fa-clock text-xs"></i>
                   {new Date(selectedNotification.createdAt).toLocaleString()}
                 </div>
                 {selectedNotification.course && (
-                  <div className="bg-blue-50 p-3 rounded-lg text-sm text-gray-700 flex items-center gap-2">
-                    <i className="fas fa-book text-blue-600"></i>
+                  <div className="bg-blue-50 p-2 sm:p-3 rounded-lg text-xs sm:text-sm text-gray-700 flex items-center gap-1 sm:gap-2">
+                    <i className="fas fa-book text-blue-600 text-xs sm:text-sm"></i>
                     Course: {selectedNotification.course?.title}
                   </div>
                 )}
                 <button
                   onClick={() => markNotificationAsRead(selectedNotification._id)}
-                  className="w-full mt-4 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center justify-center gap-2"
+                  className="w-full mt-3 sm:mt-4 px-4 py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base"
                 >
-                  <i className="fas fa-check"></i>
+                  <i className="fas fa-check text-xs sm:text-sm"></i>
                   Mark as Read
                 </button>
               </div>
             ) : (
-              <div className="p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                    <i className="fas fa-bell text-blue-600"></i>
+              <div className="p-4 sm:p-6">
+                <div className="flex justify-between items-center mb-3 sm:mb-4">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-1 sm:gap-2">
+                    <i className="fas fa-bell text-blue-600 text-sm sm:text-base"></i>
                     Course Updates ({notifications.length})
                   </h3>
                   <button
                     onClick={() => setShowNotificationModal(false)}
-                    className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+                    className="text-gray-500 hover:text-gray-700 text-xl sm:text-2xl font-bold"
                   >
                     ×
                   </button>
                 </div>
                 {notifications.length > 0 ? (
-                  <div className="space-y-3">
+                  <div className="space-y-2 sm:space-y-3">
                     {notifications.map((notif) => (
                       <button
                         key={notif._id}
                         onClick={() => setSelectedNotification(notif)}
-                        className="w-full text-left p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition"
+                        className="w-full text-left p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition"
                       >
-                        <div className="font-semibold text-gray-900 flex items-center gap-2">
-                          <i className="fas fa-bullhorn text-blue-600"></i>
+                        <div className="font-semibold text-gray-900 flex items-center gap-1 sm:gap-2 text-sm sm:text-base">
+                          <i className="fas fa-bullhorn text-blue-600 text-xs sm:text-sm"></i>
                           {notif.title}
                         </div>
-                        <div className="text-sm text-gray-700 mt-1">{notif.message}</div>
+                        <div className="text-xs sm:text-sm text-gray-700 mt-1 line-clamp-2">{notif.message}</div>
                         {notif.course && (
-                          <div className="text-xs text-blue-600 font-semibold mt-2 flex items-center gap-1">
-                            <i className="fas fa-book"></i>
+                          <div className="text-xs text-blue-600 font-semibold mt-1 sm:mt-2 flex items-center gap-0.5 sm:gap-1">
+                            <i className="fas fa-book text-xs"></i>
                             Course: {notif.course?.title}
                           </div>
                         )}
-                        <div className="text-xs text-gray-500 mt-2 flex items-center gap-1">
-                          <i className="fas fa-clock"></i>
+                        <div className="text-xs text-gray-500 mt-1 sm:mt-2 flex items-center gap-0.5 sm:gap-1">
+                          <i className="fas fa-clock text-xs"></i>
                           {new Date(notif.createdAt).toLocaleDateString()}
                         </div>
                       </button>
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <i className="fas fa-bell-slash text-3xl mb-2"></i>
-                    <p>No new course updates</p>
+                  <div className="text-center py-6 sm:py-8 text-gray-500">
+                    <i className="fas fa-bell-slash text-2xl sm:text-3xl mb-2"></i>
+                    <p className="text-sm sm:text-base">No new course updates</p>
                   </div>
                 )}
               </div>
