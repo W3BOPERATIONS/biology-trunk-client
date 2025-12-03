@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react"
 import axios from "axios"
-
-const API_URL = "https://biology-trunk-server.vercel.app/api"
+import { API_URL } from "../utils/api.js"
 
 export default function FacultyDashboard({ user, onLogout }) {
   const [courses, setCourses] = useState([])
@@ -32,7 +31,7 @@ export default function FacultyDashboard({ user, onLogout }) {
     totalViews: 0,
     completionRate: 0,
     avgRating: 0,
-    activeStudents: 0
+    activeStudents: 0,
   })
 
   useEffect(() => {
@@ -112,7 +111,7 @@ export default function FacultyDashboard({ user, onLogout }) {
       totalViews: 12540,
       completionRate: 78,
       avgRating: 4.7,
-      activeStudents: 234
+      activeStudents: 234,
     })
   }
 
@@ -185,19 +184,27 @@ export default function FacultyDashboard({ user, onLogout }) {
 
   const getContentIcon = (type) => {
     switch (type) {
-      case 'pdf': return 'fas fa-file-pdf'
-      case 'video': return 'fas fa-video'
-      case 'live_class': return 'fas fa-chalkboard-teacher'
-      default: return 'fas fa-file'
+      case "pdf":
+        return "fas fa-file-pdf"
+      case "video":
+        return "fas fa-video"
+      case "live_class":
+        return "fas fa-chalkboard-teacher"
+      default:
+        return "fas fa-file"
     }
   }
 
   const getContentColor = (type) => {
     switch (type) {
-      case 'pdf': return 'text-red-600 bg-red-100'
-      case 'video': return 'text-blue-600 bg-blue-100'
-      case 'live_class': return 'text-green-600 bg-green-100'
-      default: return 'text-gray-600 bg-gray-100'
+      case "pdf":
+        return "text-red-600 bg-red-100"
+      case "video":
+        return "text-blue-600 bg-blue-100"
+      case "live_class":
+        return "text-green-600 bg-green-100"
+      default:
+        return "text-gray-600 bg-gray-100"
     }
   }
 
@@ -320,9 +327,7 @@ export default function FacultyDashboard({ user, onLogout }) {
                     <button
                       onClick={() => setFilterType("all")}
                       className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-1 ${
-                        filterType === "all" 
-                          ? "bg-blue-600 text-white" 
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        filterType === "all" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                       }`}
                     >
                       <i className="fas fa-layer-group"></i>
@@ -331,8 +336,8 @@ export default function FacultyDashboard({ user, onLogout }) {
                     <button
                       onClick={() => setFilterType("popular")}
                       className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-1 ${
-                        filterType === "popular" 
-                          ? "bg-blue-600 text-white" 
+                        filterType === "popular"
+                          ? "bg-blue-600 text-white"
                           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                       }`}
                     >
@@ -358,9 +363,13 @@ export default function FacultyDashboard({ user, onLogout }) {
                               : "bg-gray-50 text-gray-900 border border-gray-200 hover:border-blue-300 hover:shadow-md"
                           }`}
                         >
-                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                            selectedCourse?._id === course._id ? 'bg-white text-blue-600' : 'bg-blue-100 text-blue-600'
-                          }`}>
+                          <div
+                            className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                              selectedCourse?._id === course._id
+                                ? "bg-white text-blue-600"
+                                : "bg-blue-100 text-blue-600"
+                            }`}
+                          >
                             <i className="fas fa-graduation-cap"></i>
                           </div>
                           <div className="flex-1">
@@ -398,8 +407,7 @@ export default function FacultyDashboard({ user, onLogout }) {
                               {selectedCourse.category}
                             </span>
                             <span className="flex items-center gap-1">
-                              <i className="fas fa-rupee-sign"></i>
-                              ₹{selectedCourse.price}
+                              <i className="fas fa-rupee-sign"></i>₹{selectedCourse.price}
                             </span>
                           </div>
                         </div>
@@ -412,7 +420,9 @@ export default function FacultyDashboard({ user, onLogout }) {
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
                         <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
                           <i className="fas fa-users text-blue-600 text-xl mb-2"></i>
-                          <div className="text-2xl font-bold text-blue-600">{(allEnrollments[selectedCourse._id] || []).length}</div>
+                          <div className="text-2xl font-bold text-blue-600">
+                            {(allEnrollments[selectedCourse._id] || []).length}
+                          </div>
                           <div className="text-xs text-gray-600">Enrolled</div>
                         </div>
                         <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
@@ -441,7 +451,7 @@ export default function FacultyDashboard({ user, onLogout }) {
                             { id: "overview", name: "Overview", icon: "fas fa-chart-pie" },
                             { id: "students", name: "Students", icon: "fas fa-users" },
                             { id: "content", name: "Content", icon: "fas fa-file-alt" },
-                            { id: "upload", name: "Upload", icon: "fas fa-upload" }
+                            { id: "upload", name: "Upload", icon: "fas fa-upload" },
                           ].map((tab) => (
                             <button
                               key={tab.id}
@@ -472,7 +482,9 @@ export default function FacultyDashboard({ user, onLogout }) {
                                 <div className="space-y-3">
                                   <div className="flex justify-between items-center">
                                     <span className="text-gray-600">Course Completion Rate</span>
-                                    <span className="font-semibold text-green-600">{performanceStats.completionRate}%</span>
+                                    <span className="font-semibold text-green-600">
+                                      {performanceStats.completionRate}%
+                                    </span>
                                   </div>
                                   <div className="flex justify-between items-center">
                                     <span className="text-gray-600">Student Engagement</span>
@@ -512,7 +524,9 @@ export default function FacultyDashboard({ user, onLogout }) {
                         {activeTab === "students" && (
                           <div>
                             <div className="flex justify-between items-center mb-6">
-                              <h3 className="text-xl font-bold text-gray-900">Enrolled Students ({filteredEnrollments.length})</h3>
+                              <h3 className="text-xl font-bold text-gray-900">
+                                Enrolled Students ({filteredEnrollments.length})
+                              </h3>
                               <div className="relative">
                                 <input
                                   type="text"
@@ -524,12 +538,14 @@ export default function FacultyDashboard({ user, onLogout }) {
                                 <i className="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                               </div>
                             </div>
-                            
+
                             {filteredEnrollments.length === 0 ? (
                               <div className="text-center py-12 text-gray-500">
                                 <i className="fas fa-users text-4xl mb-4 text-gray-300"></i>
                                 <p className="text-lg">No students enrolled yet</p>
-                                <p className="text-sm mt-2">Students will appear here once they enroll in your course</p>
+                                <p className="text-sm mt-2">
+                                  Students will appear here once they enroll in your course
+                                </p>
                               </div>
                             ) : (
                               <div className="overflow-x-auto">
@@ -559,14 +575,15 @@ export default function FacultyDashboard({ user, onLogout }) {
                                         <td className="px-6 py-4">
                                           <div className="flex items-center gap-2">
                                             <div className="w-16 bg-gray-200 rounded-full h-2">
-                                              <div className="bg-green-600 h-2 rounded-full" style={{ width: '65%' }}></div>
+                                              <div
+                                                className="bg-green-600 h-2 rounded-full"
+                                                style={{ width: "65%" }}
+                                              ></div>
                                             </div>
                                             <span className="text-sm text-gray-600">65%</span>
                                           </div>
                                         </td>
-                                        <td className="px-6 py-4 text-gray-600">
-                                          {new Date().toLocaleDateString()}
-                                        </td>
+                                        <td className="px-6 py-4 text-gray-600">{new Date().toLocaleDateString()}</td>
                                         <td className="px-6 py-4 text-gray-600">
                                           {new Date(enrollment.enrolledAt).toLocaleDateString()}
                                         </td>
@@ -583,7 +600,9 @@ export default function FacultyDashboard({ user, onLogout }) {
                         {activeTab === "content" && (
                           <div>
                             <div className="flex justify-between items-center mb-6">
-                              <h3 className="text-xl font-bold text-gray-900">Course Content ({courseContent.length})</h3>
+                              <h3 className="text-xl font-bold text-gray-900">
+                                Course Content ({courseContent.length})
+                              </h3>
                               <button
                                 onClick={() => setActiveTab("upload")}
                                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center gap-2"
@@ -602,10 +621,15 @@ export default function FacultyDashboard({ user, onLogout }) {
                             ) : (
                               <div className="space-y-4">
                                 {courseContent.map((content) => (
-                                  <div key={content._id} className="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                  <div
+                                    key={content._id}
+                                    className="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                                  >
                                     <div className="flex items-center justify-between">
                                       <div className="flex items-center gap-3">
-                                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getContentColor(content.type)}`}>
+                                        <div
+                                          className={`w-10 h-10 rounded-lg flex items-center justify-center ${getContentColor(content.type)}`}
+                                        >
                                           <i className={`${getContentIcon(content.type)} text-lg`}></i>
                                         </div>
                                         <div>
@@ -627,7 +651,7 @@ export default function FacultyDashboard({ user, onLogout }) {
                                         <button className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors">
                                           <i className="fas fa-edit"></i>
                                         </button>
-                                        <button 
+                                        <button
                                           onClick={() => deleteContent(content._id)}
                                           className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
                                         >
@@ -741,7 +765,6 @@ export default function FacultyDashboard({ user, onLogout }) {
                                       value={contentForm.liveClassUrl}
                                       onChange={(e) => setContentForm({ ...contentForm, liveClassUrl: e.target.value })}
                                       className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition"
-                                      placeholder="https://meet.google.com/..."
                                       required
                                     />
                                   </div>
@@ -753,7 +776,9 @@ export default function FacultyDashboard({ user, onLogout }) {
                                     <input
                                       type="date"
                                       value={contentForm.liveClassDate}
-                                      onChange={(e) => setContentForm({ ...contentForm, liveClassDate: e.target.value })}
+                                      onChange={(e) =>
+                                        setContentForm({ ...contentForm, liveClassDate: e.target.value })
+                                      }
                                       className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition"
                                       required
                                     />
@@ -766,7 +791,9 @@ export default function FacultyDashboard({ user, onLogout }) {
                                     <input
                                       type="time"
                                       value={contentForm.liveClassTime}
-                                      onChange={(e) => setContentForm({ ...contentForm, liveClassTime: e.target.value })}
+                                      onChange={(e) =>
+                                        setContentForm({ ...contentForm, liveClassTime: e.target.value })
+                                      }
                                       className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition"
                                       required
                                     />

@@ -3,8 +3,7 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react"
 import axios from "axios"
-
-const API_URL = "https://biology-trunk-server.vercel.app/api"
+import { API_URL } from "../utils/api.js"
 
 export default function Home({ user, onLogout }) {
   const navigate = useNavigate()
@@ -77,7 +76,10 @@ export default function Home({ user, onLogout }) {
                 </>
               ) : (
                 <>
-                  <Link to="/login" className="px-4 py-2 text-gray-700 hover:text-blue-600 transition font-medium flex items-center gap-2">
+                  <Link
+                    to="/login"
+                    className="px-4 py-2 text-gray-700 hover:text-blue-600 transition font-medium flex items-center gap-2"
+                  >
                     <i className="fas fa-sign-in-alt"></i>
                     Login
                   </Link>
@@ -108,9 +110,9 @@ export default function Home({ user, onLogout }) {
                   </span>
                 </h1>
                 <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                  Join India's most trusted online learning platform for competitive exam preparation. 
-                  Access comprehensive courses, personalized mentorship, and cutting-edge learning technology 
-                  designed to help you achieve academic excellence.
+                  Join India's most trusted online learning platform for competitive exam preparation. Access
+                  comprehensive courses, personalized mentorship, and cutting-edge learning technology designed to help
+                  you achieve academic excellence.
                 </p>
                 <div className="flex items-center gap-6 text-gray-600">
                   <div className="flex items-center gap-2">
@@ -123,7 +125,7 @@ export default function Home({ user, onLogout }) {
                   </div>
                 </div>
               </div>
-              
+
               {!user && (
                 <div className="flex gap-4 flex-wrap">
                   <Link
@@ -152,7 +154,7 @@ export default function Home({ user, onLogout }) {
                 </Link>
               )}
             </div>
-            
+
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-6">
               <div className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-blue-200">
@@ -167,7 +169,7 @@ export default function Home({ user, onLogout }) {
                   </div>
                 </div>
               </div>
-              
+
               <div className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-green-200">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -180,7 +182,7 @@ export default function Home({ user, onLogout }) {
                   </div>
                 </div>
               </div>
-              
+
               <div className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-purple-200">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -193,7 +195,7 @@ export default function Home({ user, onLogout }) {
                   </div>
                 </div>
               </div>
-              
+
               <div className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-orange-200">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
@@ -255,8 +257,8 @@ export default function Home({ user, onLogout }) {
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Why Choose EduTech Pro?</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              We combine cutting-edge technology with proven teaching methodologies to deliver exceptional learning outcomes 
-              for students across all competitive exam segments.
+              We combine cutting-edge technology with proven teaching methodologies to deliver exceptional learning
+              outcomes for students across all competitive exam segments.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -370,77 +372,77 @@ export default function Home({ user, onLogout }) {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { 
-                name: "Class 9", 
-                icon: "fas fa-atom", 
+              {
+                name: "Class 9",
+                icon: "fas fa-atom",
                 iconColor: "text-blue-600",
                 bgColor: "bg-blue-100",
                 hoverBgColor: "group-hover:bg-blue-600",
-                students: "10K+", 
-                courses: "45" 
+                students: "10K+",
+                courses: "45",
               },
-              { 
-                name: "Class 10", 
-                icon: "fas fa-square-root-alt", 
+              {
+                name: "Class 10",
+                icon: "fas fa-square-root-alt",
                 iconColor: "text-green-600",
                 bgColor: "bg-green-100",
                 hoverBgColor: "group-hover:bg-green-600",
-                students: "15K+", 
-                courses: "52" 
+                students: "15K+",
+                courses: "52",
               },
-              { 
-                name: "Class 11", 
-                icon: "fas fa-flask", 
+              {
+                name: "Class 11",
+                icon: "fas fa-flask",
                 iconColor: "text-purple-600",
                 bgColor: "bg-purple-100",
                 hoverBgColor: "group-hover:bg-purple-600",
-                students: "12K+", 
-                courses: "68" 
+                students: "12K+",
+                courses: "68",
               },
-              { 
-                name: "Class 12", 
-                icon: "fas fa-calculator", 
+              {
+                name: "Class 12",
+                icon: "fas fa-calculator",
                 iconColor: "text-orange-600",
                 bgColor: "bg-orange-100",
                 hoverBgColor: "group-hover:bg-orange-600",
-                students: "18K+", 
-                courses: "72" 
+                students: "18K+",
+                courses: "72",
               },
-              { 
-                name: "JEE Preparation", 
-                icon: "fas fa-rocket", 
+              {
+                name: "JEE Preparation",
+                icon: "fas fa-rocket",
                 iconColor: "text-red-600",
                 bgColor: "bg-red-100",
                 hoverBgColor: "group-hover:bg-red-600",
-                students: "25K+", 
-                courses: "85" 
+                students: "25K+",
+                courses: "85",
               },
-              { 
-                name: "NEET Preparation", 
-                icon: "fas fa-stethoscope", 
+              {
+                name: "NEET Preparation",
+                icon: "fas fa-stethoscope",
                 iconColor: "text-pink-600",
                 bgColor: "bg-pink-100",
                 hoverBgColor: "group-hover:bg-pink-600",
-                students: "22K+", 
-                courses: "78" 
+                students: "22K+",
+                courses: "78",
               },
-              { 
-                name: "GUJCET", 
-                icon: "fas fa-vial", 
+              {
+                name: "GUJCET",
+                icon: "fas fa-vial",
                 iconColor: "text-yellow-600",
                 bgColor: "bg-yellow-100",
                 hoverBgColor: "group-hover:bg-yellow-600",
-                students: "8K+", 
-                courses: "35" 
+                students: "8K+",
+                courses: "35",
               },
-              { 
-                name: "All Courses", 
-                icon: "fas fa-graduation-cap", 
+              {
+                name: "All Courses",
+                icon: "fas fa-graduation-cap",
                 iconColor: "text-indigo-600",
                 bgColor: "bg-indigo-100",
                 hoverBgColor: "group-hover:bg-indigo-600",
-                students: "50K+", 
-                courses: "400+" 
+                students: "50K+",
+                courses: "400+",
               },
             ].map((cat, index) => (
               <div
@@ -449,7 +451,9 @@ export default function Home({ user, onLogout }) {
                 className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg hover:border-blue-300 transition-all duration-300 cursor-pointer group"
               >
                 <div className="flex items-center gap-4 mb-4">
-                  <div className={`w-12 h-12 ${cat.bgColor} rounded-lg flex items-center justify-center transition-colors ${cat.hoverBgColor}`}>
+                  <div
+                    className={`w-12 h-12 ${cat.bgColor} rounded-lg flex items-center justify-center transition-colors ${cat.hoverBgColor}`}
+                  >
                     <i className={`${cat.icon} ${cat.iconColor} text-lg group-hover:text-white transition-colors`}></i>
                   </div>
                   <div>
@@ -474,14 +478,26 @@ export default function Home({ user, onLogout }) {
             <div>
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Our Proven Learning Methodology</h2>
               <p className="text-xl text-gray-600 mb-8">
-                Our structured approach ensures comprehensive concept understanding and exam readiness through 
+                Our structured approach ensures comprehensive concept understanding and exam readiness through
                 systematic progression and continuous assessment.
               </p>
               <div className="space-y-6">
                 {[
-                  { icon: "fas fa-lightbulb", title: "Concept Building", desc: "Strong foundation with fundamental concepts" },
-                  { icon: "fas fa-puzzle-piece", title: "Application Training", desc: "Real-world problem solving techniques" },
-                  { icon: "fas fa-clipboard-check", title: "Assessment", desc: "Regular tests and performance evaluation" },
+                  {
+                    icon: "fas fa-lightbulb",
+                    title: "Concept Building",
+                    desc: "Strong foundation with fundamental concepts",
+                  },
+                  {
+                    icon: "fas fa-puzzle-piece",
+                    title: "Application Training",
+                    desc: "Real-world problem solving techniques",
+                  },
+                  {
+                    icon: "fas fa-clipboard-check",
+                    title: "Assessment",
+                    desc: "Regular tests and performance evaluation",
+                  },
                   { icon: "fas fa-sync-alt", title: "Revision", desc: "Spaced repetition for better retention" },
                 ].map((step, index) => (
                   <div key={index} className="flex items-center gap-4">
@@ -500,27 +516,39 @@ export default function Home({ user, onLogout }) {
               <h3 className="text-2xl font-bold mb-6">Success Roadmap</h3>
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 bg-white text-blue-600 rounded-full flex items-center justify-center font-bold">1</div>
+                  <div className="w-8 h-8 bg-white text-blue-600 rounded-full flex items-center justify-center font-bold">
+                    1
+                  </div>
                   <span>Diagnostic Test & Goal Setting</span>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 bg-white text-blue-600 rounded-full flex items-center justify-center font-bold">2</div>
+                  <div className="w-8 h-8 bg-white text-blue-600 rounded-full flex items-center justify-center font-bold">
+                    2
+                  </div>
                   <span>Structured Learning Path</span>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 bg-white text-blue-600 rounded-full flex items-center justify-center font-bold">3</div>
+                  <div className="w-8 h-8 bg-white text-blue-600 rounded-full flex items-center justify-center font-bold">
+                    3
+                  </div>
                   <span>Regular Practice & Assessments</span>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 bg-white text-blue-600 rounded-full flex items-center justify-center font-bold">4</div>
+                  <div className="w-8 h-8 bg-white text-blue-600 rounded-full flex items-center justify-center font-bold">
+                    4
+                  </div>
                   <span>Performance Analysis</span>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 bg-white text-blue-600 rounded-full flex items-center justify-center font-bold">5</div>
+                  <div className="w-8 h-8 bg-white text-blue-600 rounded-full flex items-center justify-center font-bold">
+                    5
+                  </div>
                   <span>Revision & Mock Tests</span>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 bg-white text-blue-600 rounded-full flex items-center justify-center font-bold">6</div>
+                  <div className="w-8 h-8 bg-white text-blue-600 rounded-full flex items-center justify-center font-bold">
+                    6
+                  </div>
                   <span>Exam Readiness</span>
                 </div>
               </div>
@@ -544,22 +572,25 @@ export default function Home({ user, onLogout }) {
                 name: "Rohit Kumar",
                 score: "95%",
                 exam: "JEE Main",
-                feedback: "The structured curriculum and expert guidance helped me secure a top rank in JEE Main. The faculty's teaching methodology is exceptional.",
-                achievement: "AIR 1245"
+                feedback:
+                  "The structured curriculum and expert guidance helped me secure a top rank in JEE Main. The faculty's teaching methodology is exceptional.",
+                achievement: "AIR 1245",
               },
               {
                 name: "Priya Singh",
                 score: "680/720",
                 exam: "NEET",
-                feedback: "Comprehensive biology lectures and regular mock tests made all the difference. The study material is perfectly aligned with the exam pattern.",
-                achievement: "MBBS AIIMS"
+                feedback:
+                  "Comprehensive biology lectures and regular mock tests made all the difference. The study material is perfectly aligned with the exam pattern.",
+                achievement: "MBBS AIIMS",
               },
               {
                 name: "Aditya Patel",
                 score: "98%",
                 exam: "Board Exam",
-                feedback: "The personalized attention and doubt-solving sessions helped me achieve 98% in Class 12 Science. Highly recommended platform!",
-                achievement: "School Topper"
+                feedback:
+                  "The personalized attention and doubt-solving sessions helped me achieve 98% in Class 12 Science. Highly recommended platform!",
+                achievement: "School Topper",
               },
             ].map((testimonial, idx) => (
               <div key={idx} className="bg-white p-8 rounded-xl border border-gray-200 hover:shadow-lg transition">
@@ -589,8 +620,8 @@ export default function Home({ user, onLogout }) {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold text-white mb-6">Ready to Transform Your Academic Journey?</h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of successful students who have achieved their dreams with EduTech Pro. 
-            Start your preparation today with our expert-led courses and comprehensive learning ecosystem.
+            Join thousands of successful students who have achieved their dreams with EduTech Pro. Start your
+            preparation today with our expert-led courses and comprehensive learning ecosystem.
           </p>
           {!user && (
             <div className="flex gap-4 justify-center flex-wrap">
@@ -642,8 +673,8 @@ export default function Home({ user, onLogout }) {
             <div>
               <h4 className="text-white font-bold mb-4 text-lg">About EduTech Pro</h4>
               <p className="text-sm text-gray-400 leading-relaxed">
-                Leading online learning platform providing quality education to students across India. 
-                Empowering the next generation of achievers with cutting-edge technology and expert guidance.
+                Leading online learning platform providing quality education to students across India. Empowering the
+                next generation of achievers with cutting-edge technology and expert guidance.
               </p>
               <div className="flex gap-4 mt-4">
                 <a href="#" className="text-gray-400 hover:text-white transition">
@@ -663,7 +694,14 @@ export default function Home({ user, onLogout }) {
             <div>
               <h4 className="text-white font-bold mb-4 text-lg">Courses</h4>
               <ul className="text-sm space-y-3">
-                {["Classes 9-12", "JEE Preparation", "NEET Preparation", "GUJCET Courses", "Board Exams", "Crash Courses"].map((item) => (
+                {[
+                  "Classes 9-12",
+                  "JEE Preparation",
+                  "NEET Preparation",
+                  "GUJCET Courses",
+                  "Board Exams",
+                  "Crash Courses",
+                ].map((item) => (
                   <li key={item}>
                     <a href="#" className="text-gray-400 hover:text-white transition flex items-center gap-2">
                       <i className="fas fa-chevron-right text-xs"></i>

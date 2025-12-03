@@ -1,14 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useSearchParams, useNavigate } from "react-router-dom"
 import axios from "axios"
-
-const API_URL = "https://biology-trunk-server.vercel.app/api"
+import { API_URL } from "../utils/api.js"
+import { useNavigate } from "react-router-dom"
+import { useLocation } from "react-router-dom"
 const ITEMS_PER_PAGE = 9
 
 export default function StudentDashboard({ user, onLogout }) {
-  const [searchParams] = useSearchParams()
+  const location = useLocation()
+  const searchParams = new URLSearchParams(location.search)
   const navigate = useNavigate()
   const [courses, setCourses] = useState([])
   const [enrolledCourses, setEnrolledCourses] = useState([])
@@ -32,7 +33,7 @@ export default function StudentDashboard({ user, onLogout }) {
     totalHours: 45,
     completedCourses: 3,
     certificates: 2,
-    streakDays: 7
+    streakDays: 7,
   })
 
   const categories = ["Class 9", "Class 10", "Class 11", "Class 12", "JEE", "GUJCET", "NEET"]
@@ -239,7 +240,7 @@ export default function StudentDashboard({ user, onLogout }) {
               {[
                 { id: "discover", name: "Discover Courses", icon: "fas fa-compass" },
                 { id: "my-courses", name: "My Courses", icon: "fas fa-book" },
-                { id: "progress", name: "Progress", icon: "fas fa-chart-line" }
+                { id: "progress", name: "Progress", icon: "fas fa-chart-line" },
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -426,7 +427,9 @@ export default function StudentDashboard({ user, onLogout }) {
                             key={page}
                             onClick={() => fetchCourses(page)}
                             className={`px-4 py-2 rounded-lg transition flex items-center gap-1 ${
-                              page === currentPage ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-900 hover:bg-gray-300"
+                              page === currentPage
+                                ? "bg-blue-600 text-white"
+                                : "bg-gray-200 text-gray-900 hover:bg-gray-300"
                             }`}
                           >
                             {page}
@@ -451,7 +454,7 @@ export default function StudentDashboard({ user, onLogout }) {
             {activeTab === "my-courses" && (
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Learning Journey</h2>
-                
+
                 {enrolledCourses.length === 0 ? (
                   <div className="text-center py-16">
                     <i className="fas fa-book-open text-6xl mb-4 text-gray-300"></i>
@@ -485,14 +488,14 @@ export default function StudentDashboard({ user, onLogout }) {
                           </div>
                           <h3 className="text-xl font-bold text-gray-900 mb-2">{course.title}</h3>
                           <p className="text-gray-600 text-sm mb-4 line-clamp-2">{course.description}</p>
-                          
+
                           <div className="mb-4">
                             <div className="flex justify-between text-sm text-gray-600 mb-1">
                               <span>Progress</span>
                               <span>65%</span>
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2">
-                              <div className="bg-green-600 h-2 rounded-full" style={{ width: '65%' }}></div>
+                              <div className="bg-green-600 h-2 rounded-full" style={{ width: "65%" }}></div>
                             </div>
                           </div>
 
@@ -514,7 +517,7 @@ export default function StudentDashboard({ user, onLogout }) {
             {activeTab === "progress" && (
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Learning Progress</h2>
-                
+
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {/* Progress Overview */}
                   <div className="bg-white border border-gray-200 rounded-xl p-6">
@@ -585,10 +588,12 @@ export default function StudentDashboard({ user, onLogout }) {
                       { name: "Quick Learner", icon: "fas fa-bolt", color: "yellow" },
                       { name: "Perfect Score", icon: "fas fa-star", color: "gold" },
                       { name: "Week Warrior", icon: "fas fa-calendar", color: "blue" },
-                      { name: "Course Master", icon: "fas fa-graduation-cap", color: "purple" }
+                      { name: "Course Master", icon: "fas fa-graduation-cap", color: "purple" },
                     ].map((badge, index) => (
                       <div key={index} className="text-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-                        <div className={`w-12 h-12 ${getBadgeColor(badge.color)} rounded-full flex items-center justify-center mx-auto mb-2`}>
+                        <div
+                          className={`w-12 h-12 ${getBadgeColor(badge.color)} rounded-full flex items-center justify-center mx-auto mb-2`}
+                        >
                           <i className={`${badge.icon} text-white text-lg`}></i>
                         </div>
                         <p className="text-sm font-medium text-gray-900">{badge.name}</p>
@@ -694,10 +699,10 @@ export default function StudentDashboard({ user, onLogout }) {
 // Helper function for badge colors
 function getBadgeColor(color) {
   const colors = {
-    yellow: 'bg-yellow-500',
-    gold: 'bg-yellow-600',
-    blue: 'bg-blue-500',
-    purple: 'bg-purple-500'
+    yellow: "bg-yellow-500",
+    gold: "bg-yellow-600",
+    blue: "bg-blue-500",
+    purple: "bg-purple-500",
   }
-  return colors[color] || 'bg-gray-500'
+  return colors[color] || "bg-gray-500"
 }
