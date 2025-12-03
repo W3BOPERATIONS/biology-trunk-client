@@ -1,18 +1,22 @@
 "use client"
 
 import { Link, useNavigate } from "react-router-dom"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import axios from "axios"
 import { API_URL } from "../utils/api.js"
+import logo from "../assets/biology-trunk-logo.png" // Adjust path as needed
+import roadmapVideo from "../assets/biology-trunk-introduction.mp4" // Adjust path as needed
 
 export default function Home({ user, onLogout }) {
   const navigate = useNavigate()
+  const videoRef = useRef(null)
   const [stats, setStats] = useState({
     totalCourses: 0,
     premiumCourses: 0,
     totalFaculty: 0,
     totalStudents: 0,
   })
+  const [faqOpen, setFaqOpen] = useState(null)
 
   useEffect(() => {
     fetchStats()
@@ -50,45 +54,79 @@ export default function Home({ user, onLogout }) {
     }
   }
 
+  const faqItems = [
+    {
+      question: "What courses does Biology.Trunk offer?",
+      answer: "Biology.Trunk offers comprehensive courses for Classes 9-12, JEE Preparation, NEET Preparation, GUJCET, Board Exams, and specialized crash courses. Our curriculum is designed by expert faculty and updated regularly."
+    },
+    {
+      question: "How do I access the live classes?",
+      answer: "Once you enroll in a course, you'll get access to our learning platform. Live classes are scheduled at specific times which you can see in your dashboard. All live sessions are also recorded for later viewing."
+    },
+    {
+      question: "Is there a free trial available?",
+      answer: "Yes! We offer a 7-day free trial for most of our premium courses. You can access limited content and attend demo classes to experience our teaching methodology before making a purchase."
+    },
+    {
+      question: "How are the faculty members selected?",
+      answer: "Our faculty members are IIT/NIT alumni and industry experts with minimum 10+ years of teaching experience. They undergo rigorous training and evaluation to ensure the highest quality of education."
+    },
+    {
+      question: "What is the success rate of Biology.Trunk students?",
+      answer: "Our students have a proven 98% success rate in competitive exams. Many have secured top ranks in JEE, NEET, and board examinations with our structured learning approach."
+    },
+    {
+      question: "Do you provide study materials?",
+      answer: "Yes, we provide comprehensive study materials including PDF notes, practice questions, previous year papers, and mock tests. All materials are regularly updated according to the latest exam patterns."
+    }
+  ]
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center shadow-md">
-                <i className="fas fa-graduation-cap text-white text-lg"></i>
-              </div>
-              <span className="text-gray-900 font-bold text-2xl">EduTech Pro</span>
-            </div>
+          <div className="flex justify-between items-center h-20">
             <div className="flex items-center gap-4">
+              {/* Logo Image - Increased size */}
+              <div className="w-16 h-16 rounded-lg flex items-center justify-center overflow-hidden">
+                <img 
+                  src={logo} 
+                  alt="Biology.Trunk Logo" 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <span className="text-gray-900 font-bold text-2xl sm:text-3xl">Biology.Trunk</span>
+            </div>
+            <div className="flex items-center gap-2 sm:gap-4">
               {user ? (
                 <>
-                  <span className="text-gray-700 font-medium">{user.name}</span>
+                  <span className="text-gray-700 font-medium text-sm sm:text-base hidden sm:inline">
+                    {user.name}
+                  </span>
                   <button
                     onClick={onLogout}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold flex items-center gap-2"
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold flex items-center gap-2 text-sm sm:text-base"
                   >
                     <i className="fas fa-sign-out-alt"></i>
-                    Logout
+                    <span className="hidden sm:inline">Logout</span>
                   </button>
                 </>
               ) : (
                 <>
                   <Link
                     to="/login"
-                    className="px-4 py-2 text-gray-700 hover:text-blue-600 transition font-medium flex items-center gap-2"
+                    className="px-4 py-2 text-gray-700 hover:text-blue-600 transition font-medium flex items-center gap-2 text-sm sm:text-base"
                   >
                     <i className="fas fa-sign-in-alt"></i>
-                    Login
+                    <span className="hidden sm:inline">Login</span>
                   </Link>
                   <Link
                     to="/register"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center gap-2"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center gap-2 text-sm sm:text-base"
                   >
                     <i className="fas fa-user-plus"></i>
-                    Register
+                    <span className="hidden sm:inline">Register</span>
                   </Link>
                 </>
               )}
@@ -98,46 +136,46 @@ export default function Home({ user, onLogout }) {
       </nav>
 
       {/* Hero Section */}
-      <section className="bg-white py-24">
+      <section className="bg-white py-12 sm:py-16 md:py-20 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 items-center">
+            <div className="space-y-6 sm:space-y-8">
               <div>
-                <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
                   Transform Your Career with{" "}
                   <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                     Expert-Led Education
                   </span>
                 </h1>
-                <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+                <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 leading-relaxed">
                   Join India's most trusted online learning platform for competitive exam preparation. Access
                   comprehensive courses, personalized mentorship, and cutting-edge learning technology designed to help
                   you achieve academic excellence.
                 </p>
-                <div className="flex items-center gap-6 text-gray-600">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 text-gray-600">
                   <div className="flex items-center gap-2">
-                    <i className="fas fa-check-circle text-green-500"></i>
-                    <span>100% Placement Support</span>
+                    <i className="fas fa-check-circle text-green-500 text-lg"></i>
+                    <span className="text-base sm:text-lg">100% Placement Support</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <i className="fas fa-check-circle text-green-500"></i>
-                    <span>Live Doubt Sessions</span>
+                    <i className="fas fa-check-circle text-green-500 text-lg"></i>
+                    <span className="text-base sm:text-lg">Live Doubt Sessions</span>
                   </div>
                 </div>
               </div>
 
               {!user && (
-                <div className="flex gap-4 flex-wrap">
+                <div className="flex gap-4 sm:gap-6 flex-wrap">
                   <Link
                     to="/register"
-                    className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold shadow-lg hover:shadow-xl flex items-center gap-2"
+                    className="px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold shadow-lg hover:shadow-xl flex items-center gap-2 text-base sm:text-lg"
                   >
                     <i className="fas fa-rocket"></i>
                     Start Free Trial
                   </Link>
                   <Link
                     to="/login"
-                    className="px-8 py-4 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition font-semibold flex items-center gap-2"
+                    className="px-6 sm:px-8 py-3 sm:py-4 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition font-semibold flex items-center gap-2 text-base sm:text-lg"
                   >
                     <i className="fas fa-play-circle"></i>
                     Watch Demo
@@ -147,7 +185,7 @@ export default function Home({ user, onLogout }) {
               {user && (
                 <Link
                   to={`/${user.role}-dashboard`}
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold shadow-lg"
+                  className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold shadow-lg text-base sm:text-lg"
                 >
                   <i className="fas fa-tachometer-alt"></i>
                   Go to Dashboard
@@ -156,16 +194,16 @@ export default function Home({ user, onLogout }) {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-4 sm:gap-6">
               <div className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-blue-200">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <i className="fas fa-star text-blue-600 text-lg"></i>
+                    <i className="fas fa-star text-blue-600 text-xl"></i>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-900">{stats.premiumCourses}+</div>
-                    <div className="text-gray-700 font-semibold text-sm">Premium Courses</div>
-                    <div className="text-gray-500 text-xs">Expert-Curated Content</div>
+                    <div className="text-gray-700 font-semibold">Premium Courses</div>
+                    <div className="text-gray-500 text-sm">Expert-Curated Content</div>
                   </div>
                 </div>
               </div>
@@ -173,12 +211,12 @@ export default function Home({ user, onLogout }) {
               <div className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-green-200">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <i className="fas fa-users text-green-600 text-lg"></i>
+                    <i className="fas fa-users text-green-600 text-xl"></i>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-900">50K+</div>
-                    <div className="text-gray-700 font-semibold text-sm">Active Students</div>
-                    <div className="text-gray-500 text-xs">Growing Community</div>
+                    <div className="text-gray-700 font-semibold">Active Students</div>
+                    <div className="text-gray-500 text-sm">Growing Community</div>
                   </div>
                 </div>
               </div>
@@ -186,12 +224,12 @@ export default function Home({ user, onLogout }) {
               <div className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-purple-200">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <i className="fas fa-chalkboard-teacher text-purple-600 text-lg"></i>
+                    <i className="fas fa-chalkboard-teacher text-purple-600 text-xl"></i>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-900">{stats.totalFaculty}+</div>
-                    <div className="text-gray-700 font-semibold text-sm">Expert Faculty</div>
-                    <div className="text-gray-500 text-xs">Industry Professionals</div>
+                    <div className="text-gray-700 font-semibold">Expert Faculty</div>
+                    <div className="text-gray-500 text-sm">Industry Professionals</div>
                   </div>
                 </div>
               </div>
@@ -199,12 +237,12 @@ export default function Home({ user, onLogout }) {
               <div className="bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-orange-200">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <i className="fas fa-chart-line text-orange-600 text-lg"></i>
+                    <i className="fas fa-chart-line text-orange-600 text-xl"></i>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-900">98%</div>
-                    <div className="text-gray-700 font-semibold text-sm">Success Rate</div>
-                    <div className="text-gray-500 text-xs">Proven Results</div>
+                    <div className="text-gray-700 font-semibold">Success Rate</div>
+                    <div className="text-gray-500 text-sm">Proven Results</div>
                   </div>
                 </div>
               </div>
@@ -213,7 +251,7 @@ export default function Home({ user, onLogout }) {
         </div>
       </section>
 
-      {/* Industry Recognition Section - Replaced Trusted By */}
+      {/* Industry Recognition Section */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -251,11 +289,11 @@ export default function Home({ user, onLogout }) {
         </div>
       </section>
 
-      {/* Why Choose Us */}
+      {/* Why Choose Us - Restored original content */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Why Choose EduTech Pro?</h2>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Why Choose Biology.Trunk?</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               We combine cutting-edge technology with proven teaching methodologies to deliver exceptional learning
               outcomes for students across all competitive exam segments.
@@ -361,7 +399,7 @@ export default function Home({ user, onLogout }) {
         </div>
       </section>
 
-      {/* Course Categories - Fixed hover issue */}
+      {/* Course Categories */}
       <section className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -471,7 +509,7 @@ export default function Home({ user, onLogout }) {
         </div>
       </section>
 
-      {/* Learning Methodology */}
+      {/* Learning Methodology with Video */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -512,41 +550,53 @@ export default function Home({ user, onLogout }) {
                 ))}
               </div>
             </div>
-            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-8 rounded-2xl text-white">
-              <h3 className="text-2xl font-bold mb-6">Success Roadmap</h3>
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 bg-white text-blue-600 rounded-full flex items-center justify-center font-bold">
+            <div className="bg-gray-100 p-8 rounded-2xl">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Success Roadmap Video</h3>
+              <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-6">
+                <video
+                  ref={videoRef}
+                  src={roadmapVideo}
+                  className="w-full h-full object-cover"
+                  controls
+                  poster=""
+                  preload="metadata"
+                >
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 text-gray-700">
+                  <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
                     1
                   </div>
                   <span>Diagnostic Test & Goal Setting</span>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 bg-white text-blue-600 rounded-full flex items-center justify-center font-bold">
+                <div className="flex items-center gap-3 text-gray-700">
+                  <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
                     2
                   </div>
                   <span>Structured Learning Path</span>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 bg-white text-blue-600 rounded-full flex items-center justify-center font-bold">
+                <div className="flex items-center gap-3 text-gray-700">
+                  <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
                     3
                   </div>
                   <span>Regular Practice & Assessments</span>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 bg-white text-blue-600 rounded-full flex items-center justify-center font-bold">
+                <div className="flex items-center gap-3 text-gray-700">
+                  <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
                     4
                   </div>
                   <span>Performance Analysis</span>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 bg-white text-blue-600 rounded-full flex items-center justify-center font-bold">
+                <div className="flex items-center gap-3 text-gray-700">
+                  <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
                     5
                   </div>
                   <span>Revision & Mock Tests</span>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 bg-white text-blue-600 rounded-full flex items-center justify-center font-bold">
+                <div className="flex items-center gap-3 text-gray-700">
+                  <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
                     6
                   </div>
                   <span>Exam Readiness</span>
@@ -615,12 +665,52 @@ export default function Home({ user, onLogout }) {
         </div>
       </section>
 
+      {/* FAQ Section */}
+      <section className="py-24 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Find answers to common questions about Biology.Trunk courses, enrollment, and learning experience.
+            </p>
+          </div>
+          <div className="space-y-4">
+            {faqItems.map((item, index) => (
+              <div key={index} className="border border-gray-200 rounded-xl overflow-hidden">
+                <button
+                  className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
+                  onClick={() => setFaqOpen(faqOpen === index ? null : index)}
+                >
+                  <span className="font-semibold text-lg text-gray-900">{item.question}</span>
+                  <i className={`fas fa-chevron-${faqOpen === index ? 'up' : 'down'} text-blue-600`}></i>
+                </button>
+                {faqOpen === index && (
+                  <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                    <p className="text-gray-700">{item.answer}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-12">
+            <p className="text-gray-600 mb-4">Still have questions?</p>
+            <Link
+              to="/contact"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
+            >
+              <i className="fas fa-headset"></i>
+              Contact Support
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Call to Action */}
       <section className="py-20 bg-gradient-to-r from-blue-600 to-indigo-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold text-white mb-6">Ready to Transform Your Academic Journey?</h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of successful students who have achieved their dreams with EduTech Pro. Start your
+            Join thousands of successful students who have achieved their dreams with Biology.Trunk. Start your
             preparation today with our expert-led courses and comprehensive learning ecosystem.
           </p>
           {!user && (
@@ -671,7 +761,7 @@ export default function Home({ user, onLogout }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
-              <h4 className="text-white font-bold mb-4 text-lg">About EduTech Pro</h4>
+              <h4 className="text-white font-bold mb-4 text-lg">About Biology.Trunk</h4>
               <p className="text-sm text-gray-400 leading-relaxed">
                 Leading online learning platform providing quality education to students across India. Empowering the
                 next generation of achievers with cutting-edge technology and expert guidance.
@@ -741,7 +831,7 @@ export default function Home({ user, onLogout }) {
           <div className="border-t border-gray-800 pt-8 text-center">
             <p className="text-sm text-gray-400">
               <i className="fas fa-copyright mr-2"></i>
-              2025 EduTech Pro. All rights reserved. | Designed for educational excellence
+              2025 Biology.Trunk. All rights reserved. | Designed for educational excellence
             </p>
           </div>
         </div>
