@@ -15,6 +15,7 @@ export default function StudentDashboard({ user, onLogout }) {
   const navigate = useNavigate()
   const [courses, setCourses] = useState([])
   const [enrolledCourses, setEnrolledCourses] = useState([])
+  const [enrolledCoursesData, setEnrolledCoursesData] = useState([]) // New state for enrolled courses data
   const [selectedCategory, setSelectedCategory] = useState(() => {
     return localStorage.getItem("studentDashboardCategory") || searchParams.get("category") || ""
   })
@@ -80,7 +81,9 @@ export default function StudentDashboard({ user, onLogout }) {
     try {
       const response = await axios.get(`${API_URL}/enrollments/student/${user._id}`)
       const enrolledIds = response.data.map((e) => e.course._id)
+      const enrolledCoursesData = response.data.map((e) => e.course) // Get full course data
       setEnrolledCourses(enrolledIds)
+      setEnrolledCoursesData(enrolledCoursesData) // Store enrolled courses data
     } catch (error) {
       console.error("Failed to fetch enrolled courses:", error)
     }
@@ -107,12 +110,17 @@ export default function StudentDashboard({ user, onLogout }) {
   const handleEnroll = async (courseId) => {
     setEnrollmentLoading((prev) => ({ ...prev, [courseId]: true }))
     try {
-      await axios.post(`${API_URL}/enrollments`, {
+      const response = await axios.post(`${API_URL}/enrollments`, {
         student: user._id,
         course: courseId,
         paymentStatus: "completed",
       })
+      
+      // Fetch the enrolled course details
+      const courseResponse = await axios.get(`${API_URL}/courses/${courseId}`)
+      
       setEnrolledCourses((prev) => [...prev, courseId])
+      setEnrolledCoursesData((prev) => [...prev, courseResponse.data])
       alert("Enrolled successfully!")
       fetchCourses(currentPage)
     } catch (error) {
@@ -347,7 +355,7 @@ export default function StudentDashboard({ user, onLogout }) {
                       {filteredCourses.map((course) => (
                         <div
                           key={course._id}
-                          className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-blue-600 hover:shadow-lg transition-all duration-300 group"
+                          className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-blue-600 hover:shadow-lg transition-all duration-300 group flex flex-col"
                         >
                           {/* Course Image/Header */}
                           <div className="h-28 sm:h-32 lg:h-40 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 flex items-center justify-center relative overflow-hidden">
@@ -362,58 +370,60 @@ export default function StudentDashboard({ user, onLogout }) {
                           </div>
 
                           {/* Course Content */}
-                          <div className="p-3 sm:p-4 lg:p-6">
-                            <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-1 sm:mb-2 line-clamp-2">{course.title}</h3>
-                            <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3 lg:mb-4 line-clamp-2">{course.description}</p>
+                          <div className="p-3 sm:p-4 lg:p-6 flex-grow flex flex-col">
+                            <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-1 sm:mb-2 line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem] lg:min-h-[3.5rem] flex items-start">{course.title}</h3>
+                            <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3 lg:mb-4 line-clamp-2 flex-grow min-h-[2.5rem] sm:min-h-[2.8rem]">{course.description}</p>
 
                             {/* Course Meta */}
                             <div className="flex justify-between items-center mb-2 sm:mb-3 lg:mb-4 py-2 border-y border-gray-200">
                               <div>
-                                <span className="text-blue-600 text-xs sm:text-sm font-semibold bg-blue-50 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full flex items-center gap-0.5 sm:gap-1">
+                                <span className="text-blue-600 text-xs sm:text-sm font-semibold bg-blue-50 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full flex items-center gap-0.5 sm:gap-1 whitespace-nowrap">
                                   <i className="fas fa-tag text-xs"></i>
                                   {course.category}
                                 </span>
                               </div>
-                              <span className="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-0.5 sm:gap-1">
+                              <span className="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-0.5 sm:gap-1 whitespace-nowrap">
                                 <i className="fas fa-rupee-sign text-xs sm:text-sm"></i>
                                 {course.price}
                               </span>
                             </div>
 
                             {/* Student Count */}
-                            <div className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 flex items-center gap-1 sm:gap-2">
+                            <div className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 flex items-center gap-1 sm:gap-2 whitespace-nowrap">
                               <i className="fas fa-users text-xs sm:text-sm"></i>
                               {course.students?.length || 0} students
                             </div>
 
                             {/* Buttons */}
-                            {enrolledCourses.includes(course._id) ? (
-                              <button
-                                onClick={() => handleViewCourse(course._id)}
-                                className="w-full py-2 sm:py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base"
-                              >
-                                <i className="fas fa-play-circle text-xs sm:text-sm"></i>
-                                Continue Learning
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => handleEnroll(course._id)}
-                                disabled={enrollmentLoading[course._id]}
-                                className="w-full py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base"
-                              >
-                                {enrollmentLoading[course._id] ? (
-                                  <>
-                                    <i className="fas fa-spinner fa-spin text-xs sm:text-sm"></i>
-                                    Enrolling...
-                                  </>
-                                ) : (
-                                  <>
-                                    <i className="fas fa-shopping-cart text-xs sm:text-sm"></i>
-                                    Enroll Now
-                                  </>
-                                )}
-                              </button>
-                            )}
+                            <div className="mt-auto">
+                              {enrolledCourses.includes(course._id) ? (
+                                <button
+                                  onClick={() => handleViewCourse(course._id)}
+                                  className="w-full py-2 sm:py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base"
+                                >
+                                  <i className="fas fa-play-circle text-xs sm:text-sm"></i>
+                                  Continue Learning
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => handleEnroll(course._id)}
+                                  disabled={enrollmentLoading[course._id]}
+                                  className="w-full py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base"
+                                >
+                                  {enrollmentLoading[course._id] ? (
+                                    <>
+                                      <i className="fas fa-spinner fa-spin text-xs sm:text-sm"></i>
+                                      Enrolling...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <i className="fas fa-shopping-cart text-xs sm:text-sm"></i>
+                                      Enroll Now
+                                    </>
+                                  )}
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -464,7 +474,7 @@ export default function StudentDashboard({ user, onLogout }) {
               <div>
                 <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Your Learning Journey</h2>
 
-                {enrolledCourses.length === 0 ? (
+                {enrolledCoursesData.length === 0 ? (
                   <div className="text-center py-8 sm:py-12 lg:py-16">
                     <i className="fas fa-book-open text-4xl sm:text-6xl mb-3 sm:mb-4 text-gray-300"></i>
                     <div className="text-gray-600 text-base sm:text-lg mb-2 sm:mb-4">No courses enrolled yet</div>
@@ -479,35 +489,34 @@ export default function StudentDashboard({ user, onLogout }) {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
-                    {courses
-                      .filter((course) => enrolledCourses.includes(course._id))
-                      .map((course) => (
-                        <div
-                          key={course._id}
-                          className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-green-600/50 rounded-xl p-3 sm:p-4 lg:p-6 hover:shadow-lg transition-all duration-300"
-                        >
-                          <div className="flex items-start justify-between mb-2 sm:mb-3 lg:mb-4">
-                            <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                              <i className="fas fa-check text-green-600 text-base sm:text-lg lg:text-xl"></i>
-                            </div>
-                            <span className="text-green-600 font-bold flex items-center gap-0.5 sm:gap-1 text-xs sm:text-sm">
-                              <i className="fas fa-circle text-xs"></i>
-                              Active
-                            </span>
+                    {enrolledCoursesData.map((course) => (
+                      <div
+                        key={course._id}
+                        className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-green-600/50 rounded-xl p-3 sm:p-4 lg:p-6 hover:shadow-lg transition-all duration-300 flex flex-col"
+                      >
+                        <div className="flex items-start justify-between mb-2 sm:mb-3 lg:mb-4">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i className="fas fa-check text-green-600 text-base sm:text-lg lg:text-xl"></i>
                           </div>
-                          <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-1 sm:mb-2 line-clamp-2">{course.title}</h3>
-                          <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3 lg:mb-4 line-clamp-2">{course.description}</p>
+                          <span className="text-green-600 font-bold flex items-center gap-0.5 sm:gap-1 text-xs sm:text-sm whitespace-nowrap">
+                            <i className="fas fa-circle text-xs"></i>
+                            Active
+                          </span>
+                        </div>
+                        <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-1 sm:mb-2 line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem] lg:min-h-[3.5rem] flex items-start">{course.title}</h3>
+                        <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3 lg:mb-4 line-clamp-2 flex-grow min-h-[2.5rem] sm:min-h-[2.8rem]">{course.description}</p>
 
-                          <div className="mb-3 sm:mb-4">
-                            <div className="flex justify-between text-xs sm:text-sm text-gray-600 mb-1">
-                              <span>Progress</span>
-                              <span>65%</span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
-                              <div className="bg-green-600 h-1.5 sm:h-2 rounded-full" style={{ width: "65%" }}></div>
-                            </div>
+                        <div className="mb-3 sm:mb-4">
+                          <div className="flex justify-between text-xs sm:text-sm text-gray-600 mb-1 whitespace-nowrap">
+                            <span>Progress</span>
+                            <span>65%</span>
                           </div>
+                          <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
+                            <div className="bg-green-600 h-1.5 sm:h-2 rounded-full" style={{ width: "65%" }}></div>
+                          </div>
+                        </div>
 
+                        <div className="mt-auto">
                           <button
                             onClick={() => handleViewCourse(course._id)}
                             className="w-full py-2 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base"
@@ -516,7 +525,8 @@ export default function StudentDashboard({ user, onLogout }) {
                             Continue Learning
                           </button>
                         </div>
-                      ))}
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
