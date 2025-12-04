@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import axios from "axios"
 import { API_URL } from "../utils/api.js"
+import { showSuccessToast, showErrorToast } from "../utils/toast.js"
 
 export default function Register({ setUser }) {
   const [formData, setFormData] = useState({
@@ -31,12 +32,16 @@ export default function Register({ setUser }) {
     setError("")
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match")
+      const errorMsg = "Passwords do not match"
+      setError(errorMsg)
+      showErrorToast(errorMsg)
       return
     }
 
     if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters long")
+      const errorMsg = "Password must be at least 6 characters long"
+      setError(errorMsg)
+      showErrorToast(errorMsg)
       return
     }
 
@@ -53,9 +58,12 @@ export default function Register({ setUser }) {
 
       localStorage.setItem("user", JSON.stringify(response.data.user))
       setUser(response.data.user)
+      showSuccessToast(`Welcome, ${response.data.user.name}! Account created successfully.`)
       navigate(`/${response.data.user.role}-dashboard`)
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed")
+      const errorMessage = err.response?.data?.message || "Registration failed"
+      setError(errorMessage)
+      showErrorToast(errorMessage)
     } finally {
       setLoading(false)
     }

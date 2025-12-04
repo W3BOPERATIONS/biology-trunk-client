@@ -6,6 +6,7 @@ import { API_URL } from "../utils/api.js"
 import { useNavigate } from "react-router-dom"
 import { useLocation } from "react-router-dom"
 import logo from "../assets/biology-trunk-logo.png" // Add logo import
+import { showSuccessToast, showErrorToast, showWarningToast } from "../utils/toast.js"
 
 const ITEMS_PER_PAGE = 9
 
@@ -72,7 +73,7 @@ export default function StudentDashboard({ user, onLogout }) {
       setCurrentPage(page)
       setLoading(false)
     } catch (error) {
-      console.error("Failed to fetch courses:", error)
+      showErrorToast("Failed to load courses")
       setLoading(false)
     }
   }
@@ -115,16 +116,16 @@ export default function StudentDashboard({ user, onLogout }) {
         course: courseId,
         paymentStatus: "completed",
       })
-      
+
       // Fetch the enrolled course details
       const courseResponse = await axios.get(`${API_URL}/courses/${courseId}`)
-      
+
       setEnrolledCourses((prev) => [...prev, courseId])
       setEnrolledCoursesData((prev) => [...prev, courseResponse.data])
-      alert("Enrolled successfully!")
+      showSuccessToast("Enrolled successfully!")
       fetchCourses(currentPage)
     } catch (error) {
-      alert(error.response?.data?.message || "Enrollment failed")
+      showErrorToast(error.response?.data?.message || "Enrollment failed")
     } finally {
       setEnrollmentLoading((prev) => ({ ...prev, [courseId]: false }))
     }
@@ -134,8 +135,28 @@ export default function StudentDashboard({ user, onLogout }) {
     if (enrolledCourses.includes(courseId)) {
       navigate(`/course/${courseId}`)
     } else {
-      alert("Please enroll in this course first to view content")
+      showWarningToast("Please enroll in this course first to view content")
     }
+  }
+
+  const handleCloseNotificationModal = async () => {
+    if (notifications.length > 0) {
+      try {
+        // Mark all visible notifications as read when closing modal
+        await Promise.all(
+          notifications.map((n) =>
+            axios.put(`${API_URL}/notifications/${n._id}`).catch((err) => {
+              console.error(`Failed to mark notification ${n._id} as read:`, err)
+            }),
+          ),
+        )
+        setNotifications([])
+      } catch (error) {
+        console.error("Error closing notification modal:", error)
+      }
+    }
+    setShowNotificationModal(false)
+    setSelectedNotification(null)
   }
 
   const filteredCourses = courses.filter(
@@ -153,9 +174,9 @@ export default function StudentDashboard({ user, onLogout }) {
             <div className="flex items-center gap-2 sm:gap-3">
               {/* Logo - Same as Home page */}
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center overflow-hidden">
-                <img 
-                  src={logo} 
-                  alt="Biology.Trunk Logo" 
+                <img
+                  src={logo || "/placeholder.svg"}
+                  alt="Biology.Trunk Logo"
                   className="w-full h-full object-contain"
                 />
               </div>
@@ -165,7 +186,7 @@ export default function StudentDashboard({ user, onLogout }) {
               </div>
               <div className="sm:hidden">
                 <span className="text-gray-900 font-bold text-base">Student</span>
-                <p className="text-xs text-gray-500">Hi, {user.name.split(' ')[0]}</p>
+                <p className="text-xs text-gray-500">Hi, {user.name.split(" ")[0]}</p>
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
@@ -202,7 +223,9 @@ export default function StudentDashboard({ user, onLogout }) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">Courses</p>
-                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">{enrolledCourses.length}</p>
+                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">
+                  {enrolledCourses.length}
+                </p>
               </div>
               <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                 <i className="fas fa-book-open text-blue-600 text-sm sm:text-base lg:text-xl"></i>
@@ -215,7 +238,9 @@ export default function StudentDashboard({ user, onLogout }) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">Hours</p>
-                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">{learningStats.totalHours}+</p>
+                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">
+                  {learningStats.totalHours}+
+                </p>
               </div>
               <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-green-100 rounded-lg flex items-center justify-center">
                 <i className="fas fa-clock text-green-600 text-sm sm:text-base lg:text-xl"></i>
@@ -228,7 +253,9 @@ export default function StudentDashboard({ user, onLogout }) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">Certificates</p>
-                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">{learningStats.certificates}</p>
+                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">
+                  {learningStats.certificates}
+                </p>
               </div>
               <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                 <i className="fas fa-award text-purple-600 text-sm sm:text-base lg:text-xl"></i>
@@ -241,7 +268,9 @@ export default function StudentDashboard({ user, onLogout }) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">Streak</p>
-                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">{learningStats.streakDays} days</p>
+                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">
+                  {learningStats.streakDays} days
+                </p>
               </div>
               <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-orange-100 rounded-lg flex items-center justify-center">
                 <i className="fas fa-fire text-orange-600 text-sm sm:text-base lg:text-xl"></i>
@@ -263,10 +292,11 @@ export default function StudentDashboard({ user, onLogout }) {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center gap-1 sm:gap-2 flex-shrink-0 ${activeTab === tab.id
+                  className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center gap-1 sm:gap-2 flex-shrink-0 ${
+                    activeTab === tab.id
                       ? "border-blue-600 text-blue-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                    }`}
+                  }`}
                 >
                   <i className={tab.icon}></i>
                   <span className="hidden sm:inline">{tab.name}</span>
@@ -282,8 +312,12 @@ export default function StudentDashboard({ user, onLogout }) {
               <div className="space-y-4 sm:space-y-6">
                 {/* Header Section */}
                 <div className="mb-4 sm:mb-6 lg:mb-8">
-                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">Discover Premium Courses</h1>
-                  <p className="text-gray-600 text-sm sm:text-base mb-3 sm:mb-6">Find courses matching your learning goals</p>
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">
+                    Discover Premium Courses
+                  </h1>
+                  <p className="text-gray-600 text-sm sm:text-base mb-3 sm:mb-6">
+                    Find courses matching your learning goals
+                  </p>
 
                   {/* Search Bar */}
                   <div className="relative">
@@ -310,10 +344,11 @@ export default function StudentDashboard({ user, onLogout }) {
                         setSelectedCategory("")
                         setCurrentPage(1)
                       }}
-                      className={`px-3 sm:px-4 lg:px-5 py-2 sm:py-3 rounded-lg sm:rounded-xl transition font-medium flex items-center gap-1 sm:gap-2 text-xs sm:text-sm ${selectedCategory === ""
+                      className={`px-3 sm:px-4 lg:px-5 py-2 sm:py-3 rounded-lg sm:rounded-xl transition font-medium flex items-center gap-1 sm:gap-2 text-xs sm:text-sm ${
+                        selectedCategory === ""
                           ? "bg-blue-600 text-white shadow-md"
                           : "bg-white text-gray-700 border border-gray-300 hover:border-blue-500 hover:shadow-sm"
-                        }`}
+                      }`}
                     >
                       <i className="fas fa-th-large text-xs sm:text-sm"></i>
                       All
@@ -325,10 +360,11 @@ export default function StudentDashboard({ user, onLogout }) {
                           setSelectedCategory(cat)
                           setCurrentPage(1)
                         }}
-                        className={`px-3 sm:px-4 lg:px-5 py-2 sm:py-3 rounded-lg sm:rounded-xl transition font-medium flex items-center gap-1 sm:gap-2 text-xs sm:text-sm ${selectedCategory === cat
+                        className={`px-3 sm:px-4 lg:px-5 py-2 sm:py-3 rounded-lg sm:rounded-xl transition font-medium flex items-center gap-1 sm:gap-2 text-xs sm:text-sm ${
+                          selectedCategory === cat
                             ? "bg-blue-600 text-white shadow-md"
                             : "bg-white text-gray-700 border border-gray-300 hover:border-blue-500 hover:shadow-sm"
-                          }`}
+                        }`}
                       >
                         <i className="fas fa-tag text-xs sm:text-sm"></i>
                         {cat}
@@ -371,8 +407,12 @@ export default function StudentDashboard({ user, onLogout }) {
 
                           {/* Course Content */}
                           <div className="p-3 sm:p-4 lg:p-6 flex-grow flex flex-col">
-                            <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-1 sm:mb-2 line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem] lg:min-h-[3.5rem] flex items-start">{course.title}</h3>
-                            <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3 lg:mb-4 line-clamp-2 flex-grow min-h-[2.5rem] sm:min-h-[2.8rem]">{course.description}</p>
+                            <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-1 sm:mb-2 line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem] lg:min-h-[3.5rem] flex items-start">
+                              {course.title}
+                            </h3>
+                            <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3 lg:mb-4 line-clamp-2 flex-grow min-h-[2.5rem] sm:min-h-[2.8rem]">
+                              {course.description}
+                            </p>
 
                             {/* Course Meta */}
                             <div className="flex justify-between items-center mb-2 sm:mb-3 lg:mb-4 py-2 border-y border-gray-200">
@@ -435,7 +475,7 @@ export default function StudentDashboard({ user, onLogout }) {
                         <button
                           onClick={() => fetchCourses(currentPage - 1)}
                           disabled={currentPage === 1}
-                          className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-200 text-gray-900 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
+                          className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-200 text-gray-900 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm"
                         >
                           <i className="fas fa-chevron-left text-xs"></i>
                           <span className="hidden sm:inline">Previous</span>
@@ -445,10 +485,11 @@ export default function StudentDashboard({ user, onLogout }) {
                           <button
                             key={page}
                             onClick={() => fetchCourses(page)}
-                            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition flex items-center gap-0.5 sm:gap-1 text-xs sm:text-sm ${page === currentPage
+                            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition flex items-center gap-0.5 sm:gap-1 text-xs sm:text-sm ${
+                              page === currentPage
                                 ? "bg-blue-600 text-white"
                                 : "bg-gray-200 text-gray-900 hover:bg-gray-300"
-                              }`}
+                            }`}
                           >
                             {page}
                           </button>
@@ -456,7 +497,7 @@ export default function StudentDashboard({ user, onLogout }) {
                         <button
                           onClick={() => fetchCourses(currentPage + 1)}
                           disabled={currentPage === totalPages}
-                          className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-200 text-gray-900 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
+                          className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-200 text-gray-900 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm"
                         >
                           <span className="hidden sm:inline">Next</span>
                           <span className="sm:hidden">Next</span>
@@ -472,7 +513,9 @@ export default function StudentDashboard({ user, onLogout }) {
             {/* My Courses Tab */}
             {activeTab === "my-courses" && (
               <div>
-                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Your Learning Journey</h2>
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
+                  Your Learning Journey
+                </h2>
 
                 {enrolledCoursesData.length === 0 ? (
                   <div className="text-center py-8 sm:py-12 lg:py-16">
@@ -481,7 +524,7 @@ export default function StudentDashboard({ user, onLogout }) {
                     <p className="text-gray-500 text-sm sm:text-base mb-4 sm:mb-6">Start by exploring our courses</p>
                     <button
                       onClick={() => setActiveTab("discover")}
-                      className="px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center gap-1 sm:gap-2 mx-auto text-sm sm:text-base"
+                      className="px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center justify-center gap-1 sm:gap-2 mx-auto text-sm sm:text-base"
                     >
                       <i className="fas fa-compass text-sm"></i>
                       Explore Courses
@@ -503,8 +546,12 @@ export default function StudentDashboard({ user, onLogout }) {
                             Active
                           </span>
                         </div>
-                        <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-1 sm:mb-2 line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem] lg:min-h-[3.5rem] flex items-start">{course.title}</h3>
-                        <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3 lg:mb-4 line-clamp-2 flex-grow min-h-[2.5rem] sm:min-h-[2.8rem]">{course.description}</p>
+                        <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-1 sm:mb-2 line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem] lg:min-h-[3.5rem] flex items-start">
+                          {course.title}
+                        </h3>
+                        <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3 lg:mb-4 line-clamp-2 flex-grow min-h-[2.5rem] sm:min-h-[2.8rem]">
+                          {course.description}
+                        </p>
 
                         <div className="mb-3 sm:mb-4">
                           <div className="flex justify-between text-xs sm:text-sm text-gray-600 mb-1 whitespace-nowrap">
@@ -535,7 +582,9 @@ export default function StudentDashboard({ user, onLogout }) {
             {/* Progress Tab */}
             {activeTab === "progress" && (
               <div>
-                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Your Learning Progress</h2>
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
+                  Your Learning Progress
+                </h2>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                   {/* Progress Overview */}
@@ -547,7 +596,9 @@ export default function StudentDashboard({ user, onLogout }) {
                     <div className="space-y-2 sm:space-y-3 lg:space-y-4">
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600 text-sm sm:text-base">Courses Completed</span>
-                        <span className="font-semibold text-green-600 text-sm sm:text-base">{learningStats.completedCourses}/5</span>
+                        <span className="font-semibold text-green-600 text-sm sm:text-base">
+                          {learningStats.completedCourses}/5
+                        </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600 text-sm sm:text-base">Average Score</span>
@@ -555,11 +606,15 @@ export default function StudentDashboard({ user, onLogout }) {
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600 text-sm sm:text-base">Study Streak</span>
-                        <span className="font-semibold text-orange-600 text-sm sm:text-base">{learningStats.streakDays} days</span>
+                        <span className="font-semibold text-orange-600 text-sm sm:text-base">
+                          {learningStats.streakDays} days
+                        </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600 text-sm sm:text-base">Time Spent</span>
-                        <span className="font-semibold text-purple-600 text-sm sm:text-base">{learningStats.totalHours} hours</span>
+                        <span className="font-semibold text-purple-600 text-sm sm:text-base">
+                          {learningStats.totalHours} hours
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -668,7 +723,7 @@ export default function StudentDashboard({ user, onLogout }) {
                     Course Updates ({notifications.length})
                   </h3>
                   <button
-                    onClick={() => setShowNotificationModal(false)}
+                    onClick={handleCloseNotificationModal}
                     className="text-gray-500 hover:text-gray-700 text-xl sm:text-2xl font-bold"
                   >
                     ×

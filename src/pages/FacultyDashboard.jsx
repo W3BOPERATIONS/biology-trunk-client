@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react"
 import axios from "axios"
 import { API_URL } from "../utils/api.js"
-import logo from "../assets/biology-trunk-logo.png" // Add logo import
+import { showSuccessToast, showErrorToast } from "../utils/toast.js"
+import logo from "../assets/biology-trunk-logo.png"
 
 export default function FacultyDashboard({ user, onLogout }) {
   const [courses, setCourses] = useState([])
@@ -34,6 +35,10 @@ export default function FacultyDashboard({ user, onLogout }) {
     avgRating: 0,
     activeStudents: 0,
   })
+  const [editingContentId, setEditingContentId] = useState(null)
+  const [editingContent, setEditingContent] = useState(null)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleteContentId, setDeleteContentId] = useState(null)
 
   useEffect(() => {
     fetchFacultyCourses()
@@ -63,6 +68,7 @@ export default function FacultyDashboard({ user, onLogout }) {
       setLoading(false)
     } catch (error) {
       console.error("Failed to fetch courses:", error)
+      showErrorToast("Failed to load courses")
       setLoading(false)
     }
   }
@@ -85,6 +91,7 @@ export default function FacultyDashboard({ user, onLogout }) {
       setTotalEarnings(earnings)
     } catch (error) {
       console.error("Failed to fetch enrollments:", error)
+      showErrorToast("Failed to load enrollment data")
     }
   }
 
@@ -94,6 +101,7 @@ export default function FacultyDashboard({ user, onLogout }) {
       setNotifications(response.data.filter((n) => !n.read))
     } catch (error) {
       console.error("Failed to fetch notifications:", error)
+      showErrorToast("Failed to load notifications")
     }
   }
 
@@ -103,6 +111,7 @@ export default function FacultyDashboard({ user, onLogout }) {
       setCourseContent(response.data)
     } catch (error) {
       console.error("Failed to fetch course content:", error)
+      showErrorToast("Failed to load course content")
     }
   }
 
@@ -133,7 +142,7 @@ export default function FacultyDashboard({ user, onLogout }) {
       }
 
       await axios.post(`${API_URL}/content`, formData)
-      alert("Content uploaded successfully! Students will be notified.")
+      showSuccessToast("Content uploaded successfully! Students will be notified.")
       setContentForm({
         title: "",
         type: "pdf",
@@ -146,7 +155,8 @@ export default function FacultyDashboard({ user, onLogout }) {
       })
       fetchCourseContent() // Refresh content list
     } catch (error) {
-      alert("Failed to upload content")
+      console.error("Failed to upload content:", error)
+      showErrorToast("Failed to upload content")
     }
   }
 
@@ -156,19 +166,99 @@ export default function FacultyDashboard({ user, onLogout }) {
       setNotifications((prev) => prev.filter((n) => n._id !== notificationId))
     } catch (error) {
       console.error("Failed to mark notification as read:", error)
+      showErrorToast("Failed to mark notification as read")
     }
   }
 
-  const deleteContent = async (contentId) => {
-    if (window.confirm("Are you sure you want to delete this content?")) {
+  const handleCloseNotificationModal = async () => {
+    if (notifications.length > 0) {
       try {
-        await axios.delete(`${API_URL}/content/${contentId}`)
-        fetchCourseContent() // Refresh content list
-        alert("Content deleted successfully!")
+        // Mark all visible notifications as read when closing modal
+        await Promise.all(
+          notifications.map((n) =>
+            axios.put(`${API_URL}/notifications/${n._id}`).catch((err) => {
+              console.error(`Failed to mark notification ${n._id} as read:`, err)
+            }),
+          ),
+        )
+        setNotifications([])
       } catch (error) {
-        alert("Failed to delete content")
+        console.error("Error closing notification modal:", error)
       }
     }
+    setShowNotificationModal(false)
+  }
+
+  const deleteContent = async (contentId) => {
+    setDeleteContentId(contentId)
+    setShowDeleteConfirm(true)
+  }
+
+  const confirmDeleteContent = async () => {
+    try {
+      await axios.delete(`${API_URL}/content/${deleteContentId}`)
+      showSuccessToast("Content deleted successfully!")
+      setShowDeleteConfirm(false)
+      setDeleteContentId(null)
+      fetchCourseContent()
+    } catch (error) {
+      console.error("Failed to delete content:", error)
+      showErrorToast("Failed to delete content")
+    }
+  }
+
+  const startEditContent = (content) => {
+    setEditingContentId(content._id)
+    setEditingContent({
+      title: content.title,
+      description: content.description,
+      type: content.type,
+      pdfUrl: content.pdfUrl || "",
+      videoUrl: content.videoUrl || "",
+      liveClassUrl: content.liveClassUrl || "",
+      liveClassDate: content.liveClassDate || "",
+      liveClassTime: content.liveClassTime || "",
+    })
+    setActiveTab("upload")
+  }
+
+  const handleUpdateContent = async (e) => {
+    e.preventDefault()
+    try {
+      const updateData = {
+        title: editingContent.title,
+        description: editingContent.description,
+        type: editingContent.type,
+        pdfUrl: editingContent.type === "pdf" ? editingContent.pdfUrl : "",
+        videoUrl: editingContent.type === "video" ? editingContent.videoUrl : "",
+        liveClassUrl: editingContent.type === "live_class" ? editingContent.liveClassUrl : "",
+        liveClassDate: editingContent.type === "live_class" ? editingContent.liveClassDate : "",
+        liveClassTime: editingContent.type === "live_class" ? editingContent.liveClassTime : "",
+      }
+
+      await axios.put(`${API_URL}/content/${editingContentId}`, updateData)
+      showSuccessToast("Content updated successfully!")
+      cancelEdit()
+      fetchCourseContent()
+    } catch (error) {
+      console.error("Failed to update content:", error)
+      showErrorToast("Failed to update content")
+    }
+  }
+
+  const cancelEdit = () => {
+    setEditingContentId(null)
+    setEditingContent(null)
+    setContentForm({
+      title: "",
+      type: "pdf",
+      description: "",
+      pdfUrl: "",
+      videoUrl: "",
+      liveClassUrl: "",
+      liveClassDate: "",
+      liveClassTime: "",
+    })
   }
 
   const currentEnrollments = selectedCourse ? allEnrollments[selectedCourse._id] || [] : []
@@ -211,6 +301,35 @@ export default function FacultyDashboard({ user, onLogout }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Delete Content?</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this content? This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setShowDeleteConfirm(false)
+                  setDeleteContentId(null)
+                }}
+                className="px-4 py-2 bg-gray-300 text-gray-900 rounded-lg hover:bg-gray-400 transition font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteContent}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header - Same responsive design as StudentDashboard */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
@@ -218,9 +337,9 @@ export default function FacultyDashboard({ user, onLogout }) {
             <div className="flex items-center gap-2 sm:gap-3">
               {/* Logo - Same as StudentDashboard */}
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center overflow-hidden">
-                <img 
-                  src={logo} 
-                  alt="Biology.Trunk Logo" 
+                <img
+                  src={logo || "/placeholder.svg"}
+                  alt="Biology.Trunk Logo"
                   className="w-full h-full object-contain"
                 />
               </div>
@@ -230,7 +349,7 @@ export default function FacultyDashboard({ user, onLogout }) {
               </div>
               <div className="sm:hidden">
                 <span className="text-gray-900 font-bold text-base">Faculty</span>
-                <p className="text-xs text-gray-500">Hi, {user.name.split(' ')[0]}</p>
+                <p className="text-xs text-gray-500">Hi, {user.name.split(" ")[0]}</p>
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
@@ -274,8 +393,12 @@ export default function FacultyDashboard({ user, onLogout }) {
               <div className="bg-white rounded-xl p-3 sm:p-4 lg:p-6 shadow-sm border border-gray-200">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">Total Courses</p>
-                    <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">{courses.length}</p>
+                    <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">
+                      Total Courses
+                    </p>
+                    <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">
+                      {courses.length}
+                    </p>
                   </div>
                   <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                     <i className="fas fa-book-open text-blue-600 text-sm sm:text-base lg:text-xl"></i>
@@ -287,8 +410,12 @@ export default function FacultyDashboard({ user, onLogout }) {
               <div className="bg-white rounded-xl p-3 sm:p-4 lg:p-6 shadow-sm border border-gray-200">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">Total Students</p>
-                    <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">{totalStudents}</p>
+                    <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">
+                      Total Students
+                    </p>
+                    <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">
+                      {totalStudents}
+                    </p>
                   </div>
                   <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-green-100 rounded-lg flex items-center justify-center">
                     <i className="fas fa-users text-green-600 text-sm sm:text-base lg:text-xl"></i>
@@ -300,8 +427,12 @@ export default function FacultyDashboard({ user, onLogout }) {
               <div className="bg-white rounded-xl p-3 sm:p-4 lg:p-6 shadow-sm border border-gray-200">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">Total Earnings</p>
-                    <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">₹{totalEarnings.toLocaleString()}</p>
+                    <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">
+                      Total Earnings
+                    </p>
+                    <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">
+                      ₹{totalEarnings.toLocaleString()}
+                    </p>
                   </div>
                   <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                     <i className="fas fa-rupee-sign text-purple-600 text-sm sm:text-base lg:text-xl"></i>
@@ -313,8 +444,12 @@ export default function FacultyDashboard({ user, onLogout }) {
               <div className="bg-white rounded-xl p-3 sm:p-4 lg:p-6 shadow-sm border border-gray-200">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">Avg. Rating</p>
-                    <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">{performanceStats.avgRating}/5</p>
+                    <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">
+                      Avg. Rating
+                    </p>
+                    <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">
+                      {performanceStats.avgRating}/5
+                    </p>
                   </div>
                   <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
                     <i className="fas fa-star text-yellow-600 text-sm sm:text-base lg:text-xl"></i>
@@ -365,19 +500,25 @@ export default function FacultyDashboard({ user, onLogout }) {
                         <button
                           key={course._id}
                           onClick={() => setSelectedCourse(course)}
-                          className={`w-full text-left p-3 sm:p-4 rounded-lg transition-all duration-200 flex items-start gap-2 sm:gap-3 ${selectedCourse?._id === course._id
+                          className={`w-full text-left p-3 sm:p-4 rounded-lg transition-all duration-200 flex items-start gap-2 sm:gap-3 ${
+                            selectedCourse?._id === course._id
                               ? "bg-blue-600 text-white shadow-md"
                               : "bg-gray-50 text-gray-900 border border-gray-200 hover:border-blue-300 hover:shadow-sm"
-                            }`}
+                          }`}
                         >
-                          <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center ${selectedCourse?._id === course._id
-                              ? "bg-white text-blue-600"
-                              : "bg-blue-100 text-blue-600"
-                            }`}>
+                          <div
+                            className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center ${
+                              selectedCourse?._id === course._id
+                                ? "bg-white text-blue-600"
+                                : "bg-blue-100 text-blue-600"
+                            }`}
+                          >
                             <i className="fas fa-graduation-cap text-sm sm:text-base"></i>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-xs sm:text-sm leading-tight truncate">{course.title}</div>
+                            <div className="font-semibold text-xs sm:text-sm leading-tight truncate">
+                              {course.title}
+                            </div>
                             <div className="text-xs opacity-75 mt-0.5 truncate">{course.category}</div>
                             <div className="text-xs mt-1 sm:mt-2 opacity-60 flex items-center gap-1">
                               <i className="fas fa-users text-xs"></i>
@@ -399,8 +540,12 @@ export default function FacultyDashboard({ user, onLogout }) {
                     <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 mb-4 sm:mb-6">
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3 sm:mb-4 gap-3 sm:gap-4">
                         <div className="flex-1 min-w-0">
-                          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-1 sm:mb-2 truncate">{selectedCourse.title}</h2>
-                          <p className="text-gray-600 text-sm sm:text-base mb-2 sm:mb-3 lg:mb-4 line-clamp-2">{selectedCourse.description}</p>
+                          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-1 sm:mb-2 truncate">
+                            {selectedCourse.title}
+                          </h2>
+                          <p className="text-gray-600 text-sm sm:text-base mb-2 sm:mb-3 lg:mb-4 line-clamp-2">
+                            {selectedCourse.description}
+                          </p>
                           <div className="flex flex-wrap items-center gap-2 sm:gap-3 lg:gap-4 text-xs sm:text-sm text-gray-500">
                             <span className="flex items-center gap-1">
                               <i className="fas fa-clock text-xs"></i>
@@ -429,20 +574,27 @@ export default function FacultyDashboard({ user, onLogout }) {
                           </div>
                           <div className="text-xs text-gray-600">Enrolled</div>
                         </div>
+                        {/* Added Course Content count to quick stats */}
                         <div className="text-center p-3 sm:p-4 bg-green-50 rounded-lg border border-green-200">
-                          <i className="fas fa-eye text-green-600 text-lg sm:text-xl mb-1 sm:mb-2"></i>
-                          <div className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600">{performanceStats.totalViews.toLocaleString()}</div>
-                          <div className="text-xs text-gray-600">Total Views</div>
+                          <i className="fas fa-file-alt text-green-600 text-lg sm:text-xl mb-1 sm:mb-2"></i>
+                          <div className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600">
+                            {courseContent.length}
+                          </div>
+                          <div className="text-xs text-gray-600">Content</div>
                         </div>
                         <div className="text-center p-3 sm:p-4 bg-purple-50 rounded-lg border border-purple-200">
-                          <i className="fas fa-chart-line text-purple-600 text-lg sm:text-xl mb-1 sm:mb-2"></i>
-                          <div className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-600">{performanceStats.completionRate}%</div>
-                          <div className="text-xs text-gray-600">Completion</div>
+                          <i className="fas fa-eye text-purple-600 text-lg sm:text-xl mb-1 sm:mb-2"></i>
+                          <div className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-600">
+                            {performanceStats.totalViews}
+                          </div>
+                          <div className="text-xs text-gray-600">Views</div>
                         </div>
                         <div className="text-center p-3 sm:p-4 bg-orange-50 rounded-lg border border-orange-200">
-                          <i className="fas fa-star text-orange-600 text-lg sm:text-xl mb-1 sm:mb-2"></i>
-                          <div className="text-lg sm:text-xl lg:text-2xl font-bold text-orange-600">{performanceStats.avgRating}</div>
-                          <div className="text-xs text-gray-600">Rating</div>
+                          <i className="fas fa-chart-line text-orange-600 text-lg sm:text-xl mb-1 sm:mb-2"></i>
+                          <div className="text-lg sm:text-xl lg:text-2xl font-bold text-orange-600">
+                            {performanceStats.completionRate}%
+                          </div>
+                          <div className="text-xs text-gray-600">Completion</div>
                         </div>
                       </div>
                     </div>
@@ -450,83 +602,113 @@ export default function FacultyDashboard({ user, onLogout }) {
                     {/* Navigation Tabs */}
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-4 sm:mb-6 overflow-hidden">
                       <div className="border-b border-gray-200 overflow-x-auto">
-                        <nav className="flex space-x-2 sm:space-x-4 lg:space-x-8 px-3 sm:px-4 lg:px-6 min-w-max">
+                        <nav className="flex space-x-4 sm:space-x-8 px-3 sm:px-4 lg:px-6 min-w-max">
+                          {/* Simplified tab structure and added conditional label for upload/edit */}
                           {[
-                            { id: "overview", name: "Overview", icon: "fas fa-chart-pie", mobileIcon: "fas fa-chart-pie" },
-                            { id: "students", name: "Students", icon: "fas fa-users", mobileIcon: "fas fa-users" },
-                            { id: "content", name: "Content", icon: "fas fa-file-alt", mobileIcon: "fas fa-file" },
-                            { id: "upload", name: "Upload", icon: "fas fa-upload", mobileIcon: "fas fa-plus" },
+                            { id: "overview", name: "Content", icon: "fas fa-list" },
+                            { id: "students", name: "Students", icon: "fas fa-users" },
+                            {
+                              id: "upload",
+                              name: editingContentId ? "Edit Content" : "Upload",
+                              icon: editingContentId ? "fas fa-edit" : "fas fa-plus",
+                            },
                           ].map((tab) => (
                             <button
                               key={tab.id}
-                              onClick={() => setActiveTab(tab.id)}
-                              className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center gap-1 sm:gap-2 whitespace-nowrap ${activeTab === tab.id
+                              onClick={() => {
+                                setActiveTab(tab.id)
+                                // Reset edit state if switching away from upload tab
+                                if (tab.id !== "upload" && editingContentId) {
+                                  cancelEdit()
+                                }
+                              }}
+                              className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center gap-1 sm:gap-2 flex-shrink-0 transition ${
+                                activeTab === tab.id
                                   ? "border-blue-600 text-blue-600"
                                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                                }`}
+                              }`}
                             >
-                              <i className={`${activeTab === tab.id ? tab.icon : tab.mobileIcon} text-xs sm:text-sm`}></i>
+                              <i className={tab.icon}></i>
                               <span className="hidden sm:inline">{tab.name}</span>
-                              <span className="sm:hidden">{tab.name}</span>
+                              {/* Shortened mobile tab name */}
+                              <span className="sm:hidden">{tab.name.split(" ")[0]}</span>
                             </button>
                           ))}
                         </nav>
                       </div>
 
                       <div className="p-3 sm:p-4 lg:p-6">
-                        {/* Overview Tab */}
+                        {/* Overview Tab - Renamed to Content List Tab */}
                         {activeTab === "overview" && (
-                          <div className="space-y-4 sm:space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                              <div className="bg-gray-50 p-4 sm:p-6 rounded-lg border border-gray-200">
-                                <h3 className="font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base">
-                                  <i className="fas fa-trending-up text-green-600"></i>
-                                  Performance Overview
-                                </h3>
-                                <div className="space-y-2 sm:space-y-3">
-                                  <div className="flex justify-between items-center">
-                                    <span className="text-gray-600 text-sm">Course Completion Rate</span>
-                                    <span className="font-semibold text-green-600 text-sm">
-                                      {performanceStats.completionRate}%
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between items-center">
-                                    <span className="text-gray-600 text-sm">Student Engagement</span>
-                                    <span className="font-semibold text-blue-600 text-sm">High</span>
-                                  </div>
-                                  <div className="flex justify-between items-center">
-                                    <span className="text-gray-600 text-sm">Average Watch Time</span>
-                                    <span className="font-semibold text-purple-600 text-sm">45 min</span>
-                                  </div>
-                                </div>
+                          <div>
+                            <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">
+                              Course Content ({courseContent.length})
+                            </h3>
+                            {courseContent.length === 0 ? (
+                              <div className="text-center py-8 sm:py-12">
+                                <i className="fas fa-inbox text-3xl sm:text-4xl text-gray-300 mb-3 sm:mb-4"></i>
+                                <p className="text-gray-600 text-base sm:text-lg">No content uploaded yet</p>
+                                <p className="text-gray-500 text-sm sm:text-base mt-2">
+                                  Go to the Upload tab to add course content
+                                </p>
                               </div>
-                              <div className="bg-gray-50 p-4 sm:p-6 rounded-lg border border-gray-200">
-                                <h3 className="font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base">
-                                  <i className="fas fa-calendar-alt text-blue-600"></i>
-                                  Recent Activity
-                                </h3>
-                                <div className="space-y-2 sm:space-y-3">
-                                  <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
-                                    <i className="fas fa-user-plus text-green-600 text-xs"></i>
-                                    <span>5 new students enrolled today</span>
+                            ) : (
+                              <div className="space-y-3 sm:space-y-4">
+                                {courseContent.map((content) => (
+                                  <div
+                                    key={content._id}
+                                    className="bg-gray-50 border border-gray-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4"
+                                  >
+                                    <div
+                                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${getContentColor(content.type)}`}
+                                    >
+                                      <i className={`${getContentIcon(content.type)} text-sm sm:text-base`}></i>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <h4 className="font-semibold text-gray-900 text-sm sm:text-base truncate">
+                                        {content.title}
+                                      </h4>
+                                      <p className="text-gray-600 text-xs sm:text-sm mt-0.5 line-clamp-1">
+                                        {content.description}
+                                      </p>
+                                      <div className="flex items-center gap-2 sm:gap-3 mt-1 text-xs text-gray-500">
+                                        <span className="flex items-center gap-1">
+                                          <i className="fas fa-calendar text-xs"></i>
+                                          {new Date(content.createdAt).toLocaleDateString()}
+                                        </span>
+                                        <span className="flex items-center gap-1">
+                                          <i className="fas fa-eye text-xs"></i>
+                                          245 views
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-1 sm:gap-2 self-end sm:self-center">
+                                      <button
+                                        onClick={() => startEditContent(content)}
+                                        className="p-1.5 sm:p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors text-xs sm:text-sm"
+                                      >
+                                        <i className="fas fa-edit text-xs sm:text-sm"></i>
+                                        <span className="sr-only">Edit</span>
+                                      </button>
+                                      <button
+                                        onClick={() => deleteContent(content._id)}
+                                        className="p-1.5 sm:p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors text-xs sm:text-sm"
+                                      >
+                                        <i className="fas fa-trash text-xs sm:text-sm"></i>
+                                        <span className="sr-only">Delete</span>
+                                      </button>
+                                    </div>
                                   </div>
-                                  <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
-                                    <i className="fas fa-comment text-blue-600 text-xs"></i>
-                                    <span>12 new discussion posts</span>
-                                  </div>
-                                  <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
-                                    <i className="fas fa-star text-yellow-600 text-xs"></i>
-                                    <span>3 new course ratings</span>
-                                  </div>
-                                </div>
+                                ))}
                               </div>
-                            </div>
+                            )}
                           </div>
                         )}
 
                         {/* Students Tab */}
                         {activeTab === "students" && (
                           <div>
+                            {/* Added Search bar for students */}
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-4">
                               <h3 className="text-lg sm:text-xl font-bold text-gray-900">
                                 Enrolled Students ({filteredEnrollments.length})
@@ -542,130 +724,37 @@ export default function FacultyDashboard({ user, onLogout }) {
                                 <i className="fas fa-search absolute left-3 top-2.5 text-gray-400 text-sm"></i>
                               </div>
                             </div>
-
                             {filteredEnrollments.length === 0 ? (
-                              <div className="text-center py-8 sm:py-12 text-gray-500">
-                                <i className="fas fa-users text-3xl sm:text-4xl mb-3 sm:mb-4 text-gray-300"></i>
-                                <p className="text-base sm:text-lg">No students enrolled yet</p>
-                                <p className="text-sm mt-1 sm:mt-2">
-                                  Students will appear here once they enroll in your course
-                                </p>
+                              <div className="text-center py-8 sm:py-12">
+                                <i className="fas fa-users text-3xl sm:text-4xl text-gray-300 mb-3 sm:mb-4"></i>
+                                <p className="text-gray-600 text-base sm:text-lg">No students enrolled yet</p>
                               </div>
                             ) : (
-                              <div className="overflow-x-auto rounded-lg border border-gray-200">
-                                <table className="w-full min-w-max">
-                                  <thead className="bg-gray-50 border-b border-gray-200">
-                                    <tr>
-                                      <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-gray-700 font-semibold text-xs sm:text-sm">Student</th>
-                                      <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-gray-700 font-semibold text-xs sm:text-sm">Progress</th>
-                                      <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-gray-700 font-semibold text-xs sm:text-sm">Last Active</th>
-                                      <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-gray-700 font-semibold text-xs sm:text-sm">Enrolled Date</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody className="divide-y divide-gray-200">
-                                    {filteredEnrollments.map((enrollment) => (
-                                      <tr key={enrollment._id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-3 sm:px-4 py-3 sm:py-4">
-                                          <div className="flex items-center gap-2 sm:gap-3">
-                                            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                              <i className="fas fa-user text-blue-600 text-xs"></i>
-                                            </div>
-                                            <div className="min-w-0">
-                                              <div className="font-medium text-gray-900 text-xs sm:text-sm truncate">{enrollment.student.name}</div>
-                                              <div className="text-xs text-gray-500 truncate">{enrollment.student.email}</div>
-                                            </div>
-                                          </div>
-                                        </td>
-                                        <td className="px-3 sm:px-4 py-3 sm:py-4">
-                                          <div className="flex items-center gap-1 sm:gap-2">
-                                            <div className="w-12 sm:w-16 bg-gray-200 rounded-full h-1.5 sm:h-2">
-                                              <div
-                                                className="bg-green-600 h-1.5 sm:h-2 rounded-full"
-                                                style={{ width: "65%" }}
-                                              ></div>
-                                            </div>
-                                            <span className="text-xs sm:text-sm text-gray-600">65%</span>
-                                          </div>
-                                        </td>
-                                        <td className="px-3 sm:px-4 py-3 sm:py-4 text-gray-600 text-xs sm:text-sm">{new Date().toLocaleDateString()}</td>
-                                        <td className="px-3 sm:px-4 py-3 sm:py-4 text-gray-600 text-xs sm:text-sm">
-                                          {new Date(enrollment.enrolledAt).toLocaleDateString()}
-                                        </td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Content Tab */}
-                        {activeTab === "content" && (
-                          <div>
-                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-4">
-                              <h3 className="text-lg sm:text-xl font-bold text-gray-900">
-                                Course Content ({courseContent.length})
-                              </h3>
-                              <button
-                                onClick={() => setActiveTab("upload")}
-                                className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm"
-                              >
-                                <i className="fas fa-plus text-xs sm:text-sm"></i>
-                                <span className="hidden sm:inline">Add Content</span>
-                                <span className="sm:hidden">Add</span>
-                              </button>
-                            </div>
-
-                            {courseContent.length === 0 ? (
-                              <div className="text-center py-8 sm:py-12 text-gray-500">
-                                <i className="fas fa-folder-open text-3xl sm:text-4xl mb-3 sm:mb-4 text-gray-300"></i>
-                                <p className="text-base sm:text-lg">No content uploaded yet</p>
-                                <p className="text-sm mt-1 sm:mt-2">Start by uploading your first piece of content</p>
-                              </div>
-                            ) : (
-                              <div className="space-y-3 sm:space-y-4">
-                                {courseContent.map((content) => (
+                              // Changed student list to a scrollable div instead of table
+                              <div className="space-y-2 sm:space-y-3 max-h-96 overflow-y-auto">
+                                {filteredEnrollments.map((enrollment) => (
                                   <div
-                                    key={content._id}
-                                    className="bg-gray-50 border border-gray-200 rounded-lg p-3 sm:p-4 hover:shadow-sm transition-shadow"
+                                    key={enrollment._id}
+                                    className="bg-gray-50 border border-gray-200 rounded-lg p-3 sm:p-4 flex items-center justify-between"
                                   >
-                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-                                      <div className="flex items-center gap-2 sm:gap-3">
-                                        <div
-                                          className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center ${getContentColor(content.type)}`}
-                                        >
-                                          <i className={`${getContentIcon(content.type)} text-sm sm:text-base`}></i>
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                          <h4 className="font-semibold text-gray-900 text-sm sm:text-base truncate">{content.title}</h4>
-                                          <p className="text-gray-600 text-xs sm:text-sm mt-0.5 line-clamp-1">{content.description}</p>
-                                          <div className="flex items-center gap-2 sm:gap-3 mt-1 text-xs text-gray-500">
-                                            <span className="flex items-center gap-1">
-                                              <i className="fas fa-calendar text-xs"></i>
-                                              {new Date(content.createdAt).toLocaleDateString()}
-                                            </span>
-                                            <span className="flex items-center gap-1">
-                                              <i className="fas fa-eye text-xs"></i>
-                                              245 views
-                                            </span>
-                                          </div>
-                                        </div>
+                                    <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+                                        <span className="text-white font-semibold text-sm sm:text-base">
+                                          {enrollment.student.name.charAt(0).toUpperCase()}
+                                        </span>
                                       </div>
-                                      <div className="flex items-center gap-1 sm:gap-2 self-end sm:self-center">
-                                        <button className="p-1.5 sm:p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors text-xs sm:text-sm">
-                                          <i className="fas fa-edit text-xs sm:text-sm"></i>
-                                          <span className="sr-only">Edit</span>
-                                        </button>
-                                        <button
-                                          onClick={() => deleteContent(content._id)}
-                                          className="p-1.5 sm:p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors text-xs sm:text-sm"
-                                        >
-                                          <i className="fas fa-trash text-xs sm:text-sm"></i>
-                                          <span className="sr-only">Delete</span>
-                                        </button>
+                                      <div className="min-w-0">
+                                        <p className="font-semibold text-gray-900 text-sm sm:text-base truncate">
+                                          {enrollment.student.name}
+                                        </p>
+                                        <p className="text-gray-600 text-xs sm:text-sm truncate">
+                                          {enrollment.student.email}
+                                        </p>
                                       </div>
                                     </div>
+                                    <span className="px-2 sm:px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap ml-2 flex-shrink-0">
+                                      Active
+                                    </span>
                                   </div>
                                 ))}
                               </div>
@@ -673,11 +762,17 @@ export default function FacultyDashboard({ user, onLogout }) {
                           </div>
                         )}
 
-                        {/* Upload Tab */}
+                        {/* Upload Tab - now Upload/Edit Tab */}
                         {activeTab === "upload" && (
                           <div>
-                            <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Upload New Content</h3>
-                            <form onSubmit={handleUploadContent} className="space-y-4 sm:space-y-6">
+                            <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">
+                              {editingContentId ? "Edit Content" : "Upload New Content"}
+                            </h3>
+                            {/* Combined upload and edit forms */}
+                            <form
+                              onSubmit={editingContentId ? handleUpdateContent : handleUploadContent}
+                              className="space-y-4 sm:space-y-6"
+                            >
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                                 <div>
                                   <label className="block text-gray-700 text-xs sm:text-sm font-semibold mb-1 sm:mb-2 flex items-center gap-1 sm:gap-2">
@@ -686,8 +781,12 @@ export default function FacultyDashboard({ user, onLogout }) {
                                   </label>
                                   <input
                                     type="text"
-                                    value={contentForm.title}
-                                    onChange={(e) => setContentForm({ ...contentForm, title: e.target.value })}
+                                    value={editingContentId ? editingContent.title : contentForm.title}
+                                    onChange={(e) =>
+                                      editingContentId
+                                        ? setEditingContent({ ...editingContent, title: e.target.value })
+                                        : setContentForm({ ...contentForm, title: e.target.value })
+                                    }
                                     className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition text-sm"
                                     placeholder="e.g., Lecture 1 - Algebra Basics"
                                     required
@@ -700,8 +799,12 @@ export default function FacultyDashboard({ user, onLogout }) {
                                     Content Type
                                   </label>
                                   <select
-                                    value={contentForm.type}
-                                    onChange={(e) => setContentForm({ ...contentForm, type: e.target.value })}
+                                    value={editingContentId ? editingContent.type : contentForm.type}
+                                    onChange={(e) =>
+                                      editingContentId
+                                        ? setEditingContent({ ...editingContent, type: e.target.value })
+                                        : setContentForm({ ...contentForm, type: e.target.value })
+                                    }
                                     className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition text-sm"
                                   >
                                     <option value="pdf">PDF Materials</option>
@@ -717,8 +820,12 @@ export default function FacultyDashboard({ user, onLogout }) {
                                   Description
                                 </label>
                                 <textarea
-                                  value={contentForm.description}
-                                  onChange={(e) => setContentForm({ ...contentForm, description: e.target.value })}
+                                  value={editingContentId ? editingContent.description : contentForm.description}
+                                  onChange={(e) =>
+                                    editingContentId
+                                      ? setEditingContent({ ...editingContent, description: e.target.value })
+                                      : setContentForm({ ...contentForm, description: e.target.value })
+                                  }
                                   className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition text-sm"
                                   placeholder="Describe the content for your students..."
                                   rows="3"
@@ -726,7 +833,7 @@ export default function FacultyDashboard({ user, onLogout }) {
                               </div>
 
                               {/* Dynamic Fields Based on Content Type */}
-                              {contentForm.type === "pdf" && (
+                              {(editingContentId ? editingContent.type : contentForm.type) === "pdf" && (
                                 <div>
                                   <label className="block text-gray-700 text-xs sm:text-sm font-semibold mb-1 sm:mb-2 flex items-center gap-1 sm:gap-2">
                                     <i className="fas fa-file-pdf text-xs sm:text-sm"></i>
@@ -734,8 +841,12 @@ export default function FacultyDashboard({ user, onLogout }) {
                                   </label>
                                   <input
                                     type="url"
-                                    value={contentForm.pdfUrl}
-                                    onChange={(e) => setContentForm({ ...contentForm, pdfUrl: e.target.value })}
+                                    value={editingContentId ? editingContent.pdfUrl : contentForm.pdfUrl}
+                                    onChange={(e) =>
+                                      editingContentId
+                                        ? setEditingContent({ ...editingContent, pdfUrl: e.target.value })
+                                        : setContentForm({ ...contentForm, pdfUrl: e.target.value })
+                                    }
                                     className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition text-sm"
                                     placeholder="https://example.com/file.pdf"
                                     required
@@ -743,7 +854,7 @@ export default function FacultyDashboard({ user, onLogout }) {
                                 </div>
                               )}
 
-                              {contentForm.type === "video" && (
+                              {(editingContentId ? editingContent.type : contentForm.type) === "video" && (
                                 <div>
                                   <label className="block text-gray-700 text-xs sm:text-sm font-semibold mb-1 sm:mb-2 flex items-center gap-1 sm:gap-2">
                                     <i className="fas fa-video text-xs sm:text-sm"></i>
@@ -751,70 +862,102 @@ export default function FacultyDashboard({ user, onLogout }) {
                                   </label>
                                   <input
                                     type="url"
-                                    value={contentForm.videoUrl}
-                                    onChange={(e) => setContentForm({ ...contentForm, videoUrl: e.target.value })}
+                                    value={editingContentId ? editingContent.videoUrl : contentForm.videoUrl}
+                                    onChange={(e) =>
+                                      editingContentId
+                                        ? setEditingContent({ ...editingContent, videoUrl: e.target.value })
+                                        : setContentForm({ ...contentForm, videoUrl: e.target.value })
+                                    }
                                     className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition text-sm"
-                                    placeholder="https://youtube.com/watch?v=... or video file URL"
+                                    placeholder="https://example.com/video.mp4 or YouTube link"
                                     required
                                   />
                                 </div>
                               )}
 
-                              {contentForm.type === "live_class" && (
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
-                                  <div>
-                                    <label className="block text-gray-700 text-xs sm:text-sm font-semibold mb-1 sm:mb-2 flex items-center gap-1 sm:gap-2">
-                                      <i className="fas fa-link text-xs sm:text-sm"></i>
-                                      Live Class URL
-                                    </label>
-                                    <input
-                                      type="url"
-                                      value={contentForm.liveClassUrl}
-                                      onChange={(e) => setContentForm({ ...contentForm, liveClassUrl: e.target.value })}
-                                      className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition text-sm"
-                                      required
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="block text-gray-700 text-xs sm:text-sm font-semibold mb-1 sm:mb-2 flex items-center gap-1 sm:gap-2">
-                                      <i className="fas fa-calendar text-xs sm:text-sm"></i>
-                                      Class Date
-                                    </label>
-                                    <input
-                                      type="date"
-                                      value={contentForm.liveClassDate}
-                                      onChange={(e) =>
-                                        setContentForm({ ...contentForm, liveClassDate: e.target.value })
-                                      }
-                                      className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition text-sm"
-                                      required
-                                    />
+                              {(editingContentId ? editingContent.type : contentForm.type) === "live_class" && (
+                                <>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                                    <div>
+                                      <label className="block text-gray-700 text-xs sm:text-sm font-semibold mb-1 sm:mb-2 flex items-center gap-1 sm:gap-2">
+                                        <i className="fas fa-link text-xs sm:text-sm"></i>
+                                        Live Class URL
+                                      </label>
+                                      <input
+                                        type="url"
+                                        value={
+                                          editingContentId ? editingContent.liveClassUrl : contentForm.liveClassUrl
+                                        }
+                                        onChange={(e) =>
+                                          editingContentId
+                                            ? setEditingContent({ ...editingContent, liveClassUrl: e.target.value })
+                                            : setContentForm({ ...contentForm, liveClassUrl: e.target.value })
+                                        }
+                                        className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition text-sm"
+                                        placeholder="https://meet.google.com/..."
+                                        required
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-gray-700 text-xs sm:text-sm font-semibold mb-1 sm:mb-2 flex items-center gap-1 sm:gap-2">
+                                        <i className="fas fa-calendar text-xs sm:text-sm"></i>
+                                        Date
+                                      </label>
+                                      <input
+                                        type="date"
+                                        value={
+                                          editingContentId ? editingContent.liveClassDate : contentForm.liveClassDate
+                                        }
+                                        onChange={(e) =>
+                                          editingContentId
+                                            ? setEditingContent({ ...editingContent, liveClassDate: e.target.value })
+                                            : setContentForm({ ...contentForm, liveClassDate: e.target.value })
+                                        }
+                                        className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition text-sm"
+                                        required
+                                      />
+                                    </div>
                                   </div>
                                   <div>
                                     <label className="block text-gray-700 text-xs sm:text-sm font-semibold mb-1 sm:mb-2 flex items-center gap-1 sm:gap-2">
                                       <i className="fas fa-clock text-xs sm:text-sm"></i>
-                                      Class Time
+                                      Time
                                     </label>
                                     <input
                                       type="time"
-                                      value={contentForm.liveClassTime}
+                                      value={
+                                        editingContentId ? editingContent.liveClassTime : contentForm.liveClassTime
+                                      }
                                       onChange={(e) =>
-                                        setContentForm({ ...contentForm, liveClassTime: e.target.value })
+                                        editingContentId
+                                          ? setEditingContent({ ...editingContent, liveClassTime: e.target.value })
+                                          : setContentForm({ ...contentForm, liveClassTime: e.target.value })
                                       }
                                       className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition text-sm"
                                       required
                                     />
                                   </div>
-                                </div>
+                                </>
                               )}
 
-                              <button
-                                type="submit"
-                                className="w-full px-4 sm:px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base"
-                              >
-                                <i className="fas fa-upload text-xs sm:text-sm"></i>
-                                Upload Content
-                              </button>
+                              <div className="flex gap-3 sm:gap-4 pt-4 sm:pt-6">
+                                <button
+                                  type="submit"
+                                  className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm sm:text-base flex items-center justify-center gap-2"
+                                >
+                                  <i className="fas fa-check text-sm"></i>
+                                  {editingContentId ? "Update Content" : "Upload Content"}
+                                </button>
+                                {editingContentId && (
+                                  <button
+                                    type="button"
+                                    onClick={cancelEdit}
+                                    className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-gray-300 text-gray-900 rounded-lg hover:bg-gray-400 transition font-semibold text-sm sm:text-base"
+                                  >
+                                    Cancel
+                                  </button>
+                                )}
+                              </div>
                             </form>
                           </div>
                         )}
@@ -830,48 +973,49 @@ export default function FacultyDashboard({ user, onLogout }) {
 
       {/* Notification Modal - Responsive like StudentDashboard */}
       {showNotificationModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-full w-full sm:max-w-md max-h-[80vh] sm:max-h-96 overflow-y-auto">
-            <div className="p-4 sm:p-6">
-              <div className="flex justify-between items-center mb-3 sm:mb-4">
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-1 sm:gap-2">
-                  <i className="fas fa-bell text-blue-600 text-sm sm:text-base"></i>
-                  Notifications ({notifications.length})
-                </h3>
-                <button
-                  onClick={() => setShowNotificationModal(false)}
-                  className="text-gray-500 hover:text-gray-700 text-xl sm:text-2xl font-bold"
-                >
-                  ×
-                </button>
-              </div>
-              {notifications.length > 0 ? (
-                <div className="space-y-2 sm:space-y-3">
-                  {notifications.map((notif) => (
-                    <div
-                      key={notif._id}
-                      className="p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition cursor-pointer"
-                      onClick={() => markNotificationAsRead(notif._id)}
-                    >
-                      <div className="font-semibold text-gray-900 flex items-center gap-1 sm:gap-2 text-sm sm:text-base">
-                        <i className="fas fa-user-plus text-green-600 text-xs sm:text-sm"></i>
-                        {notif.title}
-                      </div>
-                      <div className="text-xs sm:text-sm text-gray-700 mt-1">{notif.message}</div>
-                      <div className="text-xs text-gray-500 mt-1 sm:mt-2 flex items-center gap-1">
-                        <i className="fas fa-clock text-xs"></i>
-                        {new Date(notif.createdAt).toLocaleString()}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-6 sm:py-8 text-gray-500">
-                  <i className="fas fa-bell-slash text-2xl sm:text-3xl mb-2"></i>
-                  <p className="text-sm sm:text-base">No new notifications</p>
-                </div>
-              )}
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-40 p-4">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full max-h-96 overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900">Notifications ({notifications.length})</h2>
+              <button
+                onClick={handleCloseNotificationModal}
+                className="text-gray-500 hover:text-gray-700 text-xl font-bold"
+              >
+                ×
+              </button>
             </div>
+            {notifications.length === 0 ? (
+              <div className="text-center py-8">
+                <i className="fas fa-bell text-3xl text-gray-300 mb-2"></i>
+                <p className="text-gray-600">No new notifications</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {notifications.map((notification) => (
+                  <div
+                    key={notification._id}
+                    className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex justify-between items-start gap-3"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-gray-900 text-sm">{notification.title}</p>
+                      <p className="text-gray-600 text-xs mt-1">{notification.message}</p>
+                    </div>
+                    <button
+                      onClick={() => markNotificationAsRead(notification._id)}
+                      className="text-blue-600 hover:text-blue-700 text-xs font-semibold flex-shrink-0 ml-2"
+                    >
+                      Mark read
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <button
+              onClick={handleCloseNotificationModal}
+              className="w-full mt-4 px-4 py-2 bg-gray-300 text-gray-900 rounded-lg hover:bg-gray-400 transition font-semibold text-sm"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}

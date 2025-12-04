@@ -6,6 +6,7 @@ import axios from "axios"
 import { API_URL } from "../utils/api.js"
 import logo from "../assets/biology-trunk-logo.png"
 import roadmapVideo from "../assets/biology-trunk-introduction.mp4"
+import { showErrorToast } from "../utils/toast.js"
 
 // Import all 8 gallery images from assets/image-gallery folder
 import gallery1 from "../assets/image-gallery/Catalog1.jpg"
@@ -30,7 +31,7 @@ export default function Home({ user, onLogout }) {
   const [faqOpen, setFaqOpen] = useState(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isAutoScroll, setIsAutoScroll] = useState(true)
-  
+
   // Gallery images array with imported images
   const [galleryImages] = useState([
     { src: gallery1, alt: "Biology Trunk Classroom 1" },
@@ -45,12 +46,12 @@ export default function Home({ user, onLogout }) {
 
   useEffect(() => {
     fetchStats()
-    
+
     // Start auto-scroll only if enabled
     if (isAutoScroll) {
       startAutoScroll()
     }
-    
+
     return () => {
       // Cleanup interval on component unmount
       if (galleryIntervalRef.current) {
@@ -64,7 +65,7 @@ export default function Home({ user, onLogout }) {
     if (galleryIntervalRef.current) {
       clearInterval(galleryIntervalRef.current)
     }
-    
+
     // Start new interval for auto-scroll
     galleryIntervalRef.current = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % galleryImages.length)
@@ -124,6 +125,7 @@ export default function Home({ user, onLogout }) {
       })
     } catch (error) {
       console.error("Failed to fetch stats:", error)
+      showErrorToast("Failed to load homepage statistics")
     }
   }
 
@@ -138,28 +140,34 @@ export default function Home({ user, onLogout }) {
   const faqItems = [
     {
       question: "What courses does Biology.Trunk offer?",
-      answer: "Biology.Trunk offers comprehensive courses for Classes 9-12, JEE Preparation, NEET Preparation, AIIMS Paramedical, Nursing Entrance, CUET (UG), TGT/PGT Preparation, KVS/NVS, NET & GATE, KYPS Olympiad, and Foreign Language Courses. Our curriculum is designed by Ph.D. qualified expert faculty with 15+ years of experience."
+      answer:
+        "Biology.Trunk offers comprehensive courses for Classes 9-12, JEE Preparation, NEET Preparation, AIIMS Paramedical, Nursing Entrance, CUET (UG), TGT/PGT Preparation, KVS/NVS, NET & GATE, KYPS Olympiad, and Foreign Language Courses. Our curriculum is designed by Ph.D. qualified expert faculty with 15+ years of experience.",
     },
     {
       question: "How do I access the live classes?",
-      answer: "Once you enroll in a course, you'll get access to our learning platform. Live classes are scheduled at specific times which you can see in your dashboard. All live sessions are also recorded for later viewing."
+      answer:
+        "Once you enroll in a course, you'll get access to our learning platform. Live classes are scheduled at specific times which you can see in your dashboard. All live sessions are also recorded for later viewing.",
     },
     {
       question: "Is there a free trial available?",
-      answer: "Yes! We offer a 7-day free trial for most of our premium courses. You can access limited content and attend demo classes to experience our teaching methodology before making a purchase."
+      answer:
+        "Yes! We offer a 7-day free trial for most of our premium courses. You can access limited content and attend demo classes to experience our teaching methodology before making a purchase.",
     },
     {
       question: "How are the faculty members selected?",
-      answer: "Our faculty members are Ph.D. holders, NET & GATE qualified, and ex-lecturers from government colleges with minimum 15+ years of teaching experience. They undergo rigorous training and evaluation to ensure the highest quality of education."
+      answer:
+        "Our faculty members are Ph.D. holders, NET & GATE qualified, and ex-lecturers from government colleges with minimum 15+ years of teaching experience. They undergo rigorous training and evaluation to ensure the highest quality of education.",
     },
     {
       question: "What is the track record of Biology.Trunk students?",
-      answer: "Our students have an exceptional track record with 98% success rate in competitive exams. Many have secured top ranks in JEE, NEET, AIIMS, CUET, and teaching examinations with our structured learning approach."
+      answer:
+        "Our students have an exceptional track record with 98% success rate in competitive exams. Many have secured top ranks in JEE, NEET, AIIMS, CUET, and teaching examinations with our structured learning approach.",
     },
     {
       question: "Do you provide study materials?",
-      answer: "Yes, we provide comprehensive study materials including PDF notes, practice questions, previous year papers, mock tests, and research papers. All materials are regularly updated according to the latest exam patterns."
-    }
+      answer:
+        "Yes, we provide comprehensive study materials including PDF notes, practice questions, previous year papers, mock tests, and research papers. All materials are regularly updated according to the latest exam patterns.",
+    },
   ]
 
   return (
@@ -170,22 +178,18 @@ export default function Home({ user, onLogout }) {
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg flex items-center justify-center overflow-hidden">
-                <img 
-                  src={logo} 
-                  alt="Biology.Trunk Logo" 
+                <img
+                  src={logo || "/placeholder.svg"}
+                  alt="Biology.Trunk Logo"
                   className="w-full h-full object-contain"
                 />
               </div>
-              <span className="text-gray-900 font-bold text-2xl sm:text-3xl hidden sm:block">
-                Biology.Trunk
-              </span>
+              <span className="text-gray-900 font-bold text-2xl sm:text-3xl hidden sm:block">Biology.Trunk</span>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
               {user ? (
                 <>
-                  <span className="text-gray-700 font-medium text-sm sm:text-base hidden sm:inline">
-                    {user.name}
-                  </span>
+                  <span className="text-gray-700 font-medium text-sm sm:text-base hidden sm:inline">{user.name}</span>
                   <button
                     onClick={onLogout}
                     className="px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
@@ -230,7 +234,9 @@ export default function Home({ user, onLogout }) {
                   </span>
                 </h1>
                 <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 leading-relaxed">
-                  Join India's premier online learning platform led by Ph.D. holders, NET & GATE qualified experts with 15+ years of government college teaching experience. Access comprehensive courses and personalized mentorship for academic excellence.
+                  Join India's premier online learning platform led by Ph.D. holders, NET & GATE qualified experts with
+                  15+ years of government college teaching experience. Access comprehensive courses and personalized
+                  mentorship for academic excellence.
                 </p>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 text-gray-600">
                   <div className="flex items-center gap-2">
@@ -343,13 +349,13 @@ export default function Home({ user, onLogout }) {
               <button
                 onClick={toggleAutoScroll}
                 className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 ${
-                  isAutoScroll 
-                    ? 'bg-green-100 text-green-700 hover:bg-green-200' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  isAutoScroll
+                    ? "bg-green-100 text-green-700 hover:bg-green-200"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                <i className={`fas ${isAutoScroll ? 'fa-pause' : 'fa-play'}`}></i>
-                {isAutoScroll ? 'Pause Auto-scroll' : 'Start Auto-scroll'}
+                <i className={`fas ${isAutoScroll ? "fa-pause" : "fa-play"}`}></i>
+                {isAutoScroll ? "Pause Auto-scroll" : "Start Auto-scroll"}
               </button>
               <div className="text-sm text-gray-500">
                 <i className="fas fa-info-circle mr-2"></i>
@@ -357,37 +363,37 @@ export default function Home({ user, onLogout }) {
               </div>
             </div>
           </div>
-          
+
           {/* Main Gallery */}
           <div className="relative max-w-6xl mx-auto">
             <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg">
               <div className="relative overflow-hidden rounded-lg aspect-video">
-                <img 
-                  src={galleryImages[currentImageIndex].src} 
+                <img
+                  src={galleryImages[currentImageIndex].src || "/placeholder.svg"}
                   alt={galleryImages[currentImageIndex].alt}
                   className="w-full h-full object-cover transition-opacity duration-500"
                   onClick={stopAutoScroll} // Stop auto-scroll when clicking main image
                 />
-                
+
                 {/* Navigation Buttons */}
-                <button 
+                <button
                   onClick={handlePrevClick}
                   className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 w-10 h-10 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all"
                 >
                   <i className="fas fa-chevron-left"></i>
                 </button>
-                <button 
+                <button
                   onClick={handleNextClick}
                   className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 w-10 h-10 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all"
                 >
                   <i className="fas fa-chevron-right"></i>
                 </button>
-                
+
                 {/* Image Counter */}
                 <div className="absolute top-4 left-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm font-medium">
                   {currentImageIndex + 1} / {galleryImages.length}
                 </div>
-                
+
                 {/* Auto-scroll Indicator */}
                 {isAutoScroll && (
                   <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
@@ -395,14 +401,14 @@ export default function Home({ user, onLogout }) {
                     Auto-scrolling
                   </div>
                 )}
-                
+
                 {/* Image Title */}
                 <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-lg">
                   {galleryImages[currentImageIndex].alt}
                 </div>
               </div>
             </div>
-            
+
             {/* Thumbnail Strip */}
             <div className="mt-6 overflow-x-auto pb-2">
               <div className="flex gap-3 min-w-max">
@@ -411,19 +417,17 @@ export default function Home({ user, onLogout }) {
                     key={index}
                     onClick={() => handleThumbnailClick(index)}
                     className={`relative overflow-hidden rounded-lg aspect-video w-32 md:w-40 flex-shrink-0 transition-all duration-300 ${
-                      index === currentImageIndex 
-                        ? 'ring-4 ring-blue-500 scale-105 shadow-lg' 
-                        : 'ring-1 ring-gray-200 hover:ring-2 hover:ring-blue-300'
+                      index === currentImageIndex
+                        ? "ring-4 ring-blue-500 scale-105 shadow-lg"
+                        : "ring-1 ring-gray-200 hover:ring-2 hover:ring-blue-300"
                     }`}
                   >
-                    <img 
-                      src={image.src} 
+                    <img
+                      src={image.src || "/placeholder.svg"}
                       alt={`Thumbnail ${index + 1}`}
                       className="w-full h-full object-cover"
                     />
-                    {index === currentImageIndex && (
-                      <div className="absolute inset-0 bg-blue-500/20"></div>
-                    )}
+                    {index === currentImageIndex && <div className="absolute inset-0 bg-blue-500/20"></div>}
                     <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-1 text-center">
                       Image {index + 1}
                     </div>
@@ -431,7 +435,7 @@ export default function Home({ user, onLogout }) {
                 ))}
               </div>
             </div>
-            
+
             {/* Thumbnail Navigation Dots */}
             <div className="flex justify-center gap-2 mt-6">
               {galleryImages.map((_, index) => (
@@ -439,15 +443,13 @@ export default function Home({ user, onLogout }) {
                   key={index}
                   onClick={() => handleThumbnailClick(index)}
                   className={`w-3 h-3 rounded-full transition-all ${
-                    index === currentImageIndex 
-                      ? 'bg-blue-600 scale-125' 
-                      : 'bg-gray-300 hover:bg-gray-400'
+                    index === currentImageIndex ? "bg-blue-600 scale-125" : "bg-gray-300 hover:bg-gray-400"
                   }`}
                   aria-label={`Go to image ${index + 1}`}
                 />
               ))}
             </div>
-            
+
             {/* Gallery Controls */}
             <div className="flex justify-center gap-4 mt-6">
               <button
@@ -517,7 +519,8 @@ export default function Home({ user, onLogout }) {
           <div className="text-center mb-12 md:mb-16">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">Why Choose Biology.Trunk?</h2>
             <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
-              We combine decades of teaching experience with cutting-edge technology to deliver exceptional learning outcomes across all competitive exam segments.
+              We combine decades of teaching experience with cutting-edge technology to deliver exceptional learning
+              outcomes across all competitive exam segments.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
@@ -530,7 +533,8 @@ export default function Home({ user, onLogout }) {
                 Ph.D. Expert Faculty
               </h3>
               <p className="text-gray-700 mb-4 md:mb-6 leading-relaxed text-sm md:text-base flex-grow">
-                Learn from Ph.D. holders, NET & GATE qualified experts with 15+ years of government college teaching experience.
+                Learn from Ph.D. holders, NET & GATE qualified experts with 15+ years of government college teaching
+                experience.
               </p>
               <ul className="space-y-2">
                 <li className="flex items-start gap-2 text-gray-600">
@@ -636,7 +640,9 @@ export default function Home({ user, onLogout }) {
       <section className="py-16 md:py-20 lg:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">Comprehensive Course Catalog</h2>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+              Comprehensive Course Catalog
+            </h2>
             <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
               Explore our extensive range of courses designed for academic excellence and competitive success.
             </p>
@@ -733,7 +739,9 @@ export default function Home({ user, onLogout }) {
                   <div
                     className={`w-10 h-10 md:w-12 md:h-12 ${cat.bgColor} rounded-lg flex items-center justify-center transition-colors ${cat.hoverBgColor}`}
                   >
-                    <i className={`${cat.icon} ${cat.iconColor} text-base md:text-lg group-hover:text-white transition-colors`}></i>
+                    <i
+                      className={`${cat.icon} ${cat.iconColor} text-base md:text-lg group-hover:text-white transition-colors`}
+                    ></i>
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="font-bold text-gray-900 text-sm md:text-lg line-clamp-1">
@@ -794,9 +802,12 @@ export default function Home({ user, onLogout }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center">
             <div>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 md:mb-6">Our Proven Learning Methodology</h2>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 md:mb-6">
+                Our Proven Learning Methodology
+              </h2>
               <p className="text-lg md:text-xl text-gray-600 mb-6 md:mb-8">
-                Our structured approach ensures comprehensive concept understanding and exam readiness through systematic progression and continuous assessment.
+                Our structured approach ensures comprehensive concept understanding and exam readiness through
+                systematic progression and continuous assessment.
               </p>
               <div className="space-y-4 md:space-y-6">
                 {[
@@ -815,10 +826,10 @@ export default function Home({ user, onLogout }) {
                     title: "Assessment",
                     desc: "Regular tests and performance evaluation",
                   },
-                  { 
-                    icon: "fas fa-sync-alt", 
-                    title: "Revision", 
-                    desc: "Spaced repetition for better retention" 
+                  {
+                    icon: "fas fa-sync-alt",
+                    title: "Revision",
+                    desc: "Spaced repetition for better retention",
                   },
                 ].map((step, index) => (
                   <div key={index} className="flex items-center gap-3 md:gap-4">
@@ -834,7 +845,9 @@ export default function Home({ user, onLogout }) {
               </div>
             </div>
             <div className="bg-gray-100 p-6 md:p-8 rounded-2xl">
-              <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6 text-center">Success Roadmap Video</h3>
+              <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6 text-center">
+                Success Roadmap Video
+              </h3>
               <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-4 md:mb-6">
                 <video
                   ref={videoRef}
@@ -926,13 +939,18 @@ export default function Home({ user, onLogout }) {
                 achievement: "Delhi University",
               },
             ].map((testimonial, idx) => (
-              <div key={idx} className="bg-white p-6 md:p-8 rounded-xl border border-gray-200 hover:shadow-lg transition">
+              <div
+                key={idx}
+                className="bg-white p-6 md:p-8 rounded-xl border border-gray-200 hover:shadow-lg transition"
+              >
                 <div className="flex items-center mb-4">
                   {[...Array(5)].map((_, i) => (
                     <i key={i} className="fas fa-star text-yellow-400 text-base md:text-lg"></i>
                   ))}
                 </div>
-                <p className="text-gray-700 mb-4 md:mb-6 italic leading-relaxed text-sm md:text-base">"{testimonial.feedback}"</p>
+                <p className="text-gray-700 mb-4 md:mb-6 italic leading-relaxed text-sm md:text-base">
+                  "{testimonial.feedback}"
+                </p>
                 <div className="border-t border-gray-200 pt-3 md:pt-4">
                   <p className="font-bold text-gray-900 text-base md:text-lg">{testimonial.name}</p>
                   <p className="text-blue-600 font-semibold text-sm md:text-base">
@@ -952,7 +970,9 @@ export default function Home({ user, onLogout }) {
       <section className="py-16 md:py-20 lg:py-24 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+              Frequently Asked Questions
+            </h2>
             <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
               Find answers to common questions about Biology.Trunk courses, enrollment, and learning experience.
             </p>
@@ -965,7 +985,7 @@ export default function Home({ user, onLogout }) {
                   onClick={() => setFaqOpen(faqOpen === index ? null : index)}
                 >
                   <span className="font-semibold text-gray-900 text-sm md:text-lg text-left pr-4">{item.question}</span>
-                  <i className={`fas fa-chevron-${faqOpen === index ? 'up' : 'down'} text-blue-600 flex-shrink-0`}></i>
+                  <i className={`fas fa-chevron-${faqOpen === index ? "up" : "down"} text-blue-600 flex-shrink-0`}></i>
                 </button>
                 {faqOpen === index && (
                   <div className="px-4 md:px-6 py-3 md:py-4 bg-gray-50 border-t border-gray-200">
@@ -991,9 +1011,12 @@ export default function Home({ user, onLogout }) {
       {/* Call to Action */}
       <section className="py-12 md:py-16 lg:py-20 bg-gradient-to-r from-blue-600 to-indigo-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 md:mb-6">Ready to Transform Your Academic Journey?</h2>
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 md:mb-6">
+            Ready to Transform Your Academic Journey?
+          </h2>
           <p className="text-base md:text-xl text-blue-100 mb-6 md:mb-8 max-w-2xl mx-auto">
-            Join thousands of successful students who have achieved their dreams with Biology.Trunk. Start your preparation today with our Ph.D. expert-led courses and comprehensive learning ecosystem.
+            Join thousands of successful students who have achieved their dreams with Biology.Trunk. Start your
+            preparation today with our Ph.D. expert-led courses and comprehensive learning ecosystem.
           </p>
           {!user && (
             <div className="flex gap-3 md:gap-4 justify-center flex-wrap">
@@ -1045,7 +1068,8 @@ export default function Home({ user, onLogout }) {
             <div>
               <h4 className="text-white font-bold mb-3 md:mb-4 text-base md:text-lg">About Biology.Trunk</h4>
               <p className="text-xs md:text-sm text-gray-400 leading-relaxed">
-                India's premier online learning platform providing quality education led by Ph.D. experts, NET & GATE qualified faculty with 15+ years of government college teaching experience.
+                India's premier online learning platform providing quality education led by Ph.D. experts, NET & GATE
+                qualified faculty with 15+ years of government college teaching experience.
               </p>
               <div className="flex gap-3 md:gap-4 mt-3 md:mt-4">
                 <a href="#" className="text-gray-400 hover:text-white transition">

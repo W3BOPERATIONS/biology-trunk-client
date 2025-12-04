@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import axios from "axios"
 import { API_URL } from "../utils/api.js"
+import { showSuccessToast, showErrorToast } from "../utils/toast.js"
 
 export default function Login({ setUser }) {
   const [email, setEmail] = useState("")
@@ -26,9 +27,12 @@ export default function Login({ setUser }) {
       localStorage.setItem("user", JSON.stringify(response.data.user))
       localStorage.setItem("loginTime", new Date().toISOString())
       setUser(response.data.user)
+      showSuccessToast(`Welcome back, ${response.data.user.name}!`)
       navigate(`/${response.data.user.role}-dashboard`)
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed")
+      const errorMessage = err.response?.data?.message || "Login failed"
+      setError(errorMessage)
+      showErrorToast(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -169,7 +173,9 @@ export default function Login({ setUser }) {
                   className="bg-white p-3 md:p-4 rounded-xl border border-gray-200 hover:border-blue-300 transition-all duration-200 overflow-hidden"
                 >
                   <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
-                    <div className={`w-6 h-6 md:w-8 md:h-8 bg-${account.color}-100 rounded-lg flex items-center justify-center flex-shrink-0`}>
+                    <div
+                      className={`w-6 h-6 md:w-8 md:h-8 bg-${account.color}-100 rounded-lg flex items-center justify-center flex-shrink-0`}
+                    >
                       <i className={`fas fa-user text-${account.color}-600 text-xs md:text-sm`}></i>
                     </div>
                     <span className="font-bold text-gray-800 text-xs md:text-sm truncate">{account.role}</span>
