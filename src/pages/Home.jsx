@@ -11,7 +11,7 @@ import { showErrorToast } from "../utils/toast.js"
 // Import all 8 gallery images from assets/image-gallery folder
 import gallery1 from "../assets/image-gallery/catalog1.jpg"
 import gallery2 from "../assets/image-gallery/study2.jpg"
-import gallery3 from "../assets/image-gallery/Study3.jpg"
+import gallery3 from "../assets/image-gallery/study3.jpg"
 import gallery4 from "../assets/image-gallery/study4.jpg"
 import gallery5 from "../assets/image-gallery/study5.jpg"
 import gallery6 from "../assets/image-gallery/study6.jpg"
