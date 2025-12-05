@@ -6,7 +6,8 @@ import { API_URL } from "../utils/api.js"
 import { useNavigate } from "react-router-dom"
 import { useLocation } from "react-router-dom"
 import logo from "../assets/biology-trunk-logo.png" // Add logo import
-import { showSuccessToast, showErrorToast, showWarningToast } from "../utils/toast.js"
+import { showErrorToast, showWarningToast } from "../utils/toast.js"
+import RazorpayPayment from "../components/RazorpayPayment.jsx"
 
 const ITEMS_PER_PAGE = 9
 
@@ -108,27 +109,10 @@ export default function StudentDashboard({ user, onLogout }) {
     }
   }
 
-  const handleEnroll = async (courseId) => {
-    setEnrollmentLoading((prev) => ({ ...prev, [courseId]: true }))
-    try {
-      const response = await axios.post(`${API_URL}/enrollments`, {
-        student: user._id,
-        course: courseId,
-        paymentStatus: "completed",
-      })
-
-      // Fetch the enrolled course details
-      const courseResponse = await axios.get(`${API_URL}/courses/${courseId}`)
-
-      setEnrolledCourses((prev) => [...prev, courseId])
-      setEnrolledCoursesData((prev) => [...prev, courseResponse.data])
-      showSuccessToast("Enrolled successfully!")
-      fetchCourses(currentPage)
-    } catch (error) {
-      showErrorToast(error.response?.data?.message || "Enrollment failed")
-    } finally {
-      setEnrollmentLoading((prev) => ({ ...prev, [courseId]: false }))
-    }
+  const handleEnrollmentSuccess = async (paymentData) => {
+    // Refresh enrolled courses
+    fetchCourses(currentPage)
+    // Optional: navigate to course if desired
   }
 
   const handleViewCourse = (courseId) => {
@@ -445,23 +429,14 @@ export default function StudentDashboard({ user, onLogout }) {
                                   Continue Learning
                                 </button>
                               ) : (
-                                <button
-                                  onClick={() => handleEnroll(course._id)}
-                                  disabled={enrollmentLoading[course._id]}
-                                  className="w-full py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base"
-                                >
-                                  {enrollmentLoading[course._id] ? (
-                                    <>
-                                      <i className="fas fa-spinner fa-spin text-xs sm:text-sm"></i>
-                                      Enrolling...
-                                    </>
-                                  ) : (
-                                    <>
-                                      <i className="fas fa-shopping-cart text-xs sm:text-sm"></i>
-                                      Enroll Now
-                                    </>
-                                  )}
-                                </button>
+                                <RazorpayPayment
+                                  course={course}
+                                  student={user}
+                                  onPaymentSuccess={handleEnrollmentSuccess}
+                                  onPaymentCancel={() =>
+                                    setEnrollmentLoading((prev) => ({ ...prev, [course._id]: false }))
+                                  }
+                                />
                               )}
                             </div>
                           </div>

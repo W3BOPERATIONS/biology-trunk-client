@@ -44,8 +44,13 @@ export default function Home({ user, onLogout }) {
     { src: gallery8, alt: "Biology Trunk Success Celebration 8" },
   ])
 
+  const hasCalledFetchStatsRef = useRef(false)
+
   useEffect(() => {
-    fetchStats()
+    if (!hasCalledFetchStatsRef.current) {
+      fetchStats()
+      hasCalledFetchStatsRef.current = true
+    }
 
     // Start auto-scroll only if enabled
     if (isAutoScroll) {
@@ -125,7 +130,9 @@ export default function Home({ user, onLogout }) {
       })
     } catch (error) {
       console.error("Failed to fetch stats:", error)
-      showErrorToast("Failed to load homepage statistics")
+      if (stats.totalCourses > 0) {
+        showErrorToast("Failed to reload homepage statistics")
+      }
     }
   }
 
