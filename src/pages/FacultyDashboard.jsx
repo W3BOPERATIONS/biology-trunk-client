@@ -5,8 +5,11 @@ import axios from "axios"
 import { API_URL } from "../utils/api.js"
 import { showSuccessToast, showErrorToast } from "../utils/toast.js"
 import logo from "../assets/biology-trunk-logo.png"
+import { useNavigate } from "react-router-dom" // Assuming you are using react-router-dom for navigation
 
 export default function FacultyDashboard({ user, onLogout }) {
+  const navigate = useNavigate() // Initialize navigate
+
   const [courses, setCourses] = useState([])
   const [allEnrollments, setAllEnrollments] = useState({})
   const [selectedCourse, setSelectedCourse] = useState(null)
@@ -534,6 +537,17 @@ export default function FacultyDashboard({ user, onLogout }) {
 
               {/* Main Content Area */}
               <div className="lg:col-span-3">
+                {/* ADDED: Button to create new course */}
+                <div className="mb-6">
+                  <button
+                    onClick={() => navigate("/faculty/course/create")}
+                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center gap-2"
+                  >
+                    <i className="fas fa-plus"></i>
+                    Create New Course
+                  </button>
+                </div>
+
                 {selectedCourse && (
                   <>
                     {/* Course Header */}
@@ -965,6 +979,92 @@ export default function FacultyDashboard({ user, onLogout }) {
                     </div>
                   </>
                 )}
+
+                {/* ADDED: Your Courses Section */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                    <i className="fas fa-list text-blue-600"></i>
+                    Your Courses
+                  </h2>
+
+                  {courses.length === 0 ? (
+                    <div className="text-center py-12">
+                      <i className="fas fa-book text-4xl text-gray-300 mb-4"></i>
+                      <p className="text-gray-600 text-lg">No courses created yet</p>
+                      <button
+                        onClick={() => navigate("/faculty/course/create")}
+                        className="mt-4 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                      >
+                        Create Your First Course
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {getFilteredCourses().map((course) => (
+                        <div
+                          key={course._id}
+                          className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200 hover:shadow-lg transition"
+                        >
+                          <div className="flex justify-between items-start mb-4">
+                            <h3 className="text-lg font-bold text-gray-900 flex-1">{course.title}</h3>
+                            <button
+                              onClick={() => navigate(`/faculty/course/${course._id}/edit`)}
+                              className="ml-2 p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition"
+                              title="Edit course description"
+                            >
+                              <i className="fas fa-edit"></i>
+                            </button>
+                          </div>
+
+                          <p className="text-gray-700 text-sm mb-4 line-clamp-3">{course.description}</p>
+
+                          <div className="space-y-2 text-sm mb-4">
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Duration:</span>
+                              <span className="font-semibold text-gray-900">{course.duration}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Price:</span>
+                              <span className="font-semibold text-gray-900">₹{course.price}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Students:</span>
+                              <span className="font-semibold text-gray-900">
+                                {(allEnrollments[course._id] || []).length}
+                              </span>
+                            </div>
+                          </div>
+
+                          {course.courseIncludes && (
+                            <div className="border-t pt-4">
+                              <p className="text-xs font-semibold text-gray-600 mb-2">INCLUDES:</p>
+                              <div className="flex flex-wrap gap-2">
+                                {course.courseIncludes.videos && (
+                                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Videos</span>
+                                )}
+                                {course.courseIncludes.liveLectures && (
+                                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                                    Live Lectures
+                                  </span>
+                                )}
+                                {course.courseIncludes.pdfs && (
+                                  <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">PDFs</span>
+                                )}
+                                {course.courseIncludes.quizzes && (
+                                  <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">
+                                    Quizzes
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Moved the course content/upload/student tabs to be under the selected course */}
               </div>
             </div>
           </>

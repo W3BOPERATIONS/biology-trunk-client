@@ -9,6 +9,9 @@ import StudentDashboard from "./pages/StudentDashboard"
 import FacultyDashboard from "./pages/FacultyDashboard"
 import AdminDashboard from "./pages/AdminDashboard"
 import CourseDetail from "./pages/CourseDetail"
+import CoursePreview from "./pages/CoursePreview"
+import FacultyCourseEdit from "./pages/FacultyCourseEdit"
+import FacultyAddCourse from "./pages/FacultyAddCourse"
 import ProtectedRoute from "./components/ProtectedRoute"
 
 export default function App() {
@@ -17,7 +20,6 @@ export default function App() {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user")
-    const currentPath = localStorage.getItem("lastPath")
 
     if (storedUser) {
       setUser(JSON.parse(storedUser))
@@ -26,18 +28,20 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    if (!loading && user) {
-      const handleNavigate = () => {
-        localStorage.setItem("lastPath", window.location.pathname)
+    const handlePopState = () => {
+      const previousPath = sessionStorage.getItem("previousPath")
+      if (previousPath) {
+        sessionStorage.removeItem("previousPath")
       }
-      window.addEventListener("popstate", handleNavigate)
-      return () => window.removeEventListener("popstate", handleNavigate)
     }
-  }, [loading, user])
+
+    window.addEventListener("popstate", handlePopState)
+    return () => window.removeEventListener("popstate", handlePopState)
+  }, [])
 
   const handleLogout = () => {
     localStorage.removeItem("user")
-    localStorage.removeItem("lastPath")
+    sessionStorage.removeItem("previousPath")
     setUser(null)
   }
 
@@ -66,6 +70,30 @@ export default function App() {
           element={
             <ProtectedRoute user={user} role="student">
               <CourseDetail user={user} onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/course-preview/:courseId"
+          element={
+            <ProtectedRoute user={user} role="student">
+              <CoursePreview user={user} onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/faculty/course/:courseId/edit"
+          element={
+            <ProtectedRoute user={user} role="faculty">
+              <FacultyCourseEdit user={user} onLogout={handleLogout} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/faculty/course/create"
+          element={
+            <ProtectedRoute user={user} role="faculty">
+              <FacultyAddCourse user={user} onLogout={handleLogout} />
             </ProtectedRoute>
           }
         />

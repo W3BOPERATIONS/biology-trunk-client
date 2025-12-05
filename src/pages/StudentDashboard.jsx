@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom"
 import { useLocation } from "react-router-dom"
 import logo from "../assets/biology-trunk-logo.png" // Add logo import
 import { showErrorToast, showWarningToast } from "../utils/toast.js"
-import RazorpayPayment from "../components/RazorpayPayment.jsx"
 
 const ITEMS_PER_PAGE = 9
 
@@ -121,6 +120,11 @@ export default function StudentDashboard({ user, onLogout }) {
     } else {
       showWarningToast("Please enroll in this course first to view content")
     }
+  }
+
+  const handleViewDetails = (courseId) => {
+    sessionStorage.setItem("previousPath", window.location.pathname)
+    navigate(`/course-preview/${courseId}`)
   }
 
   const handleCloseNotificationModal = async () => {
@@ -429,14 +433,13 @@ export default function StudentDashboard({ user, onLogout }) {
                                   Continue Learning
                                 </button>
                               ) : (
-                                <RazorpayPayment
-                                  course={course}
-                                  student={user}
-                                  onPaymentSuccess={handleEnrollmentSuccess}
-                                  onPaymentCancel={() =>
-                                    setEnrollmentLoading((prev) => ({ ...prev, [course._id]: false }))
-                                  }
-                                />
+                                <button
+                                  onClick={() => handleViewDetails(course._id)}
+                                  className="w-full py-2.5 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center justify-center gap-2 text-sm sm:text-base"
+                                >
+                                  <i className="fas fa-eye"></i>
+                                  <span>View Details & Enroll</span>
+                                </button>
                               )}
                             </div>
                           </div>
