@@ -31,6 +31,8 @@ export default function Home({ user, onLogout }) {
   const [faqOpen, setFaqOpen] = useState(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isAutoScroll, setIsAutoScroll] = useState(true)
+  const [showDemoModal, setShowDemoModal] = useState(false)
+  const DEMO_VIDEO_URL = "https://youtu.be/mNs8ewx5JrU?si=MROQVRQY3eCVCcdP"
 
   // Gallery images array with imported images
   const [galleryImages] = useState([
@@ -109,6 +111,24 @@ export default function Home({ user, onLogout }) {
     }
   }
 
+  const handleWatchDemo = () => {
+    setShowDemoModal(true)
+  }
+
+  const getEmbedUrl = (url) => {
+    try {
+      let videoId = ""
+      if (url.includes("youtube.com")) {
+        videoId = url.split("v=")[1]?.split("&")[0]
+      } else if (url.includes("youtu.be")) {
+        videoId = url.split("/").pop()?.split("?")[0]
+      }
+      return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1` : ""
+    } catch (error) {
+      return ""
+    }
+  }
+
   const fetchStats = async () => {
     try {
       const [courses, faculty, students] = await Promise.all([
@@ -156,9 +176,9 @@ export default function Home({ user, onLogout }) {
         "Once you enroll in a course, you'll get access to our learning platform. Live classes are scheduled at specific times which you can see in your dashboard. All live sessions are also recorded for later viewing.",
     },
     {
-      question: "Is there a free trial available?",
+      question: "What is the refund policy?",
       answer:
-        "Yes! We offer a 7-day free trial for most of our premium courses. You can access limited content and attend demo classes to experience our teaching methodology before making a purchase.",
+        "We offer a 7-day money-back guarantee from the date of enrollment if you are not satisfied with the course or if it doesn't meet your expectations. Please refer to our refund policy page for complete details.",
     },
     {
       question: "How are the faculty members selected?",
@@ -265,15 +285,15 @@ export default function Home({ user, onLogout }) {
                     className="px-5 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold shadow-lg hover:shadow-xl flex items-center gap-2 text-base sm:text-lg"
                   >
                     <i className="fas fa-rocket"></i>
-                    Start Free Trial
+                    Enroll Now
                   </Link>
-                  <Link
-                    to="/login"
+                  <button
+                    onClick={handleWatchDemo}
                     className="px-5 sm:px-6 py-2.5 sm:py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition font-semibold flex items-center gap-2 text-base sm:text-lg"
                   >
                     <i className="fas fa-play-circle"></i>
                     Watch Demo
-                  </Link>
+                  </button>
                 </div>
               )}
               {user && (
@@ -502,7 +522,9 @@ export default function Home({ user, onLogout }) {
                 <i className="fas fa-university text-purple-600 text-xl sm:text-2xl"></i>
               </div>
               <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">Ex Government College Lecturers</h3>
-              <p className="text-gray-600 text-sm sm:text-base">Former lecturers with institutional teaching experience</p>
+              <p className="text-gray-600 text-sm sm:text-base">
+                Former lecturers with institutional teaching experience
+              </p>
             </div>
             <div className="bg-white p-5 sm:p-6 rounded-xl shadow-lg text-center">
               <div className="w-14 h-14 sm:w-16 sm:h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
@@ -640,128 +662,128 @@ export default function Home({ user, onLogout }) {
 
       {/* Course Categories - Updated with new courses */}
       <section className="py-12 sm:py-16 md:py-20 bg-gray-50">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div className="text-center mb-10 sm:mb-12">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3">
-        Comprehensive Course Catalog
-      </h2>
-      <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
-        Explore our extensive range of courses designed for academic excellence and competitive success.
-      </p>
-    </div>
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-      {[
-        {
-          name: "Class 9-12",
-          shortName: "Class 9-12",
-          icon: "fas fa-atom",
-          iconColor: "text-blue-600",
-          bgColor: "bg-blue-100",
-          hoverBgColor: "group-hover:bg-blue-600",
-          students: "25K+",
-          courses: "45",
-        },
-        {
-          name: "JEE Preparation",
-          shortName: "JEE",
-          icon: "fas fa-rocket",
-          iconColor: "text-green-600",
-          bgColor: "bg-green-100",
-          hoverBgColor: "group-hover:bg-green-600",
-          students: "25K+",
-          courses: "85",
-        },
-        {
-          name: "NEET Preparation",
-          shortName: "NEET",
-          icon: "fas fa-stethoscope",
-          iconColor: "text-purple-600",
-          bgColor: "bg-purple-100",
-          hoverBgColor: "group-hover:bg-purple-600",
-          students: "22K+",
-          courses: "78",
-        },
-        {
-          name: "AIIMS Paramedical",
-          shortName: "AIIMS",
-          icon: "fas fa-hospital",
-          iconColor: "text-red-600",
-          bgColor: "bg-red-100",
-          hoverBgColor: "group-hover:bg-red-600",
-          students: "8K+",
-          courses: "25",
-        },
-        {
-          name: "Nursing Entrance",
-          shortName: "Nursing",
-          icon: "fas fa-user-nurse",
-          iconColor: "text-pink-600",
-          bgColor: "bg-pink-100",
-          hoverBgColor: "group-hover:bg-pink-600",
-          students: "6K+",
-          courses: "20",
-        },
-        {
-          name: "CUET (UG)",
-          shortName: "CUET",
-          icon: "fas fa-graduation-cap",
-          iconColor: "text-yellow-600",
-          bgColor: "bg-yellow-100",
-          hoverBgColor: "group-hover:bg-yellow-600",
-          students: "12K+",
-          courses: "35",
-        },
-        {
-          name: "TGT/PGT Preparation",
-          shortName: "Teaching",
-          icon: "fas fa-chalkboard-teacher",
-          iconColor: "text-indigo-600",
-          bgColor: "bg-indigo-100",
-          hoverBgColor: "group-hover:bg-indigo-600",
-          students: "5K+",
-          courses: "28",
-        },
-        {
-          name: "All Courses",
-          shortName: "All",
-          icon: "fas fa-book",
-          iconColor: "text-gray-600",
-          bgColor: "bg-gray-100",
-          hoverBgColor: "group-hover:bg-gray-600",
-          students: "50K+",
-          courses: "400+",
-        },
-      ].map((cat, index) => (
-        <div
-          key={cat.name}
-          onClick={() => handleCategoryClick(cat.name === "All Courses" ? "" : cat.name)}
-          className="bg-white p-4 sm:p-5 md:p-6 rounded-xl border border-gray-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 cursor-pointer group"
-        >
-          <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-            <div
-              className={`w-12 h-12 sm:w-14 sm:h-14 ${cat.bgColor} rounded-xl flex items-center justify-center transition-colors ${cat.hoverBgColor}`}
-            >
-              <i
-                className={`${cat.icon} ${cat.iconColor} text-lg sm:text-xl group-hover:text-white transition-colors`}
-              ></i>
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="font-bold text-gray-900 text-sm sm:text-base md:text-lg line-clamp-1">
-                <span className="sm:hidden">{cat.shortName}</span>
-                <span className="hidden sm:inline">{cat.name}</span>
-              </div>
-              <div className="text-gray-500 text-xs sm:text-sm">{cat.courses} Courses</div>
-            </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+              Comprehensive Course Catalog
+            </h2>
+            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
+              Explore our extensive range of courses designed for academic excellence and competitive success.
+            </p>
           </div>
-          <div className="flex justify-between items-center text-sm text-gray-600">
-            <span className="font-medium">{cat.students} Students</span>
-            <i className="fas fa-arrow-right text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity text-base"></i>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+            {[
+              {
+                name: "Class 9-12",
+                shortName: "Class 9-12",
+                icon: "fas fa-atom",
+                iconColor: "text-blue-600",
+                bgColor: "bg-blue-100",
+                hoverBgColor: "group-hover:bg-blue-600",
+                students: "25K+",
+                courses: "45",
+              },
+              {
+                name: "JEE Preparation",
+                shortName: "JEE",
+                icon: "fas fa-rocket",
+                iconColor: "text-green-600",
+                bgColor: "bg-green-100",
+                hoverBgColor: "group-hover:bg-green-600",
+                students: "25K+",
+                courses: "85",
+              },
+              {
+                name: "NEET Preparation",
+                shortName: "NEET",
+                icon: "fas fa-stethoscope",
+                iconColor: "text-purple-600",
+                bgColor: "bg-purple-100",
+                hoverBgColor: "group-hover:bg-purple-600",
+                students: "22K+",
+                courses: "78",
+              },
+              {
+                name: "AIIMS Paramedical",
+                shortName: "AIIMS",
+                icon: "fas fa-hospital",
+                iconColor: "text-red-600",
+                bgColor: "bg-red-100",
+                hoverBgColor: "group-hover:bg-red-600",
+                students: "8K+",
+                courses: "25",
+              },
+              {
+                name: "Nursing Entrance",
+                shortName: "Nursing",
+                icon: "fas fa-user-nurse",
+                iconColor: "text-pink-600",
+                bgColor: "bg-pink-100",
+                hoverBgColor: "group-hover:bg-pink-600",
+                students: "6K+",
+                courses: "20",
+              },
+              {
+                name: "CUET (UG)",
+                shortName: "CUET",
+                icon: "fas fa-graduation-cap",
+                iconColor: "text-yellow-600",
+                bgColor: "bg-yellow-100",
+                hoverBgColor: "group-hover:bg-yellow-600",
+                students: "12K+",
+                courses: "35",
+              },
+              {
+                name: "TGT/PGT Preparation",
+                shortName: "Teaching",
+                icon: "fas fa-chalkboard-teacher",
+                iconColor: "text-indigo-600",
+                bgColor: "bg-indigo-100",
+                hoverBgColor: "group-hover:bg-indigo-600",
+                students: "5K+",
+                courses: "28",
+              },
+              {
+                name: "All Courses",
+                shortName: "All",
+                icon: "fas fa-book",
+                iconColor: "text-gray-600",
+                bgColor: "bg-gray-100",
+                hoverBgColor: "group-hover:bg-gray-600",
+                students: "50K+",
+                courses: "400+",
+              },
+            ].map((cat, index) => (
+              <div
+                key={cat.name}
+                onClick={() => handleCategoryClick(cat.name === "All Courses" ? "" : cat.name)}
+                className="bg-white p-4 sm:p-5 md:p-6 rounded-xl border border-gray-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 cursor-pointer group"
+              >
+                <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+                  <div
+                    className={`w-12 h-12 sm:w-14 sm:h-14 ${cat.bgColor} rounded-xl flex items-center justify-center transition-colors ${cat.hoverBgColor}`}
+                  >
+                    <i
+                      className={`${cat.icon} ${cat.iconColor} text-lg sm:text-xl group-hover:text-white transition-colors`}
+                    ></i>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-bold text-gray-900 text-sm sm:text-base md:text-lg line-clamp-1">
+                      <span className="sm:hidden">{cat.shortName}</span>
+                      <span className="hidden sm:inline">{cat.name}</span>
+                    </div>
+                    <div className="text-gray-500 text-xs sm:text-sm">{cat.courses} Courses</div>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center text-sm text-gray-600">
+                  <span className="font-medium">{cat.students} Students</span>
+                  <i className="fas fa-arrow-right text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity text-base"></i>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      ))}
-    </div>
-  </div>
-</section>
+      </section>
 
       {/* Additional Courses Section */}
       <section className="py-12 sm:py-16 bg-white">
@@ -950,9 +972,7 @@ export default function Home({ user, onLogout }) {
                     <i key={i} className="fas fa-star text-yellow-400 text-sm"></i>
                   ))}
                 </div>
-                <p className="text-gray-700 mb-3 sm:mb-4 italic leading-relaxed text-sm">
-                  "{testimonial.feedback}"
-                </p>
+                <p className="text-gray-700 mb-3 sm:mb-4 italic leading-relaxed text-sm">"{testimonial.feedback}"</p>
                 <div className="border-t border-gray-200 pt-2 sm:pt-3">
                   <p className="font-bold text-gray-900 text-sm sm:text-base">{testimonial.name}</p>
                   <p className="text-blue-600 font-semibold text-xs sm:text-sm">
@@ -986,8 +1006,12 @@ export default function Home({ user, onLogout }) {
                   className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
                   onClick={() => setFaqOpen(faqOpen === index ? null : index)}
                 >
-                  <span className="font-semibold text-gray-900 text-sm sm:text-base text-left pr-3">{item.question}</span>
-                  <i className={`fas fa-chevron-${faqOpen === index ? "up" : "down"} text-blue-600 flex-shrink-0 text-sm`}></i>
+                  <span className="font-semibold text-gray-900 text-sm sm:text-base text-left pr-3">
+                    {item.question}
+                  </span>
+                  <i
+                    className={`fas fa-chevron-${faqOpen === index ? "up" : "down"} text-blue-600 flex-shrink-0 text-sm`}
+                  ></i>
                 </button>
                 {faqOpen === index && (
                   <div className="px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 border-t border-gray-200">
@@ -1027,15 +1051,15 @@ export default function Home({ user, onLogout }) {
                 className="px-3 sm:px-4 py-1.5 sm:py-2.5 bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition font-bold shadow-lg hover:shadow-xl flex items-center gap-1 text-sm"
               >
                 <i className="fas fa-rocket"></i>
-                Start Free Trial
+                Get Started Now
               </Link>
-              <Link
-                to="/login"
+              <button
+                onClick={handleWatchDemo}
                 className="px-3 sm:px-4 py-1.5 sm:py-2.5 border-2 border-white text-white rounded-lg hover:bg-blue-500 transition font-bold flex items-center gap-1 text-sm"
               >
-                <i className="fas fa-calendar-check"></i>
-                Schedule Demo
-              </Link>
+                <i className="fas fa-play"></i>
+                Watch Demo
+              </button>
             </div>
           )}
           {user && (
@@ -1136,14 +1160,39 @@ export default function Home({ user, onLogout }) {
             <div>
               <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">Legal</h4>
               <ul className="text-xs space-y-1.5">
-                {["Privacy Policy", "Terms of Service", "Refund Policy", "Cookie Policy"].map((item) => (
-                  <li key={item}>
-                    <a href="#" className="text-gray-400 hover:text-white transition flex items-center gap-1">
-                      <i className="fas fa-chevron-right text-xs"></i>
-                      {item}
-                    </a>
-                  </li>
-                ))}
+                <li>
+                  <Link
+                    to="/privacy-policy"
+                    className="text-gray-400 hover:text-white transition flex items-center gap-1"
+                  >
+                    <i className="fas fa-chevron-right text-xs"></i>
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/terms-conditions"
+                    className="text-gray-400 hover:text-white transition flex items-center gap-1"
+                  >
+                    <i className="fas fa-chevron-right text-xs"></i>
+                    Terms of Service
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/refund-policy"
+                    className="text-gray-400 hover:text-white transition flex items-center gap-1"
+                  >
+                    <i className="fas fa-chevron-right text-xs"></i>
+                    Refund Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/contact" className="text-gray-400 hover:text-white transition flex items-center gap-1">
+                    <i className="fas fa-chevron-right text-xs"></i>
+                    Contact Support
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
@@ -1155,6 +1204,44 @@ export default function Home({ user, onLogout }) {
           </div>
         </div>
       </footer>
+
+      {showDemoModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000] p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full">
+            <div className="flex justify-between items-center p-4 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900">Watch Demo</h2>
+              <button
+                onClick={() => {
+                  setShowDemoModal(false)
+                  // removed setting demoVideoUrl to empty string as it's no longer a state variable
+                }}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+            <div className="p-4">
+              {getEmbedUrl(DEMO_VIDEO_URL) ? (
+                <div className="aspect-video">
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src={getEmbedUrl(DEMO_VIDEO_URL)}
+                    title="Demo Video"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              ) : (
+                <div className="aspect-video bg-gray-100 flex items-center justify-center rounded-lg">
+                  <p className="text-gray-500">Invalid YouTube URL</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

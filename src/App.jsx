@@ -13,6 +13,10 @@ import CoursePreview from "./pages/CoursePreview"
 import FacultyCourseEdit from "./pages/FacultyCourseEdit"
 import FacultyAddCourse from "./pages/FacultyAddCourse"
 import ProtectedRoute from "./components/ProtectedRoute"
+import Contact from "./pages/Contact"
+import PrivacyPolicy from "./pages/PrivacyPolicy"
+import TermsAndConditions from "./pages/TermsAndConditions"
+import RefundPolicy from "./pages/RefundPolicy"
 
 export default function App() {
   const [user, setUser] = useState(null)
@@ -65,6 +69,10 @@ export default function App() {
           path="/register"
           element={user ? <Navigate to={`/${user.role}-dashboard`} /> : <Register setUser={setUser} />}
         />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-conditions" element={<TermsAndConditions />} />
+        <Route path="/refund-policy" element={<RefundPolicy />} />
         <Route
           path="/course/:courseId"
           element={

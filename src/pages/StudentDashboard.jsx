@@ -40,7 +40,7 @@ export default function StudentDashboard({ user, onLogout }) {
     streakDays: 7,
   })
 
-  const categories = ["Class 9", "Class 10", "Class 11", "Class 12", "JEE", "GUJCET", "NEET"]
+  const categories = ["Class 9", "Class 10", "Class 11", "Class 12", "JEE", "NEET"]
 
   useEffect(() => {
     localStorage.setItem("lastPath", window.location.pathname)
@@ -379,10 +379,10 @@ export default function StudentDashboard({ user, onLogout }) {
                       {filteredCourses.map((course) => (
                         <div
                           key={course._id}
-                          className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-blue-600 hover:shadow-lg transition-all duration-300 group flex flex-col"
+                          className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-blue-600 hover:shadow-lg transition-all duration-300 group flex flex-col h-full"
                         >
                           {/* Course Image/Header */}
-                          <div className="h-28 sm:h-32 lg:h-40 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 flex items-center justify-center relative overflow-hidden">
+                          <div className="h-28 sm:h-32 lg:h-36 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 flex items-center justify-center relative overflow-hidden">
                             <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition"></div>
                             <i className="fas fa-graduation-cap text-white text-2xl sm:text-3xl lg:text-4xl relative z-10"></i>
                             {enrolledCourses.includes(course._id) && (
@@ -394,18 +394,20 @@ export default function StudentDashboard({ user, onLogout }) {
                           </div>
 
                           {/* Course Content */}
-                          <div className="p-3 sm:p-4 lg:p-6 flex-grow flex flex-col">
-                            <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-1 sm:mb-2 line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem] lg:min-h-[3.5rem] flex items-start">
+                          <div className="p-3 sm:p-4 lg:p-5 flex-grow flex flex-col">
+                            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1 sm:mb-2 line-clamp-2 min-h-[2.8rem] sm:min-h-[3rem]">
                               {course.title}
                             </h3>
-                            <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3 lg:mb-4 line-clamp-2 flex-grow min-h-[2.5rem] sm:min-h-[2.8rem]">
-                              {course.description}
-                            </p>
+                            <div className="flex-grow">
+                              <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3 lg:mb-4 line-clamp-3 h-[3.6rem] sm:h-[3.9rem] overflow-hidden">
+                                {course.description}
+                              </p>
+                            </div>
 
                             {/* Course Meta */}
-                            <div className="flex justify-between items-center mb-2 sm:mb-3 lg:mb-4 py-2 border-y border-gray-200">
+                            <div className="flex justify-between items-center mb-2 sm:mb-3 py-2 border-y border-gray-200">
                               <div>
-                                <span className="text-blue-600 text-xs sm:text-sm font-semibold bg-blue-50 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full flex items-center gap-0.5 sm:gap-1 whitespace-nowrap">
+                                <span className="text-blue-600 text-xs font-semibold bg-blue-50 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full flex items-center gap-0.5 sm:gap-1 whitespace-nowrap">
                                   <i className="fas fa-tag text-xs"></i>
                                   {course.category}
                                 </span>
@@ -423,11 +425,11 @@ export default function StudentDashboard({ user, onLogout }) {
                             </div>
 
                             {/* Buttons */}
-                            <div className="mt-auto">
+                            <div className="mt-auto pt-2">
                               {enrolledCourses.includes(course._id) ? (
                                 <button
                                   onClick={() => handleViewCourse(course._id)}
-                                  className="w-full py-2 sm:py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base"
+                                  className="w-full py-2 sm:py-2.5 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition flex items-center justify-center gap-1 sm:gap-2 text-sm"
                                 >
                                   <i className="fas fa-play-circle text-xs sm:text-sm"></i>
                                   Continue Learning
@@ -435,7 +437,7 @@ export default function StudentDashboard({ user, onLogout }) {
                               ) : (
                                 <button
                                   onClick={() => handleViewDetails(course._id)}
-                                  className="w-full py-2.5 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center justify-center gap-2 text-sm sm:text-base"
+                                  className="w-full py-2 sm:py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center justify-center gap-2 text-sm"
                                 >
                                   <i className="fas fa-eye"></i>
                                   <span>View Details & Enroll</span>
@@ -513,9 +515,9 @@ export default function StudentDashboard({ user, onLogout }) {
                     {enrolledCoursesData.map((course) => (
                       <div
                         key={course._id}
-                        className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-green-600/50 rounded-xl p-3 sm:p-4 lg:p-6 hover:shadow-lg transition-all duration-300 flex flex-col"
+                        className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-green-600/50 rounded-xl p-3 sm:p-4 lg:p-5 hover:shadow-lg transition-all duration-300 flex flex-col h-full"
                       >
-                        <div className="flex items-start justify-between mb-2 sm:mb-3 lg:mb-4">
+                        <div className="flex items-start justify-between mb-2 sm:mb-3">
                           <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-green-100 rounded-lg flex items-center justify-center">
                             <i className="fas fa-check text-green-600 text-base sm:text-lg lg:text-xl"></i>
                           </div>
@@ -524,12 +526,14 @@ export default function StudentDashboard({ user, onLogout }) {
                             Active
                           </span>
                         </div>
-                        <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 mb-1 sm:mb-2 line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem] lg:min-h-[3.5rem] flex items-start">
+                        <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1 sm:mb-2 line-clamp-2 min-h-[2.8rem] sm:min-h-[3rem]">
                           {course.title}
                         </h3>
-                        <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3 lg:mb-4 line-clamp-2 flex-grow min-h-[2.5rem] sm:min-h-[2.8rem]">
-                          {course.description}
-                        </p>
+                        <div className="flex-grow">
+                          <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-3 h-[3.6rem] sm:h-[3.9rem] overflow-hidden">
+                            {course.description}
+                          </p>
+                        </div>
 
                         <div className="mb-3 sm:mb-4">
                           <div className="flex justify-between text-xs sm:text-sm text-gray-600 mb-1 whitespace-nowrap">
@@ -541,10 +545,10 @@ export default function StudentDashboard({ user, onLogout }) {
                           </div>
                         </div>
 
-                        <div className="mt-auto">
+                        <div className="mt-auto pt-2">
                           <button
                             onClick={() => handleViewCourse(course._id)}
-                            className="w-full py-2 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base"
+                            className="w-full py-2 sm:py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition flex items-center justify-center gap-1 sm:gap-2 text-sm"
                           >
                             <i className="fas fa-play text-xs sm:text-sm"></i>
                             Continue Learning
