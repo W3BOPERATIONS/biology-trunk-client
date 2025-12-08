@@ -8,6 +8,7 @@ import { API_URL } from "../utils/api.js"
 export default function RazorpayPayment({ course, student, onPaymentSuccess, onPaymentCancel }) {
   const [loading, setLoading] = useState(false)
   const [scriptLoaded, setScriptLoaded] = useState(false)
+  const [dataReady, setDataReady] = useState(false)
 
   useEffect(() => {
     const loadRazorpayScript = () => {
@@ -35,10 +36,32 @@ export default function RazorpayPayment({ course, student, onPaymentSuccess, onP
     loadRazorpayScript()
   }, [])
 
+  useEffect(() => {
+    if (course?._id && student?._id) {
+      setDataReady(true)
+    } else {
+      setDataReady(false)
+    }
+  }, [course, student])
+
+  if (!dataReady) {
+    console.error("[v0] RazorpayPayment: Missing required course or student data", { course, student })
+    return (
+      <button disabled className="w-full py-3 bg-gray-400 text-white rounded-lg cursor-not-allowed font-bold shadow-md">
+        <span>Unable to process payment</span>
+      </button>
+    )
+  }
+
   const handlePayment = async () => {
     try {
       if (!scriptLoaded || !window.Razorpay) {
         showErrorToast("Payment system not ready. Please refresh and try again.")
+        return
+      }
+
+      if (!course._id || !student._id) {
+        showErrorToast("Invalid course or student information. Please refresh and try again.")
         return
       }
 
@@ -122,22 +145,22 @@ export default function RazorpayPayment({ course, student, onPaymentSuccess, onP
   return (
     <button
       onClick={handlePayment}
-      disabled={loading || !scriptLoaded}
-      className="w-full py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base"
+      disabled={loading || !scriptLoaded || !dataReady}
+      className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 flex items-center justify-center gap-2"
     >
       {loading ? (
         <>
-          <i className="fas fa-spinner fa-spin text-xs sm:text-sm"></i>
+          <i className="fas fa-spinner fa-spin"></i>
           <span>Processing...</span>
         </>
       ) : !scriptLoaded ? (
         <>
-          <i className="fas fa-hourglass-half text-xs sm:text-sm"></i>
+          <i className="fas fa-hourglass-half"></i>
           <span>Loading...</span>
         </>
       ) : (
         <>
-          <i className="fas fa-shopping-cart text-xs sm:text-sm"></i>
+          <i className="fas fa-shopping-cart"></i>
           <span>Pay ₹{course.price} - Enroll Now</span>
         </>
       )}

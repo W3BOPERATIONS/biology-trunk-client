@@ -8,7 +8,7 @@ import { useLocation } from "react-router-dom"
 import logo from "../assets/biology-trunk-logo.png" // Add logo import
 import { showErrorToast, showWarningToast } from "../utils/toast.js"
 
-const ITEMS_PER_PAGE = 9
+const ITEMS_PER_PAGE = 8
 
 export default function StudentDashboard({ user, onLogout }) {
   const location = useLocation()
@@ -152,6 +152,9 @@ export default function StudentDashboard({ user, onLogout }) {
       course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       course.description.toLowerCase().includes(searchTerm.toLowerCase()),
   )
+
+  const shouldShowViewAll = !selectedCategory && !searchTerm && currentPage === 1 && courses.length > 8
+  const displayedCourses = shouldShowViewAll ? filteredCourses.slice(0, 8) : filteredCourses
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -367,7 +370,7 @@ export default function StudentDashboard({ user, onLogout }) {
                     <i className="fas fa-spinner fa-spin text-3xl sm:text-4xl mb-3 sm:mb-4 text-blue-600"></i>
                     <div className="text-gray-600 text-base sm:text-lg">Loading courses...</div>
                   </div>
-                ) : filteredCourses.length === 0 ? (
+                ) : displayedCourses.length === 0 ? (
                   <div className="text-center py-12 sm:py-16 lg:py-20">
                     <i className="fas fa-search text-4xl sm:text-6xl mb-3 sm:mb-4 text-gray-300"></i>
                     <div className="text-gray-600 text-base sm:text-lg mb-2">No courses found</div>
@@ -376,7 +379,7 @@ export default function StudentDashboard({ user, onLogout }) {
                 ) : (
                   <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 mb-6 sm:mb-8">
-                      {filteredCourses.map((course) => (
+                      {displayedCourses.map((course) => (
                         <div
                           key={course._id}
                           className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-blue-600 hover:shadow-lg transition-all duration-300 group flex flex-col h-full"
@@ -452,40 +455,53 @@ export default function StudentDashboard({ user, onLogout }) {
                       ))}
                     </div>
 
-                    {/* Pagination */}
-                    {totalPages > 1 && (
-                      <div className="flex justify-center items-center gap-1 sm:gap-2 mb-6 sm:mb-8 lg:mb-10">
+                    {/* View All Courses button */}
+                    {shouldShowViewAll && (
+                      <div className="flex justify-center">
                         <button
-                          onClick={() => fetchCourses(currentPage - 1)}
-                          disabled={currentPage === 1}
-                          className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-200 text-gray-900 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm"
+                          onClick={() => navigate("/view-all-courses")}
+                          className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center gap-2 text-base shadow-md"
                         >
-                          <i className="fas fa-chevron-left text-xs"></i>
-                          <span className="hidden sm:inline">Previous</span>
-                          <span className="sm:hidden">Prev</span>
+                          <i className="fas fa-eye text-base"></i>
+                          View All Courses
                         </button>
+                      </div>
+                    )}
+
+                    {/* Pagination */}
+                    {(totalPages > 1 || selectedCategory || searchTerm) && !shouldShowViewAll && (
+                      <div className="flex justify-center items-center gap-2 mt-6 sm:mt-8 flex-wrap">
+                        {currentPage > 1 && (
+                          <button
+                            onClick={() => fetchCourses(currentPage - 1)}
+                            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+                          >
+                            <i className="fas fa-chevron-left"></i>
+                          </button>
+                        )}
+
                         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                           <button
                             key={page}
                             onClick={() => fetchCourses(page)}
-                            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition flex items-center gap-0.5 sm:gap-1 text-xs sm:text-sm ${
-                              page === currentPage
+                            className={`px-3 sm:px-4 py-2 rounded-lg transition ${
+                              currentPage === page
                                 ? "bg-blue-600 text-white"
-                                : "bg-gray-200 text-gray-900 hover:bg-gray-300"
+                                : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
                             }`}
                           >
                             {page}
                           </button>
                         ))}
-                        <button
-                          onClick={() => fetchCourses(currentPage + 1)}
-                          disabled={currentPage === totalPages}
-                          className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-200 text-gray-900 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm"
-                        >
-                          <span className="hidden sm:inline">Next</span>
-                          <span className="sm:hidden">Next</span>
-                          <i className="fas fa-chevron-right text-xs"></i>
-                        </button>
+
+                        {currentPage < totalPages && (
+                          <button
+                            onClick={() => fetchCourses(currentPage + 1)}
+                            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+                          >
+                            <i className="fas fa-chevron-right"></i>
+                          </button>
+                        )}
                       </div>
                     )}
                   </>

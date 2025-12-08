@@ -74,8 +74,7 @@ export default function App() {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-conditions" element={<TermsAndConditions />} />
         <Route path="/refund-policy" element={<RefundPolicy />} />
-        {/* Make CoursePreview public - no login required */}
-        <Route path="/course-preview/:courseId" element={<CoursePreview />} />
+        <Route path="/course-preview/:courseId" element={<CoursePreview user={user} onLogout={handleLogout} />} />
         {/* Add new ViewAllCourses route - accessible to all */}
         <Route path="/view-all-courses" element={<ViewAllCourses />} />
         <Route

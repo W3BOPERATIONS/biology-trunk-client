@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import axios from "axios"
 import { API_URL } from "../utils/api.js"
-import { showErrorToast } from "../utils/toast.js"
 import RazorpayPayment from "../components/RazorpayPayment.jsx"
 import logo from "../assets/biology-trunk-logo.png"
 
@@ -14,6 +13,7 @@ export default function CoursePreview({ user, onLogout }) {
   const [course, setCourse] = useState(null)
   const [isEnrolled, setIsEnrolled] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState("overview")
 
   useEffect(() => {
@@ -28,24 +28,30 @@ export default function CoursePreview({ user, onLogout }) {
 
   const fetchCourse = async () => {
     try {
+      setLoading(true)
+      setError(null)
       const response = await axios.get(`${API_URL}/courses/${courseId}`)
       setCourse(response.data)
       setLoading(false)
     } catch (error) {
       console.error("Failed to fetch course:", error)
-      showErrorToast("Failed to load course details")
+      setError("Failed to load course details")
       setLoading(false)
     }
   }
 
   const checkEnrollment = async () => {
-    if (!user) return
+    if (!user) {
+      setIsEnrolled(false)
+      return
+    }
     try {
       const response = await axios.get(`${API_URL}/enrollments/student/${user._id}`)
       const isEnrolledInCourse = response.data.some((e) => e.course._id === courseId)
       setIsEnrolled(isEnrolledInCourse)
     } catch (error) {
       console.error("Failed to check enrollment:", error)
+      setIsEnrolled(false)
     }
   }
 
@@ -74,12 +80,12 @@ export default function CoursePreview({ user, onLogout }) {
     )
   }
 
-  if (!course) {
+  if (error || !course || !course._id) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <i className="fas fa-exclamation-circle text-4xl text-red-600 mb-4"></i>
-          <p className="text-gray-600 text-lg">Course not found</p>
+          <p className="text-gray-600 text-lg">{error || "Course not found"}</p>
           <button
             onClick={() => navigate("/student-dashboard")}
             className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
@@ -171,7 +177,7 @@ export default function CoursePreview({ user, onLogout }) {
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 text-balance">
                 {course.title}
               </h1>
-              
+
               <p className="text-gray-700 text-sm sm:text-base lg:text-lg mb-4 sm:mb-6 line-clamp-2 sm:line-clamp-3">
                 {course.description}
               </p>
@@ -185,7 +191,10 @@ export default function CoursePreview({ user, onLogout }) {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-gray-600 text-xs sm:text-sm font-semibold truncate">Instructor</p>
-                      <p className="text-gray-900 font-bold text-sm sm:text-base truncate" title={course.faculty?.name || "N/A"}>
+                      <p
+                        className="text-gray-900 font-bold text-sm sm:text-base truncate"
+                        title={course.faculty?.name || "N/A"}
+                      >
                         {course.faculty?.name || "N/A"}
                       </p>
                     </div>
@@ -246,13 +255,21 @@ export default function CoursePreview({ user, onLogout }) {
                       <i className="fas fa-play-circle text-base"></i>
                       Continue Learning
                     </button>
-                  ) : (
+                  ) : user ? (
                     <RazorpayPayment
                       course={course}
                       student={user}
                       onPaymentSuccess={handleEnrollmentSuccess}
                       onPaymentCancel={() => {}}
                     />
+                  ) : (
+                    <button
+                      onClick={() => navigate("/login")}
+                      className="w-full py-3 sm:py-3.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold flex items-center justify-center gap-2 text-sm sm:text-base"
+                    >
+                      <i className="fas fa-sign-in-alt text-base"></i>
+                      Login to Enroll
+                    </button>
                   )}
                 </div>
 
@@ -338,7 +355,10 @@ export default function CoursePreview({ user, onLogout }) {
                           <i className="fas fa-user text-gray-400 text-sm flex-shrink-0"></i>
                           <span className="text-gray-600 text-sm sm:text-base truncate">Instructor</span>
                         </div>
-                        <span className="font-semibold text-gray-900 text-sm sm:text-base truncate ml-2" title={course.faculty?.name || "N/A"}>
+                        <span
+                          className="font-semibold text-gray-900 text-sm sm:text-base truncate ml-2"
+                          title={course.faculty?.name || "N/A"}
+                        >
                           {course.faculty?.name || "N/A"}
                         </span>
                       </div>
@@ -347,7 +367,9 @@ export default function CoursePreview({ user, onLogout }) {
                           <i className="fas fa-clock text-gray-400 text-sm"></i>
                           <span className="text-gray-600 text-sm sm:text-base">Duration</span>
                         </div>
-                        <span className="font-semibold text-gray-900 text-sm sm:text-base truncate">{course.duration}</span>
+                        <span className="font-semibold text-gray-900 text-sm sm:text-base truncate">
+                          {course.duration}
+                        </span>
                       </div>
                       <div className="flex justify-between items-center py-2 border-b border-gray-200">
                         <div className="flex items-center gap-2">
@@ -363,7 +385,9 @@ export default function CoursePreview({ user, onLogout }) {
                           <i className="fas fa-tag text-gray-400 text-sm"></i>
                           <span className="text-gray-600 text-sm sm:text-base">Category</span>
                         </div>
-                        <span className="font-semibold text-gray-900 text-sm sm:text-base truncate">{course.category}</span>
+                        <span className="font-semibold text-gray-900 text-sm sm:text-base truncate">
+                          {course.category}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -383,15 +407,18 @@ export default function CoursePreview({ user, onLogout }) {
                 </div>
 
                 {/* What You Will Learn */}
-                {course.whatYouWillLearn && course.whatYouWillLearn.length > 0 && (
+                {course.highlights && course.highlights.length > 0 && (
                   <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6">
                     <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
                       <i className="fas fa-graduation-cap text-purple-600 text-base sm:text-lg"></i>
                       What You Will Learn
                     </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                      {course.whatYouWillLearn.map((item, idx) => (
-                        <div key={idx} className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg border border-purple-100">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                      {course.highlights.map((item, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg border border-purple-100"
+                        >
                           <i className="fas fa-check text-green-600 mt-0.5 flex-shrink-0"></i>
                           <span className="text-gray-700 text-sm sm:text-base break-words">{item}</span>
                         </div>
@@ -412,26 +439,34 @@ export default function CoursePreview({ user, onLogout }) {
                 {course.curriculum && course.curriculum.length > 0 ? (
                   <div className="space-y-3 sm:space-y-4">
                     {course.curriculum.map((module, idx) => (
-                      <div key={idx} className="border border-gray-200 rounded-xl overflow-hidden hover:border-blue-300 transition">
+                      <div
+                        key={idx}
+                        className="border border-gray-200 rounded-xl overflow-hidden hover:border-blue-300 transition"
+                      >
                         <div className="bg-blue-50 p-3 sm:p-4 flex items-center gap-3">
                           <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                             <i className="fas fa-folder text-blue-600 text-sm sm:text-base"></i>
                           </div>
                           <div className="min-w-0 flex-1">
-                            <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">{module.module}</h3>
-                            <p className="text-gray-600 text-xs sm:text-sm">
-                              {module.topics.length} topics
-                            </p>
+                            <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">
+                              {module.module}
+                            </h3>
+                            <p className="text-gray-600 text-xs sm:text-sm">{module.topics?.length || 0} topics</p>
                           </div>
                         </div>
-                        <ul className="p-3 sm:p-4 space-y-2">
-                          {module.topics.map((topic, topicIdx) => (
-                            <li key={topicIdx} className="flex items-center gap-3 text-gray-700 p-2 hover:bg-gray-50 rounded-lg">
-                              <i className="fas fa-play-circle text-blue-400 text-sm flex-shrink-0"></i>
-                              <span className="text-sm sm:text-base break-words">{topic}</span>
-                            </li>
-                          ))}
-                        </ul>
+                        {module.topics && module.topics.length > 0 && (
+                          <ul className="p-3 sm:p-4 space-y-2">
+                            {module.topics.map((topic, topicIdx) => (
+                              <li
+                                key={topicIdx}
+                                className="flex items-center gap-3 text-gray-700 p-2 hover:bg-gray-50 rounded-lg"
+                              >
+                                <i className="fas fa-play-circle text-blue-400 text-sm flex-shrink-0"></i>
+                                <span className="text-sm sm:text-base break-words">{topic}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -453,7 +488,7 @@ export default function CoursePreview({ user, onLogout }) {
                   What's Included in This Course
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                  {course.courseIncludes && (
+                  {course.courseIncludes ? (
                     <>
                       {course.courseIncludes.videos && (
                         <div className="bg-white border border-gray-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-sm transition">
@@ -462,10 +497,14 @@ export default function CoursePreview({ user, onLogout }) {
                               <i className="fas fa-video text-blue-600 text-lg sm:text-xl"></i>
                             </div>
                             <div className="min-w-0 flex-1">
-                              <p className="font-semibold text-gray-900 text-sm sm:text-base truncate">HD Video Lectures</p>
+                              <p className="font-semibold text-gray-900 text-sm sm:text-base truncate">
+                                HD Video Lectures
+                              </p>
                             </div>
                           </div>
-                          <p className="text-gray-600 text-xs sm:text-sm">High-quality recorded content for flexible learning</p>
+                          <p className="text-gray-600 text-xs sm:text-sm">
+                            High-quality recorded content for flexible learning
+                          </p>
                         </div>
                       )}
                       {course.courseIncludes.liveLectures && (
@@ -488,7 +527,9 @@ export default function CoursePreview({ user, onLogout }) {
                               <i className="fas fa-file-pdf text-purple-600 text-lg sm:text-xl"></i>
                             </div>
                             <div className="min-w-0 flex-1">
-                              <p className="font-semibold text-gray-900 text-sm sm:text-base truncate">Study Materials</p>
+                              <p className="font-semibold text-gray-900 text-sm sm:text-base truncate">
+                                Study Materials
+                              </p>
                             </div>
                           </div>
                           <p className="text-gray-600 text-xs sm:text-sm">Downloadable PDF notes and resources</p>
@@ -534,6 +575,11 @@ export default function CoursePreview({ user, onLogout }) {
                         </div>
                       )}
                     </>
+                  ) : (
+                    <div className="col-span-3 text-center py-8">
+                      <i className="fas fa-info-circle text-4xl text-gray-300 mb-4"></i>
+                      <p className="text-gray-600">Course inclusions information coming soon</p>
+                    </div>
                   )}
                 </div>
               </div>
@@ -541,7 +587,7 @@ export default function CoursePreview({ user, onLogout }) {
           </div>
         </div>
 
-        {/* Enrollment CTA - Fixed sizing issue */}
+        {/* Enrollment CTA */}
         {!isEnrolled && (
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4 sm:p-6 text-center">
             <div className="max-w-2xl mx-auto">
@@ -577,7 +623,6 @@ export default function CoursePreview({ user, onLogout }) {
               </div>
               <p className="text-gray-500 text-xs sm:text-sm mt-4 sm:mt-6">
                 <i className="fas fa-shield-alt text-green-600 mr-1"></i>
-                {/* Changed from 30-day to 7-day */}
                 7-day money-back guarantee • Lifetime access • Certificate included
               </p>
             </div>

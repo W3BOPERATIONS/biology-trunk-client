@@ -4,8 +4,10 @@ import { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import axios from "axios"
 import { API_URL } from "../utils/api.js"
-import { showErrorToast, showSuccessToast } from "../utils/toast.js"
+import { showErrorToast } from "../utils/toast.js"
 import logo from "../assets/biology-trunk-logo.png"
+
+const COURSES_PER_PAGE = 9
 
 export default function ViewAllCourses() {
   const navigate = useNavigate()
@@ -19,8 +21,9 @@ export default function ViewAllCourses() {
   const [courseLevels, setCourseLevels] = useState([])
   const [selectedLevel, setSelectedLevel] = useState("all")
   const [sortBy, setSortBy] = useState("newest")
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
 
-  // Parse URL query parameters for category filter
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search)
     const categoryParam = searchParams.get("category")
@@ -35,12 +38,12 @@ export default function ViewAllCourses() {
 
   useEffect(() => {
     filterAndSortCourses()
-  }, [courses, searchTerm, selectedCategory, selectedLevel, sortBy])
+  }, [courses, searchTerm, selectedCategory, selectedLevel, sortBy, currentPage])
 
   const fetchCourses = async () => {
     try {
       const response = await axios.get(`${API_URL}/courses`)
-      
+
       // Handle both array response and object with courses property
       let coursesData = []
       if (Array.isArray(response.data)) {
@@ -54,10 +57,10 @@ export default function ViewAllCourses() {
       }
 
       setCourses(coursesData)
-      
+
       // Extract unique categories with course counts
       const categoryMap = {}
-      coursesData.forEach(course => {
+      coursesData.forEach((course) => {
         if (course.category) {
           if (!categoryMap[course.category]) {
             categoryMap[course.category] = { name: course.category, count: 0 }
@@ -65,14 +68,14 @@ export default function ViewAllCourses() {
           categoryMap[course.category].count++
         }
       })
-      
+
       const uniqueCategories = Object.values(categoryMap)
       setCategories(uniqueCategories)
-      
+
       // Extract unique course levels
-      const levels = [...new Set(coursesData.map(course => course.courseLevel).filter(Boolean))]
+      const levels = [...new Set(coursesData.map((course) => course.courseLevel).filter(Boolean))]
       setCourseLevels(levels)
-      
+
       setLoading(false)
     } catch (error) {
       console.error("Failed to fetch courses:", error)
@@ -86,21 +89,22 @@ export default function ViewAllCourses() {
 
     // Apply search filter
     if (searchTerm.trim()) {
-      filtered = filtered.filter(course =>
-        course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        course.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        course.faculty?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (course) =>
+          course.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          course.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          course.faculty?.name?.toLowerCase().includes(searchTerm.toLowerCase()),
       )
     }
 
     // Apply category filter
     if (selectedCategory !== "all") {
-      filtered = filtered.filter(course => course.category === selectedCategory)
+      filtered = filtered.filter((course) => course.category === selectedCategory)
     }
 
     // Apply level filter
     if (selectedLevel !== "all") {
-      filtered = filtered.filter(course => course.courseLevel === selectedLevel)
+      filtered = filtered.filter((course) => course.courseLevel === selectedLevel)
     }
 
     // Apply sorting
@@ -121,7 +125,14 @@ export default function ViewAllCourses() {
       }
     })
 
-    setFilteredCourses(filtered)
+    const total = Math.ceil(filtered.length / COURSES_PER_PAGE)
+    setTotalPages(total)
+
+    // Get courses for current page
+    const startIndex = (currentPage - 1) * COURSES_PER_PAGE
+    const paginatedCourses = filtered.slice(startIndex, startIndex + COURSES_PER_PAGE)
+
+    setFilteredCourses(paginatedCourses)
   }
 
   const handleCourseClick = (courseId) => {
@@ -130,7 +141,7 @@ export default function ViewAllCourses() {
 
   const handleCategoryClick = (categoryName) => {
     setSelectedCategory(categoryName)
-    // Scroll to courses section
+    setCurrentPage(1) // Reset to first page when category changes
     setTimeout(() => {
       document.getElementById("courses-section")?.scrollIntoView({ behavior: "smooth" })
     }, 100)
@@ -141,7 +152,7 @@ export default function ViewAllCourses() {
     setSelectedCategory("all")
     setSelectedLevel("all")
     setSortBy("newest")
-    // Also reset URL query parameters
+    setCurrentPage(1) // Reset pagination
     navigate("/view-all-courses", { replace: true })
   }
 
@@ -205,16 +216,15 @@ export default function ViewAllCourses() {
         <div className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6">
             <div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-                Explore All Courses
-              </h1>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">Explore All Courses</h1>
               <p className="text-gray-600 text-sm sm:text-base">
                 Discover {courses.length}+ courses to enhance your biology knowledge
               </p>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-gray-600 text-sm sm:text-base">
-                Showing {filteredCourses.length} of {courses.length} courses
+                Showing {Math.min(currentPage * COURSES_PER_PAGE - COURSES_PER_PAGE + 1, courses.length)} -{" "}
+                {Math.min(currentPage * COURSES_PER_PAGE, courses.length)} of {courses.length} courses
               </span>
             </div>
           </div>
@@ -228,7 +238,10 @@ export default function ViewAllCourses() {
               type="text"
               placeholder="Search courses by title, description, or instructor..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value)
+                setCurrentPage(1) // Reset to first page on search
+              }}
               className="w-full pl-10 pr-4 py-3 sm:py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
             />
           </div>
@@ -245,16 +258,17 @@ export default function ViewAllCourses() {
                 className={`bg-white p-4 sm:p-5 rounded-xl border-2 cursor-pointer transition-all hover:shadow-lg ${selectedCategory === "all" ? "border-blue-600 bg-blue-50" : "border-gray-200 hover:border-blue-300"}`}
               >
                 <div className="flex items-center gap-3 mb-2">
-                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center ${selectedCategory === "all" ? "bg-blue-100" : "bg-gray-100"}`}>
-                    <i className={`fas fa-th-large ${selectedCategory === "all" ? "text-blue-600" : "text-gray-600"} text-lg`}></i>
+                  <div
+                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center ${selectedCategory === "all" ? "bg-blue-100" : "bg-gray-100"}`}
+                  >
+                    <i
+                      className={`fas fa-th-large ${selectedCategory === "all" ? "text-blue-600" : "text-gray-600"} text-lg`}
+                    ></i>
                   </div>
                   <div>
                     <div className="font-bold text-gray-900 text-sm sm:text-base">All Categories</div>
                     <div className="text-gray-500 text-xs sm:text-sm">{courses.length} Courses</div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <i className="fas fa-arrow-right text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity text-base"></i>
                 </div>
               </div>
 
@@ -265,8 +279,12 @@ export default function ViewAllCourses() {
                   className={`bg-white p-4 sm:p-5 rounded-xl border-2 cursor-pointer transition-all hover:shadow-lg ${selectedCategory === category.name ? "border-blue-600 bg-blue-50" : "border-gray-200 hover:border-blue-300"}`}
                 >
                   <div className="flex items-center gap-3 mb-2">
-                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center ${selectedCategory === category.name ? "bg-blue-100" : "bg-gray-100"}`}>
-                      <i className={`fas fa-book ${selectedCategory === category.name ? "text-blue-600" : "text-gray-600"} text-lg`}></i>
+                    <div
+                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center ${selectedCategory === category.name ? "bg-blue-100" : "bg-gray-100"}`}
+                    >
+                      <i
+                        className={`fas fa-book ${selectedCategory === category.name ? "text-blue-600" : "text-gray-600"} text-lg`}
+                      ></i>
                     </div>
                     <div>
                       <div className="font-bold text-gray-900 text-sm sm:text-base truncate" title={category.name}>
@@ -274,9 +292,6 @@ export default function ViewAllCourses() {
                       </div>
                       <div className="text-gray-500 text-xs sm:text-sm">{category.count} Courses</div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <i className={`fas fa-arrow-right ${selectedCategory === category.name ? "text-blue-600" : "text-gray-400"} text-base`}></i>
                   </div>
                 </div>
               ))}
@@ -292,12 +307,17 @@ export default function ViewAllCourses() {
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Level</label>
                   <select
                     value={selectedLevel}
-                    onChange={(e) => setSelectedLevel(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedLevel(e.target.value)
+                      setCurrentPage(1) // Reset pagination on filter change
+                    }}
                     className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent min-w-[140px]"
                   >
                     <option value="all">All Levels</option>
                     {courseLevels.map((level, idx) => (
-                      <option key={idx} value={level}>{level}</option>
+                      <option key={idx} value={level}>
+                        {level}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -307,7 +327,10 @@ export default function ViewAllCourses() {
                   <label className="block text-xs font-semibold text-gray-700 mb-1">Sort By</label>
                   <select
                     value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
+                    onChange={(e) => {
+                      setSortBy(e.target.value)
+                      setCurrentPage(1) // Reset pagination on sort change
+                    }}
                     className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent min-w-[160px]"
                   >
                     <option value="newest">Newest First</option>
@@ -352,9 +375,6 @@ export default function ViewAllCourses() {
                 <i className="fas fa-book-open text-blue-600"></i>
                 {selectedCategory === "all" ? "All Courses" : `${selectedCategory} Courses`}
               </h2>
-              <div className="text-sm text-gray-600">
-                {filteredCourses.length} {filteredCourses.length === 1 ? 'course' : 'courses'} found
-              </div>
             </div>
 
             {filteredCourses.length === 0 ? (
@@ -362,7 +382,9 @@ export default function ViewAllCourses() {
                 <i className="fas fa-search text-4xl sm:text-5xl mb-4 text-gray-300"></i>
                 <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">No courses found</h3>
                 <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                  {searchTerm ? `No courses match "${searchTerm}"` : "Try adjusting your filters to find what you're looking for."}
+                  {searchTerm
+                    ? `No courses match "${searchTerm}"`
+                    : "Try adjusting your filters to find what you're looking for."}
                 </p>
                 <button
                   onClick={handleResetFilters}
@@ -372,106 +394,140 @@ export default function ViewAllCourses() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {filteredCourses.map((course) => (
-                  <div
-                    key={course._id}
-                    className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-blue-300 transition-all duration-300 cursor-pointer group"
-                  >
-                    {/* Course Image/Thumbnail Area - White background with logo */}
-                    <div 
-                      className="relative h-40 sm:h-48 bg-white flex items-center justify-center overflow-hidden border-b border-gray-200"
-                      onClick={() => handleCourseClick(course._id)}
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
+                  {filteredCourses.map((course) => (
+                    <div
+                      key={course._id}
+                      className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-blue-300 transition-all duration-300 cursor-pointer group"
                     >
-                      <div className="w-24 h-24 sm:w-28 sm:h-28">
-                        <img
-                          src={logo || "/placeholder.svg"}
-                          alt="Biology.Trunk Logo"
-                          className="w-full h-full object-contain opacity-90 group-hover:opacity-100 transition-opacity"
-                        />
-                      </div>
-                      
-                      {/* Course Category Badge */}
-                      <div className="absolute top-3 left-3">
-                        <span className="bg-blue-600 text-white px-2 py-1 rounded-lg text-xs font-semibold">
-                          {course.category || "General"}
-                        </span>
-                      </div>
-                      
-                      {/* Course Level Badge */}
-                      {course.courseLevel && (
-                        <div className="absolute top-3 right-3">
-                          <span className="bg-green-100 text-green-700 px-2 py-1 rounded-lg text-xs font-semibold">
-                            {course.courseLevel}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Course Content */}
-                    <div className="p-4 sm:p-6">
-                      {/* Course Title */}
-                      <h3 
-                        className="font-bold text-gray-900 text-lg sm:text-xl mb-2 line-clamp-2 group-hover:text-blue-600 transition cursor-pointer"
+                      {/* Course Image/Thumbnail Area */}
+                      <div
+                        className="relative h-40 sm:h-48 bg-white flex items-center justify-center overflow-hidden border-b border-gray-200"
                         onClick={() => handleCourseClick(course._id)}
                       >
-                        {course.title || "Untitled Course"}
-                      </h3>
-
-                      {/* Course Description */}
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                        {course.description || "No description available"}
-                      </p>
-
-                      {/* Instructor Info */}
-                      <div className="flex items-center gap-2 mb-4">
-                        <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                          <i className="fas fa-user text-gray-600 text-sm"></i>
+                        <div className="w-24 h-24 sm:w-28 sm:h-28">
+                          <img
+                            src={logo || "/placeholder.svg"}
+                            alt="Biology.Trunk Logo"
+                            className="w-full h-full object-contain opacity-90 group-hover:opacity-100 transition-opacity"
+                          />
                         </div>
-                        <div>
-                          <p className="text-xs text-gray-500">Instructor</p>
-                          <p className="text-sm font-semibold text-gray-900 truncate">
-                            {course.faculty?.name || "Unknown Instructor"}
-                          </p>
+
+                        {/* Course Category Badge */}
+                        <div className="absolute top-3 left-3">
+                          <span className="bg-blue-600 text-white px-2 py-1 rounded-lg text-xs font-semibold">
+                            {course.category || "General"}
+                          </span>
                         </div>
+
+                        {/* Course Level Badge */}
+                        {course.courseLevel && (
+                          <div className="absolute top-3 right-3">
+                            <span className="bg-green-100 text-green-700 px-2 py-1 rounded-lg text-xs font-semibold">
+                              {course.courseLevel}
+                            </span>
+                          </div>
+                        )}
                       </div>
 
-                      {/* Course Stats */}
-                      <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                        <div className="flex items-center gap-1">
-                          <i className="fas fa-clock text-xs"></i>
-                          <span>{course.duration || "Flexible"}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <i className="fas fa-users text-xs"></i>
-                          <span>{course.students?.length || 0} students</span>
-                        </div>
-                      </div>
-
-                      {/* Price and Action Button */}
-                      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                        <div>
-                          {course.price > 0 ? (
-                            <div className="flex items-baseline gap-1">
-                              <i className="fas fa-rupee-sign text-gray-600"></i>
-                              <span className="text-xl font-bold text-gray-900">{course.price}</span>
-                            </div>
-                          ) : (
-                            <span className="text-xl font-bold text-green-600">FREE</span>
-                          )}
-                        </div>
-                        <button
+                      {/* Course Content */}
+                      <div className="p-4 sm:p-6">
+                        {/* Course Title */}
+                        <h3
+                          className="font-bold text-gray-900 text-lg sm:text-xl mb-2 line-clamp-2 group-hover:text-blue-600 transition cursor-pointer"
                           onClick={() => handleCourseClick(course._id)}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm flex items-center gap-2"
                         >
-                          <i className="fas fa-eye"></i>
-                          View Details
-                        </button>
+                          {course.title || "Untitled Course"}
+                        </h3>
+
+                        {/* Course Description */}
+                        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                          {course.description || "No description available"}
+                        </p>
+
+                        {/* Instructor Info */}
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                            <i className="fas fa-user text-gray-600 text-sm"></i>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500">Instructor</p>
+                            <p className="text-sm font-semibold text-gray-900 truncate">
+                              {course.faculty?.name || "Unknown Instructor"}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Course Stats */}
+                        <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                          <div className="flex items-center gap-1">
+                            <i className="fas fa-clock text-xs"></i>
+                            <span>{course.duration || "Flexible"}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <i className="fas fa-users text-xs"></i>
+                            <span>{course.students?.length || 0} students</span>
+                          </div>
+                        </div>
+
+                        {/* Price and Action Button */}
+                        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                          <div>
+                            {course.price > 0 ? (
+                              <div className="flex items-baseline gap-1">
+                                <i className="fas fa-rupee-sign text-gray-600"></i>
+                                <span className="text-xl font-bold text-gray-900">{course.price}</span>
+                              </div>
+                            ) : (
+                              <span className="text-xl font-bold text-green-600">FREE</span>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => handleCourseClick(course._id)}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm flex items-center gap-2"
+                          >
+                            <i className="fas fa-eye"></i>
+                            View Details
+                          </button>
+                        </div>
                       </div>
                     </div>
+                  ))}
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2 py-6 mb-8">
+                    <button
+                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                      disabled={currentPage === 1}
+                      className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                    >
+                      <i className="fas fa-chevron-left"></i>
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-3 py-2 rounded-lg font-semibold transition ${
+                          currentPage === page ? "bg-blue-600 text-white" : "border border-gray-300 hover:bg-gray-100"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+
+                    <button
+                      onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                      disabled={currentPage === totalPages}
+                      className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                    >
+                      <i className="fas fa-chevron-right"></i>
+                    </button>
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             )}
           </div>
 
@@ -482,7 +538,8 @@ export default function ViewAllCourses() {
                 Ready to start learning?
               </h3>
               <p className="text-gray-700 text-sm sm:text-base mb-4 sm:mb-6 max-w-lg mx-auto">
-                Browse courses, view details, and enroll to start your learning journey. Login is only required for enrollment.
+                Browse courses, view details, and enroll to start your learning journey. Login is only required for
+                enrollment.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
                 <button
