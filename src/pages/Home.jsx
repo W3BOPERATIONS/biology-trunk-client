@@ -47,10 +47,12 @@ export default function Home({ user, onLogout }) {
   ])
 
   const hasCalledFetchStatsRef = useRef(false)
+  const [categories, setCategories] = useState([])
 
   useEffect(() => {
     if (!hasCalledFetchStatsRef.current) {
       fetchStats()
+      fetchCategories()
       hasCalledFetchStatsRef.current = true
     }
 
@@ -156,12 +158,17 @@ export default function Home({ user, onLogout }) {
     }
   }
 
-  const handleCategoryClick = (category) => {
-    if (user && user.role === "student") {
-      navigate(`/student-dashboard?category=${category}`)
-    } else if (!user) {
-      navigate("/login")
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/courses/categories/list`)
+      setCategories(response.data)
+    } catch (error) {
+      console.error("Failed to fetch categories:", error)
     }
+  }
+
+  const handleCategoryClick = (category) => {
+    navigate("/view-all-courses")
   }
 
   const faqItems = [
@@ -660,7 +667,7 @@ export default function Home({ user, onLogout }) {
         </div>
       </section>
 
-      {/* Course Categories - Updated with new courses */}
+      {/* Course Categories - Updated with dynamic data */}
       <section className="py-12 sm:py-16 md:py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10 sm:mb-12">
@@ -671,116 +678,49 @@ export default function Home({ user, onLogout }) {
               Explore our extensive range of courses designed for academic excellence and competitive success.
             </p>
           </div>
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-            {[
-              {
-                name: "Class 9-12",
-                shortName: "Class 9-12",
-                icon: "fas fa-atom",
-                iconColor: "text-blue-600",
-                bgColor: "bg-blue-100",
-                hoverBgColor: "group-hover:bg-blue-600",
-                students: "25K+",
-                courses: "45",
-              },
-              {
-                name: "JEE Preparation",
-                shortName: "JEE",
-                icon: "fas fa-rocket",
-                iconColor: "text-green-600",
-                bgColor: "bg-green-100",
-                hoverBgColor: "group-hover:bg-green-600",
-                students: "25K+",
-                courses: "85",
-              },
-              {
-                name: "NEET Preparation",
-                shortName: "NEET",
-                icon: "fas fa-stethoscope",
-                iconColor: "text-purple-600",
-                bgColor: "bg-purple-100",
-                hoverBgColor: "group-hover:bg-purple-600",
-                students: "22K+",
-                courses: "78",
-              },
-              {
-                name: "AIIMS Paramedical",
-                shortName: "AIIMS",
-                icon: "fas fa-hospital",
-                iconColor: "text-red-600",
-                bgColor: "bg-red-100",
-                hoverBgColor: "group-hover:bg-red-600",
-                students: "8K+",
-                courses: "25",
-              },
-              {
-                name: "Nursing Entrance",
-                shortName: "Nursing",
-                icon: "fas fa-user-nurse",
-                iconColor: "text-pink-600",
-                bgColor: "bg-pink-100",
-                hoverBgColor: "group-hover:bg-pink-600",
-                students: "6K+",
-                courses: "20",
-              },
-              {
-                name: "CUET (UG)",
-                shortName: "CUET",
-                icon: "fas fa-graduation-cap",
-                iconColor: "text-yellow-600",
-                bgColor: "bg-yellow-100",
-                hoverBgColor: "group-hover:bg-yellow-600",
-                students: "12K+",
-                courses: "35",
-              },
-              {
-                name: "TGT/PGT Preparation",
-                shortName: "Teaching",
-                icon: "fas fa-chalkboard-teacher",
-                iconColor: "text-indigo-600",
-                bgColor: "bg-indigo-100",
-                hoverBgColor: "group-hover:bg-indigo-600",
-                students: "5K+",
-                courses: "28",
-              },
-              {
-                name: "All Courses",
-                shortName: "All",
-                icon: "fas fa-book",
-                iconColor: "text-gray-600",
-                bgColor: "bg-gray-100",
-                hoverBgColor: "group-hover:bg-gray-600",
-                students: "50K+",
-                courses: "400+",
-              },
-            ].map((cat, index) => (
-              <div
-                key={cat.name}
-                onClick={() => handleCategoryClick(cat.name === "All Courses" ? "" : cat.name)}
-                className="bg-white p-4 sm:p-5 md:p-6 rounded-xl border border-gray-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 cursor-pointer group"
-              >
-                <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-                  <div
-                    className={`w-12 h-12 sm:w-14 sm:h-14 ${cat.bgColor} rounded-xl flex items-center justify-center transition-colors ${cat.hoverBgColor}`}
-                  >
-                    <i
-                      className={`${cat.icon} ${cat.iconColor} text-lg sm:text-xl group-hover:text-white transition-colors`}
-                    ></i>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="font-bold text-gray-900 text-sm sm:text-base md:text-lg line-clamp-1">
-                      <span className="sm:hidden">{cat.shortName}</span>
-                      <span className="hidden sm:inline">{cat.name}</span>
+            {categories.length > 0 ? (
+              categories.map((cat) => (
+                <div
+                  key={cat._id}
+                  onClick={() => navigate(`/view-all-courses?category=${encodeURIComponent(cat._id)}`)}
+                  className="bg-white p-4 sm:p-5 md:p-6 rounded-xl border border-gray-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 cursor-pointer group"
+                >
+                  <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 bg-blue-100 rounded-xl flex items-center justify-center transition-colors group-hover:bg-blue-600">
+                      <i className="fas fa-book text-blue-600 text-lg sm:text-xl group-hover:text-white transition-colors"></i>
                     </div>
-                    <div className="text-gray-500 text-xs sm:text-sm">{cat.courses} Courses</div>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-bold text-gray-900 text-sm sm:text-base md:text-lg line-clamp-1">
+                        {cat._id}
+                      </div>
+                      <div className="text-gray-500 text-xs sm:text-sm">{cat.count} Courses</div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center text-sm text-gray-600">
+                    <span className="font-medium">{Math.round(cat.count * 1.2)}K+ Students</span>
+                    <i className="fas fa-arrow-right text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity text-base"></i>
                   </div>
                 </div>
-                <div className="flex justify-between items-center text-sm text-gray-600">
-                  <span className="font-medium">{cat.students} Students</span>
-                  <i className="fas fa-arrow-right text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity text-base"></i>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <div className="col-span-full text-center py-8 text-gray-500">Loading categories...</div>
+            )}
+          </div>
+
+          {/* Update the "View all courses" button text and link in the Comprehensive Course Catalog section */}
+          {/* Find the section where categories are displayed and update it to show "View All Courses" link */}
+
+          {/* In the return JSX, update the navigation button for View All Courses: */}
+          {/* View All Courses Button */}
+          <div className="mt-8 sm:mt-10 lg:mt-12 flex justify-center">
+            <Link to="/view-all-courses">
+              <button className="px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold flex items-center gap-2 text-base sm:text-lg">
+                <i className="fas fa-arrow-right"></i>
+                View All Courses
+              </button>
+            </Link>
           </div>
         </div>
       </section>

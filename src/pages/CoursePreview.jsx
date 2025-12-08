@@ -19,8 +19,12 @@ export default function CoursePreview({ user, onLogout }) {
   useEffect(() => {
     sessionStorage.setItem("previousPath", window.location.pathname)
     fetchCourse()
-    checkEnrollment()
-  }, [courseId])
+    if (user) {
+      checkEnrollment()
+    } else {
+      setLoading(false)
+    }
+  }, [courseId, user])
 
   const fetchCourse = async () => {
     try {
@@ -35,6 +39,7 @@ export default function CoursePreview({ user, onLogout }) {
   }
 
   const checkEnrollment = async () => {
+    if (!user) return
     try {
       const response = await axios.get(`${API_URL}/enrollments/student/${user._id}`)
       const isEnrolledInCourse = response.data.some((e) => e.course._id === courseId)
@@ -111,20 +116,24 @@ export default function CoursePreview({ user, onLogout }) {
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
-              <button
-                onClick={() => navigate("/student-dashboard")}
-                className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
-              >
-                <i className="fas fa-home text-sm"></i>
-                <span className="hidden sm:inline">Dashboard</span>
-              </button>
-              <button
-                onClick={onLogout}
-                className="px-3 sm:px-4 py-1.5 sm:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
-              >
-                <i className="fas fa-sign-out-alt text-sm"></i>
-                <span className="hidden sm:inline">Logout</span>
-              </button>
+              {user && (
+                <>
+                  <button
+                    onClick={() => navigate("/student-dashboard")}
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
+                  >
+                    <i className="fas fa-home text-sm"></i>
+                    <span className="hidden sm:inline">Dashboard</span>
+                  </button>
+                  <button
+                    onClick={onLogout}
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
+                  >
+                    <i className="fas fa-sign-out-alt text-sm"></i>
+                    <span className="hidden sm:inline">Logout</span>
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -543,13 +552,22 @@ export default function CoursePreview({ user, onLogout }) {
                 Enroll now and get instant access to all course materials
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-                <RazorpayPayment
-                  course={course}
-                  student={user}
-                  onPaymentSuccess={handleEnrollmentSuccess}
-                  onPaymentCancel={() => {}}
-                  className="w-full sm:w-auto"
-                />
+                {user ? (
+                  <RazorpayPayment
+                    course={course}
+                    student={user}
+                    onPaymentSuccess={handleEnrollmentSuccess}
+                    onPaymentCancel={() => {}}
+                    className="w-full sm:w-auto"
+                  />
+                ) : (
+                  <button
+                    onClick={() => navigate("/login")}
+                    className="w-full sm:w-auto px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm sm:text-base whitespace-nowrap"
+                  >
+                    Login to Enroll
+                  </button>
+                )}
                 <button
                   onClick={handleBack}
                   className="w-full sm:w-auto px-6 py-2.5 sm:py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition font-semibold text-sm sm:text-base whitespace-nowrap"

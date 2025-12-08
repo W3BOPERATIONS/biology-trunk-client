@@ -10,6 +10,7 @@ import FacultyDashboard from "./pages/FacultyDashboard"
 import AdminDashboard from "./pages/AdminDashboard"
 import CourseDetail from "./pages/CourseDetail"
 import CoursePreview from "./pages/CoursePreview"
+import ViewAllCourses from "./pages/ViewAllCourses"
 import FacultyCourseEdit from "./pages/FacultyCourseEdit"
 import FacultyAddCourse from "./pages/FacultyAddCourse"
 import ProtectedRoute from "./components/ProtectedRoute"
@@ -73,19 +74,15 @@ export default function App() {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-conditions" element={<TermsAndConditions />} />
         <Route path="/refund-policy" element={<RefundPolicy />} />
+        {/* Make CoursePreview public - no login required */}
+        <Route path="/course-preview/:courseId" element={<CoursePreview />} />
+        {/* Add new ViewAllCourses route - accessible to all */}
+        <Route path="/view-all-courses" element={<ViewAllCourses />} />
         <Route
           path="/course/:courseId"
           element={
             <ProtectedRoute user={user} role="student">
               <CourseDetail user={user} onLogout={handleLogout} />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/course-preview/:courseId"
-          element={
-            <ProtectedRoute user={user} role="student">
-              <CoursePreview user={user} onLogout={handleLogout} />
             </ProtectedRoute>
           }
         />

@@ -381,10 +381,13 @@ export default function StudentDashboard({ user, onLogout }) {
                           key={course._id}
                           className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-blue-600 hover:shadow-lg transition-all duration-300 group flex flex-col h-full"
                         >
-                          {/* Course Image/Header */}
-                          <div className="h-28 sm:h-32 lg:h-36 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 flex items-center justify-center relative overflow-hidden">
-                            <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition"></div>
-                            <i className="fas fa-graduation-cap text-white text-2xl sm:text-3xl lg:text-4xl relative z-10"></i>
+                          {/* Course Image/Header - Updated with white background and logo */}
+                          <div className="h-28 sm:h-32 lg:h-36 bg-white border-b border-gray-200 flex items-center justify-center relative overflow-hidden">
+                            <img
+                              src={logo || "/placeholder.svg"}
+                              alt="Biology.Trunk Logo"
+                              className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 object-contain"
+                            />
                             {enrolledCourses.includes(course._id) && (
                               <div className="absolute top-2 right-2 bg-green-500 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-bold flex items-center gap-0.5 sm:gap-1">
                                 <i className="fas fa-check text-xs"></i>
