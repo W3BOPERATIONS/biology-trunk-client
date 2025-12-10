@@ -13,17 +13,13 @@ export default function CoursePreview({ user, onLogout }) {
   const [course, setCourse] = useState(null)
   const [isEnrolled, setIsEnrolled] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [checkingEnrollment, setCheckingEnrollment] = useState(false)
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState("overview")
 
   useEffect(() => {
     sessionStorage.setItem("previousPath", window.location.pathname)
     fetchCourse()
-    if (user) {
-      checkEnrollment()
-    } else {
-      setLoading(false)
-    }
   }, [courseId, user])
 
   const fetchCourse = async () => {
@@ -32,26 +28,32 @@ export default function CoursePreview({ user, onLogout }) {
       setError(null)
       const response = await axios.get(`${API_URL}/courses/${courseId}`)
       setCourse(response.data)
-      setLoading(false)
+      setError(null)
+      if (user) {
+        checkEnrollment()
+      }
     } catch (error) {
       console.error("Failed to fetch course:", error)
       setError("Failed to load course details")
+    } finally {
       setLoading(false)
     }
   }
 
   const checkEnrollment = async () => {
-    if (!user) {
-      setIsEnrolled(false)
-      return
-    }
     try {
-      const response = await axios.get(`${API_URL}/enrollments/student/${user._id}`)
-      const isEnrolledInCourse = response.data.some((e) => e.course._id === courseId)
-      setIsEnrolled(isEnrolledInCourse)
+      setCheckingEnrollment(true)
+      const response = await axios.get(`${API_URL}/enrollments/check/${courseId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      setIsEnrolled(response.data.isEnrolled || false)
     } catch (error) {
       console.error("Failed to check enrollment:", error)
       setIsEnrolled(false)
+    } finally {
+      setCheckingEnrollment(false)
     }
   }
 
@@ -74,8 +76,10 @@ export default function CoursePreview({ user, onLogout }) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <i className="fas fa-spinner fa-spin text-4xl text-blue-600 mb-4"></i>
-          <p className="text-gray-600 text-lg">Loading course details...</p>
+          <div className="inline-block">
+            <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+          </div>
+          <p className="text-gray-600 text-lg mt-6 font-medium">Loading course details...</p>
         </div>
       </div>
     )
@@ -118,7 +122,10 @@ export default function CoursePreview({ user, onLogout }) {
           <div className="flex justify-between items-center h-16 sm:h-20">
             <div className="flex items-center gap-2 sm:gap-3">
               {/* Logo */}
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center overflow-hidden cursor-pointer" onClick={() => navigate("/")}>
+              <div
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center overflow-hidden cursor-pointer"
+                onClick={() => navigate("/")}
+              >
                 <img
                   src={logo || "/placeholder.svg"}
                   alt="Biology.Trunk Logo"
@@ -344,10 +351,11 @@ export default function CoursePreview({ user, onLogout }) {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center gap-1 sm:gap-2 flex-shrink-0 cursor-pointer ${activeTab === tab.id
+                  className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center gap-1 sm:gap-2 flex-shrink-0 cursor-pointer ${
+                    activeTab === tab.id
                       ? "border-blue-600 text-blue-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                    }`}
+                  }`}
                 >
                   <i className={tab.icon}></i>
                   <span className="hidden sm:inline">{tab.name}</span>
@@ -703,7 +711,7 @@ export default function CoursePreview({ user, onLogout }) {
                   "Foreign Languages",
                 ].map((item) => (
                   <li key={item}>
-                    <div 
+                    <div
                       onClick={() => navigate(`/view-all-courses?category=${encodeURIComponent(item)}`)}
                       className="text-gray-400 hover:text-white transition flex items-center gap-1 cursor-pointer"
                     >
@@ -765,7 +773,10 @@ export default function CoursePreview({ user, onLogout }) {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/contact" className="text-gray-400 hover:text-white transition flex items-center gap-1 cursor-pointer">
+                  <Link
+                    to="/contact"
+                    className="text-gray-400 hover:text-white transition flex items-center gap-1 cursor-pointer"
+                  >
                     <i className="fas fa-chevron-right text-xs"></i>
                     Contact Support
                   </Link>

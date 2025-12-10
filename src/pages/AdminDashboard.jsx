@@ -128,9 +128,8 @@ export default function AdminDashboard({ user, onLogout }) {
 
   const calculateTotalRevenue = (enrollmentsData, coursesData) => {
     return enrollmentsData.reduce((total, enrollment) => {
-      const course = coursesData.find((c) => c._id === enrollment.course?._id || c._id === enrollment.course)
-      const price = course?.price || 0
-      return total + (typeof price === "number" ? price : Number.parseInt(price) || 0)
+      const amount = enrollment.payment?.amount || 0
+      return total + (typeof amount === "number" ? amount : Number.parseInt(amount) || 0)
     }, 0)
   }
 
@@ -140,9 +139,9 @@ export default function AdminDashboard({ user, onLogout }) {
       const courseId = e.course?._id || e.course
       if (courseId) {
         const course = courses.find((c) => c._id === courseId)
-        const price = course?.price || 0
-        const numericPrice = typeof price === "number" ? price : Number.parseInt(price) || 0
-        revenue[courseId] = (revenue[courseId] || 0) + numericPrice
+        const amount = e.payment?.amount || 0
+        const numericAmount = typeof amount === "number" ? amount : Number.parseInt(amount) || 0
+        revenue[courseId] = (revenue[courseId] || 0) + numericAmount
       }
     })
     return Object.entries(revenue)

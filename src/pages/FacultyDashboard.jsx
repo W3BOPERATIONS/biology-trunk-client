@@ -86,7 +86,9 @@ export default function FacultyDashboard({ user, onLogout }) {
         const response = await axios.get(`${API_URL}/enrollments/course/${course._id}`)
         enrollmentsByCourse[course._id] = response.data
         total += response.data.length
-        earnings += response.data.length * course.price
+        earnings += response.data.reduce((sum, enrollment) => {
+          return sum + (enrollment.payment?.amount || 0)
+        }, 0)
       }
 
       setAllEnrollments(enrollmentsByCourse)
