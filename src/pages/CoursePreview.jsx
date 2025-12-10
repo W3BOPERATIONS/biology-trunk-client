@@ -26,14 +26,16 @@ export default function CoursePreview({ user, onLogout }) {
     try {
       setLoading(true)
       setError(null)
+      console.log("[DEBUG] Fetching course:", courseId)
       const response = await axios.get(`${API_URL}/courses/${courseId}`)
+      console.log("[DEBUG] Course data received:", response.data)
       setCourse(response.data)
       setError(null)
       if (user) {
         checkEnrollment()
       }
     } catch (error) {
-      console.error("Failed to fetch course:", error)
+      console.error("[DEBUG] Failed to fetch course:", error)
       setError("Failed to load course details")
     } finally {
       setLoading(false)
@@ -43,23 +45,40 @@ export default function CoursePreview({ user, onLogout }) {
   const checkEnrollment = async () => {
     try {
       setCheckingEnrollment(true)
-      const response = await axios.get(`${API_URL}/enrollments/check/${courseId}`, {
+      console.log("[DEBUG] Checking enrollment for user:", user?._id, "course:", courseId)
+      
+      // Fix: Use the correct endpoint with query parameters
+      const response = await axios.get(`${API_URL}/enrollments/check`, {
+        params: {
+          courseId: courseId,
+          studentId: user?._id
+        },
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       })
+      
+      console.log("[DEBUG] Enrollment check response:", response.data)
       setIsEnrolled(response.data.isEnrolled || false)
     } catch (error) {
-      console.error("Failed to check enrollment:", error)
+      console.error("[DEBUG] Failed to check enrollment:", error)
       setIsEnrolled(false)
+      // Don't show error to user, just assume not enrolled
     } finally {
       setCheckingEnrollment(false)
     }
   }
 
   const handleEnrollmentSuccess = () => {
+    console.log("[DEBUG] Enrollment successful, updating state")
     setIsEnrolled(true)
+    // Redirect to course learning page
     navigate(`/course/${courseId}`)
+  }
+
+  const handlePaymentCancel = () => {
+    console.log("[DEBUG] Payment cancelled by user")
+    // You can add any cleanup or notifications here
   }
 
   const handleBack = () => {
@@ -87,6 +106,7 @@ export default function CoursePreview({ user, onLogout }) {
 
   // Show error only after loading is complete and error exists
   if (error || !course || !course._id) {
+    console.error("[DEBUG] Course error state:", { error, course, hasCourseId: course?._id })
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-4">
@@ -113,6 +133,16 @@ export default function CoursePreview({ user, onLogout }) {
       </div>
     )
   }
+
+  console.log("[DEBUG] Rendering course preview:", {
+    courseId: course._id,
+    courseTitle: course.title,
+    coursePrice: course.price,
+    userId: user?._id,
+    userName: user?.name,
+    isEnrolled: isEnrolled,
+    checkingEnrollment: checkingEnrollment
+  })
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -284,7 +314,15 @@ export default function CoursePreview({ user, onLogout }) {
                     )}
                   </div>
 
-                  {isEnrolled ? (
+                  {checkingEnrollment ? (
+                    <button
+                      disabled
+                      className="w-full py-3 sm:py-3.5 bg-gray-400 text-white rounded-lg font-bold flex items-center justify-center gap-2 text-sm sm:text-base cursor-not-allowed shadow"
+                    >
+                      <i className="fas fa-spinner fa-spin text-base"></i>
+                      Checking enrollment...
+                    </button>
+                  ) : isEnrolled ? (
                     <button
                       onClick={() => navigate(`/course/${courseId}`)}
                       className="w-full py-3 sm:py-3.5 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer shadow hover:shadow-lg"
@@ -293,12 +331,18 @@ export default function CoursePreview({ user, onLogout }) {
                       Continue Learning
                     </button>
                   ) : user ? (
-                    <RazorpayPayment
-                      course={course}
-                      student={user}
-                      onPaymentSuccess={handleEnrollmentSuccess}
-                      onPaymentCancel={() => {}}
-                    />
+                    <>
+                      <RazorpayPayment
+                        course={course}
+                        student={user}
+                        onPaymentSuccess={handleEnrollmentSuccess}
+                        onPaymentCancel={handlePaymentCancel}
+                      />
+                      <div className="mt-3 text-xs text-gray-500">
+                        <i className="fas fa-info-circle mr-1"></i>
+                        Secure payment powered by Razorpay
+                      </div>
+                    </>
                   ) : (
                     <button
                       onClick={() => navigate("/login")}
@@ -625,7 +669,7 @@ export default function CoursePreview({ user, onLogout }) {
         </div>
 
         {/* Enrollment CTA */}
-        {!isEnrolled && (
+        {!isEnrolled && !checkingEnrollment && (
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4 sm:p-6 text-center">
             <div className="max-w-2xl mx-auto">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">
@@ -636,13 +680,18 @@ export default function CoursePreview({ user, onLogout }) {
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
                 {user ? (
-                  <RazorpayPayment
-                    course={course}
-                    student={user}
-                    onPaymentSuccess={handleEnrollmentSuccess}
-                    onPaymentCancel={() => {}}
-                    className="w-full sm:w-auto"
-                  />
+                  <div className="w-full sm:w-auto">
+                    <RazorpayPayment
+                      course={course}
+                      student={user}
+                      onPaymentSuccess={handleEnrollmentSuccess}
+                      onPaymentCancel={handlePaymentCancel}
+                    />
+                    <div className="mt-2 text-xs text-gray-500 text-center">
+                      <i className="fas fa-lock mr-1"></i>
+                      Secure SSL encrypted payment
+                    </div>
+                  </div>
                 ) : (
                   <button
                     onClick={() => navigate("/login")}

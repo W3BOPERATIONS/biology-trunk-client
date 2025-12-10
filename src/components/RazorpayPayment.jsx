@@ -37,53 +37,79 @@ export default function RazorpayPayment({ course, student, onPaymentSuccess, onP
   }, [])
 
   useEffect(() => {
-    if (course?._id && student?._id) {
-      setDataReady(true)
-    } else {
-      setDataReady(false)
+    console.log("[DEBUG] Course data:", { 
+      course, 
+      hasCourse: !!course,
+      hasCourseId: course?._id,
+      courseId: course?._id 
+    })
+    console.log("[DEBUG] Student data:", { 
+      student, 
+      hasStudent: !!student,
+      hasStudentId: student?._id,
+      studentId: student?._id 
+    })
+    
+    const ready = course?._id && student?._id
+    setDataReady(ready)
+    
+    if (!ready) {
+      console.warn("[DEBUG] Data not ready. Course ID:", course?._id, "Student ID:", student?._id)
     }
   }, [course, student])
 
-  if (!dataReady) {
-    console.error("[v0] RazorpayPayment: Missing required course or student data", { course, student })
-    return (
-      <button disabled className="w-full py-3 bg-gray-400 text-white rounded-lg cursor-not-allowed font-bold shadow-md">
-        <span>Unable to process payment</span>
-      </button>
-    )
-  }
-
   const handlePayment = async () => {
     try {
+      console.log("[DEBUG] Starting payment process...")
+      console.log("[DEBUG] Script loaded:", scriptLoaded)
+      console.log("[DEBUG] Window.Razorpay:", !!window.Razorpay)
+      console.log("[DEBUG] Data ready:", dataReady)
+      console.log("[DEBUG] Course ID:", course?._id)
+      console.log("[DEBUG] Student ID:", student?._id)
+
       if (!scriptLoaded || !window.Razorpay) {
         showErrorToast("Payment system not ready. Please refresh and try again.")
         return
       }
 
-      if (!course._id || !student._id) {
+      if (!course?._id || !student?._id) {
         showErrorToast("Invalid course or student information. Please refresh and try again.")
+        return
+      }
+
+      const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID
+      console.log("[DEBUG] Razorpay Key from env:", razorpayKey)
+      
+      if (!razorpayKey) {
+        console.error("[v0] VITE_RAZORPAY_KEY_ID environment variable not set")
+        showErrorToast("Payment system configuration error. Please contact support. (Missing frontend Razorpay key)")
         return
       }
 
       setLoading(true)
 
       // Create order on backend
+      console.log("[DEBUG] Creating order for course:", course._id, "student:", student._id)
       const orderResponse = await axios.post(`${API_URL}/payments/create-order`, {
         courseId: course._id,
         studentId: student._id,
       })
 
+      console.log("[DEBUG] Order response:", orderResponse.data)
+
       if (!orderResponse.data.success) {
+        console.error("[v0] Order creation failed:", orderResponse.data)
         showErrorToast(orderResponse.data.error || "Failed to create payment order")
         setLoading(false)
         return
       }
 
       const { orderId, courseName, coursePrice } = orderResponse.data
+      console.log("[DEBUG] Order created:", { orderId, courseName, coursePrice })
 
       // Razorpay payment options
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        key: razorpayKey,
         amount: coursePrice * 100, // Amount in paise
         currency: "INR",
         name: "Biology.Trunk",
@@ -91,6 +117,8 @@ export default function RazorpayPayment({ course, student, onPaymentSuccess, onP
         order_id: orderId,
         handler: async (response) => {
           try {
+            console.log("[DEBUG] Payment handler called with response:", response)
+
             // Verify payment signature on backend
             const verifyResponse = await axios.post(`${API_URL}/payments/verify-payment`, {
               razorpay_order_id: response.razorpay_order_id,
@@ -100,17 +128,26 @@ export default function RazorpayPayment({ course, student, onPaymentSuccess, onP
               studentId: student._id,
             })
 
+            console.log("[DEBUG] Verification response:", verifyResponse.data)
+
             if (verifyResponse.data.success) {
               showSuccessToast(`🎉 Enrolled successfully! Confirmation email sent to ${student.email}`)
               if (onPaymentSuccess) {
                 onPaymentSuccess(verifyResponse.data)
               }
             } else {
-              showErrorToast("Payment verification failed. Please contact support.")
+              console.error("[v0] Verification failed:", verifyResponse.data)
+              showErrorToast(verifyResponse.data.error || "Payment verification failed. Please contact support.")
             }
           } catch (error) {
-            console.error("[v0] Verification error:", error)
-            showErrorToast(error.response?.data?.error || "Payment verification failed")
+            console.error("[DEBUG] Verification error:", {
+              message: error.message,
+              status: error.response?.status,
+              data: error.response?.data,
+            })
+            const errorMsg = error.response?.data?.error || "Payment verification failed"
+            const suggestion = error.response?.data?.suggestion || ""
+            showErrorToast(suggestion ? `${errorMsg}\n\n${suggestion}` : errorMsg)
           } finally {
             setLoading(false)
           }
@@ -125,6 +162,7 @@ export default function RazorpayPayment({ course, student, onPaymentSuccess, onP
         },
         modal: {
           ondismiss: () => {
+            console.log("[DEBUG] Payment modal dismissed")
             setLoading(false)
             if (onPaymentCancel) {
               onPaymentCancel()
@@ -133,13 +171,38 @@ export default function RazorpayPayment({ course, student, onPaymentSuccess, onP
         },
       }
 
+      console.log("[DEBUG] Razorpay options:", { ...options, key: `${options.key.substring(0, 10)}...` })
+      
       const razorpay = new window.Razorpay(options)
       razorpay.open()
     } catch (error) {
-      console.error("[v0] Payment error:", error)
-      showErrorToast(error.response?.data?.error || "Payment failed. Please try again.")
+      console.error("[DEBUG] Payment error:", {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+        stack: error.stack,
+      })
+      const errorMsg = error.response?.data?.error || "Payment failed. Please try again."
+      const suggestion = error.response?.data?.suggestion || ""
+      showErrorToast(suggestion ? `${errorMsg}\n\n${suggestion}` : errorMsg)
       setLoading(false)
     }
+  }
+
+  // Show disabled button if data not ready
+  if (!dataReady) {
+    console.warn("[RazorpayPayment] Missing required data:", {
+      hasCourse: !!course,
+      hasStudent: !!student,
+      courseId: course?._id,
+      studentId: student?._id
+    })
+    
+    return (
+      <button disabled className="w-full py-3 bg-gray-400 text-white rounded-lg cursor-not-allowed font-bold shadow-md">
+        <span>Loading payment details...</span>
+      </button>
+    )
   }
 
   return (
@@ -156,7 +219,12 @@ export default function RazorpayPayment({ course, student, onPaymentSuccess, onP
       ) : !scriptLoaded ? (
         <>
           <i className="fas fa-hourglass-half"></i>
-          <span>Loading...</span>
+          <span>Loading payment...</span>
+        </>
+      ) : !dataReady ? (
+        <>
+          <i className="fas fa-exclamation-triangle"></i>
+          <span>Payment details loading...</span>
         </>
       ) : (
         <>
