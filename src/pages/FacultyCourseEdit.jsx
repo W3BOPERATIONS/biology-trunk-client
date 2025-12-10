@@ -16,6 +16,7 @@ export default function FacultyCourseEdit({ user, onLogout }) {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
+    price: "",
     duration: "",
     courseLevel: "",
     prerequisites: "",
@@ -47,6 +48,7 @@ export default function FacultyCourseEdit({ user, onLogout }) {
       setFormData({
         title: response.data.title,
         description: response.data.description,
+        price: response.data.price,
         duration: response.data.duration,
         courseLevel: response.data.courseLevel,
         prerequisites: response.data.prerequisites,
@@ -159,10 +161,19 @@ export default function FacultyCourseEdit({ user, onLogout }) {
     e.preventDefault()
     setSaving(true)
     try {
-      await axios.put(`${API_URL}/courses/${courseId}`, {
-        ...formData,
+      const updateData = {
+        title: formData.title,
+        description: formData.description,
+        price: formData.price,
+        duration: formData.duration,
+        courseLevel: formData.courseLevel,
+        prerequisites: formData.prerequisites,
+        curriculum: formData.curriculum,
+        whatYouWillLearn: formData.whatYouWillLearn,
+        courseIncludes: formData.courseIncludes,
         facultyId: user._id,
-      })
+      }
+      await axios.put(`${API_URL}/courses/${courseId}`, updateData)
       showSuccessToast("Course updated successfully!")
       navigate("/faculty-dashboard")
     } catch (error) {
@@ -335,6 +346,22 @@ export default function FacultyCourseEdit({ user, onLogout }) {
                         <option value="Advanced">Advanced</option>
                       </select>
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-700 text-sm sm:text-base font-semibold mb-2 flex items-center gap-2">
+                      <i className="fas fa-rupee-sign text-purple-600 text-sm"></i>
+                      Price (₹)
+                    </label>
+                    <input
+                      type="number"
+                      name="price"
+                      value={formData.price}
+                      onChange={handleInputChange}
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition text-sm sm:text-base"
+                      placeholder="Enter course price"
+                      min="0"
+                    />
                   </div>
 
                   <div>

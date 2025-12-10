@@ -94,7 +94,10 @@ export default function AdminDashboard({ user, onLogout }) {
 
   const assignCourseToFaculty = async (courseId, facultyId) => {
     try {
-      await axios.put(`${API_URL}/courses/${courseId}`, { faculty: facultyId })
+      await axios.put(`${API_URL}/courses/${courseId}`, {
+        faculty: facultyId,
+        isAdmin: true,
+      })
       // Replace: alert("Course assigned successfully")
       // With: showSuccessToast("Course assigned successfully")
       showSuccessToast("Course assigned successfully")
@@ -108,7 +111,10 @@ export default function AdminDashboard({ user, onLogout }) {
 
   const removeFacultyFromCourse = async (courseId) => {
     try {
-      await axios.put(`${API_URL}/courses/${courseId}`, { faculty: null })
+      await axios.put(`${API_URL}/courses/${courseId}`, {
+        faculty: null,
+        isAdmin: true,
+      })
       // Replace: alert("Faculty removed from course")
       // With: showSuccessToast("Faculty removed from course")
       showSuccessToast("Faculty removed from course")
@@ -854,12 +860,28 @@ export default function AdminDashboard({ user, onLogout }) {
                                     </select>
                                   )}
                                 </div>
-                                <div className="text-right">
-                                  <p className="text-xs sm:text-sm text-gray-600">
-                                    Enrolled: {course.students?.length || 0}
-                                  </p>
-                                  <p className="text-base sm:text-lg font-bold text-blue-600">₹{course.price || 0}</p>
-                                </div>
+                                {course.faculty && (
+                                  <div>
+                                    <select
+                                      onChange={(e) => {
+                                        if (e.target.value) {
+                                          assignCourseToFaculty(course._id, e.target.value)
+                                          // Reset the select value after assignment to allow re-selection
+                                          e.target.value = ""
+                                        }
+                                      }}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                      defaultValue=""
+                                    >
+                                      <option value="">Change Faculty...</option>
+                                      {availableFaculty.map((fac) => (
+                                        <option key={fac._id} value={fac._id}>
+                                          {fac.name}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           ))}

@@ -8,12 +8,13 @@ import { useLocation } from "react-router-dom"
 import logo from "../assets/biology-trunk-logo.png" // Add logo import
 import { showErrorToast, showWarningToast } from "../utils/toast.js"
 
-const ITEMS_PER_PAGE = 8
+const ITEMS_PER_PAGE = 9
 
 export default function StudentDashboard({ user, onLogout }) {
   const location = useLocation()
   const searchParams = new URLSearchParams(location.search)
   const navigate = useNavigate()
+  const [categories, setCategories] = useState([]) // New state to track available categories from backend
   const [courses, setCourses] = useState([])
   const [enrolledCourses, setEnrolledCourses] = useState([])
   const [enrolledCoursesData, setEnrolledCoursesData] = useState([]) // New state for enrolled courses data
@@ -40,14 +41,26 @@ export default function StudentDashboard({ user, onLogout }) {
     streakDays: 7,
   })
 
-  const categories = ["Class 9", "Class 10", "Class 11", "Class 12", "JEE", "NEET"]
-
   useEffect(() => {
     localStorage.setItem("lastPath", window.location.pathname)
     localStorage.setItem("studentDashboardCategory", selectedCategory)
     localStorage.setItem("studentDashboardPage", currentPage.toString())
     localStorage.setItem("studentDashboardSearch", searchTerm)
   }, [selectedCategory, currentPage, searchTerm])
+
+  useEffect(() => {
+    const fetchAvailableCategories = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/courses/categories/list`)
+        setCategories(response.data || [])
+      } catch (error) {
+        console.error("Error fetching categories:", error)
+        setCategories([])
+      }
+    }
+    fetchAvailableCategories()
+    fetchCourses(1)
+  }, [])
 
   useEffect(() => {
     fetchCourses(currentPage)
@@ -153,8 +166,8 @@ export default function StudentDashboard({ user, onLogout }) {
       course.description.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
-  const shouldShowViewAll = !selectedCategory && !searchTerm && currentPage === 1 && courses.length > 8
-  const displayedCourses = shouldShowViewAll ? filteredCourses.slice(0, 8) : filteredCourses
+  const shouldShowViewAll = !selectedCategory && !searchTerm && currentPage === 1 && courses.length > 9
+  const displayedCourses = shouldShowViewAll ? filteredCourses.slice(0, 9) : filteredCourses
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -346,19 +359,19 @@ export default function StudentDashboard({ user, onLogout }) {
                     </button>
                     {categories.map((cat) => (
                       <button
-                        key={cat}
+                        key={cat._id || cat}
                         onClick={() => {
-                          setSelectedCategory(cat)
+                          setSelectedCategory(cat._id || cat)
                           setCurrentPage(1)
                         }}
                         className={`px-3 sm:px-4 lg:px-5 py-2 sm:py-3 rounded-lg sm:rounded-xl transition font-medium flex items-center gap-1 sm:gap-2 text-xs sm:text-sm ${
-                          selectedCategory === cat
+                          selectedCategory === (cat._id || cat)
                             ? "bg-blue-600 text-white shadow-md"
                             : "bg-white text-gray-700 border border-gray-300 hover:border-blue-500 hover:shadow-sm"
                         }`}
                       >
                         <i className="fas fa-tag text-xs sm:text-sm"></i>
-                        {cat}
+                        {cat._id || cat}
                       </button>
                     ))}
                   </div>
@@ -378,7 +391,7 @@ export default function StudentDashboard({ user, onLogout }) {
                   </div>
                 ) : (
                   <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 mb-6 sm:mb-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 mb-6 sm:mb-8">
                       {displayedCourses.map((course) => (
                         <div
                           key={course._id}
@@ -460,7 +473,7 @@ export default function StudentDashboard({ user, onLogout }) {
                       <div className="flex justify-center">
                         <button
                           onClick={() => navigate("/view-all-courses")}
-                          className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center gap-2 text-base shadow-md"
+                          className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center justify-center gap-1 sm:gap-2 text-base shadow-md"
                         >
                           <i className="fas fa-eye text-base"></i>
                           View All Courses

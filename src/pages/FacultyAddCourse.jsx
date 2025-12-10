@@ -122,12 +122,14 @@ export default function FacultyAddCourse({ user, onLogout }) {
     try {
       const courseData = {
         ...formData,
-        facultyId: user._id,
+        faculty: user._id,
         students: [],
       }
-      await axios.post(`${API_URL}/courses`, courseData)
+      const response = await axios.post(`${API_URL}/courses`, courseData)
       showSuccessToast("Course created successfully!")
-      navigate("/faculty-dashboard")
+      setTimeout(() => {
+        navigate("/faculty-dashboard")
+      }, 500)
     } catch (error) {
       console.error("Failed to create course:", error)
       showErrorToast(error.response?.data?.message || "Failed to create course")
