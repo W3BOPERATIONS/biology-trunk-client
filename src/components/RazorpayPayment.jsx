@@ -65,13 +65,6 @@ export default function RazorpayPayment({ course, student, onPaymentSuccess, onP
         return
       }
 
-      const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID
-      if (!razorpayKey) {
-        console.error("[v0] VITE_RAZORPAY_KEY_ID environment variable not set")
-        showErrorToast("Payment system configuration error. Please contact support. (Missing frontend Razorpay key)")
-        return
-      }
-
       setLoading(true)
 
       // Create order on backend
@@ -81,7 +74,6 @@ export default function RazorpayPayment({ course, student, onPaymentSuccess, onP
       })
 
       if (!orderResponse.data.success) {
-        console.error("[v0] Order creation failed:", orderResponse.data)
         showErrorToast(orderResponse.data.error || "Failed to create payment order")
         setLoading(false)
         return
@@ -91,7 +83,7 @@ export default function RazorpayPayment({ course, student, onPaymentSuccess, onP
 
       // Razorpay payment options
       const options = {
-        key: razorpayKey,
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: coursePrice * 100, // Amount in paise
         currency: "INR",
         name: "Biology.Trunk",
@@ -99,11 +91,6 @@ export default function RazorpayPayment({ course, student, onPaymentSuccess, onP
         order_id: orderId,
         handler: async (response) => {
           try {
-            console.log("[v0] Payment handler called with response:", {
-              orderId: response.razorpay_order_id,
-              paymentId: response.razorpay_payment_id,
-            })
-
             // Verify payment signature on backend
             const verifyResponse = await axios.post(`${API_URL}/payments/verify-payment`, {
               razorpay_order_id: response.razorpay_order_id,
@@ -119,18 +106,11 @@ export default function RazorpayPayment({ course, student, onPaymentSuccess, onP
                 onPaymentSuccess(verifyResponse.data)
               }
             } else {
-              console.error("[v0] Verification failed:", verifyResponse.data)
-              showErrorToast(verifyResponse.data.error || "Payment verification failed. Please contact support.")
+              showErrorToast("Payment verification failed. Please contact support.")
             }
           } catch (error) {
-            console.error("[v0] Verification error:", {
-              message: error.message,
-              status: error.response?.status,
-              data: error.response?.data,
-            })
-            const errorMsg = error.response?.data?.error || "Payment verification failed"
-            const suggestion = error.response?.data?.suggestion || ""
-            showErrorToast(suggestion ? `${errorMsg}\n\n${suggestion}` : errorMsg)
+            console.error("[v0] Verification error:", error)
+            showErrorToast(error.response?.data?.error || "Payment verification failed")
           } finally {
             setLoading(false)
           }
@@ -156,14 +136,8 @@ export default function RazorpayPayment({ course, student, onPaymentSuccess, onP
       const razorpay = new window.Razorpay(options)
       razorpay.open()
     } catch (error) {
-      console.error("[v0] Payment error:", {
-        message: error.message,
-        status: error.response?.status,
-        data: error.response?.data,
-      })
-      const errorMsg = error.response?.data?.error || "Payment failed. Please try again."
-      const suggestion = error.response?.data?.suggestion || ""
-      showErrorToast(suggestion ? `${errorMsg}\n\n${suggestion}` : errorMsg)
+      console.error("[v0] Payment error:", error)
+      showErrorToast(error.response?.data?.error || "Payment failed. Please try again.")
       setLoading(false)
     }
   }
