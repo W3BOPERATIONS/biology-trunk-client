@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams, useNavigate, Link } from "react-router-dom"
 import axios from "axios"
 import { API_URL } from "../utils/api.js"
 import RazorpayPayment from "../components/RazorpayPayment.jsx"
@@ -69,6 +69,7 @@ export default function CoursePreview({ user, onLogout }) {
     }
   }
 
+  // Show loading spinner while loading
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -80,18 +81,30 @@ export default function CoursePreview({ user, onLogout }) {
     )
   }
 
+  // Show error only after loading is complete and error exists
   if (error || !course || !course._id) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <i className="fas fa-exclamation-circle text-4xl text-red-600 mb-4"></i>
-          <p className="text-gray-600 text-lg">{error || "Course not found"}</p>
-          <button
-            onClick={() => navigate("/student-dashboard")}
-            className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-          >
-            Back to Dashboard
-          </button>
+        <div className="text-center max-w-md mx-auto px-4">
+          <i className="fas fa-exclamation-circle text-5xl text-red-600 mb-6"></i>
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">Course Not Found</h2>
+          <p className="text-gray-600 mb-8">The course you're looking for doesn't exist or has been removed.</p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              onClick={() => navigate("/view-all-courses")}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <i className="fas fa-arrow-left"></i>
+              Browse Courses
+            </button>
+            <button
+              onClick={() => navigate("/")}
+              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition font-semibold flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <i className="fas fa-home"></i>
+              Go to Home
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -104,8 +117,8 @@ export default function CoursePreview({ user, onLogout }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 sm:h-20">
             <div className="flex items-center gap-2 sm:gap-3">
-              {/* Logo - Same as Student Dashboard */}
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center overflow-hidden">
+              {/* Logo */}
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center overflow-hidden cursor-pointer" onClick={() => navigate("/")}>
                 <img
                   src={logo || "/placeholder.svg"}
                   alt="Biology.Trunk Logo"
@@ -122,21 +135,38 @@ export default function CoursePreview({ user, onLogout }) {
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
-              {user && (
+              {user ? (
                 <>
                   <button
                     onClick={() => navigate("/student-dashboard")}
-                    className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm sm:text-base cursor-pointer"
                   >
                     <i className="fas fa-home text-sm"></i>
                     <span className="hidden sm:inline">Dashboard</span>
                   </button>
                   <button
                     onClick={onLogout}
-                    className="px-3 sm:px-4 py-1.5 sm:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm sm:text-base cursor-pointer"
                   >
                     <i className="fas fa-sign-out-alt text-sm"></i>
                     <span className="hidden sm:inline">Logout</span>
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => navigate("/login")}
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm sm:text-base cursor-pointer"
+                  >
+                    <i className="fas fa-sign-in-alt text-sm"></i>
+                    <span className="hidden sm:inline">Login</span>
+                  </button>
+                  <button
+                    onClick={() => navigate("/register")}
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm sm:text-base cursor-pointer"
+                  >
+                    <i className="fas fa-user-plus text-sm"></i>
+                    <span className="hidden sm:inline">Register</span>
                   </button>
                 </>
               )}
@@ -150,7 +180,7 @@ export default function CoursePreview({ user, onLogout }) {
         {/* Back Button */}
         <button
           onClick={handleBack}
-          className="mb-4 sm:mb-6 flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold text-sm sm:text-base"
+          className="mb-4 sm:mb-6 flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold text-sm sm:text-base cursor-pointer"
         >
           <i className="fas fa-arrow-left"></i>
           Back to Courses
@@ -162,12 +192,12 @@ export default function CoursePreview({ user, onLogout }) {
             {/* Course Info */}
             <div className="flex-1">
               <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 flex-wrap">
-                <span className="text-blue-600 font-semibold bg-blue-50 px-3 py-1 rounded-full text-xs sm:text-sm flex items-center gap-1 sm:gap-2 mb-2">
+                <span className="text-blue-600 font-semibold bg-blue-50 px-3 py-1 rounded-full text-xs sm:text-sm flex items-center gap-1 sm:gap-2 mb-2 cursor-pointer">
                   <i className="fas fa-tag text-xs sm:text-sm"></i>
                   {course.category}
                 </span>
                 {course.courseLevel && (
-                  <span className="text-green-600 font-semibold bg-green-50 px-3 py-1 rounded-full text-xs sm:text-sm flex items-center gap-1 sm:gap-2 mb-2">
+                  <span className="text-green-600 font-semibold bg-green-50 px-3 py-1 rounded-full text-xs sm:text-sm flex items-center gap-1 sm:gap-2 mb-2 cursor-pointer">
                     <i className="fas fa-chart-line text-xs sm:text-sm"></i>
                     {course.courseLevel}
                   </span>
@@ -184,7 +214,7 @@ export default function CoursePreview({ user, onLogout }) {
 
               {/* Quick Stats - Enhanced with better overflow handling */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                <div className="bg-white rounded-lg p-3 sm:p-4 border border-gray-200 min-w-0">
+                <div className="bg-white rounded-lg p-3 sm:p-4 border border-gray-200 min-w-0 hover:border-blue-300 transition cursor-pointer">
                   <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                       <i className="fas fa-user text-blue-600 text-sm sm:text-base"></i>
@@ -201,7 +231,7 @@ export default function CoursePreview({ user, onLogout }) {
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg p-3 sm:p-4 border border-gray-200 min-w-0">
+                <div className="bg-white rounded-lg p-3 sm:p-4 border border-gray-200 min-w-0 hover:border-green-300 transition cursor-pointer">
                   <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
                       <i className="fas fa-clock text-green-600 text-sm sm:text-base"></i>
@@ -213,7 +243,7 @@ export default function CoursePreview({ user, onLogout }) {
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg p-3 sm:p-4 border border-gray-200 min-w-0">
+                <div className="bg-white rounded-lg p-3 sm:p-4 border border-gray-200 min-w-0 hover:border-purple-300 transition cursor-pointer">
                   <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
                       <i className="fas fa-users text-purple-600 text-sm sm:text-base"></i>
@@ -250,7 +280,7 @@ export default function CoursePreview({ user, onLogout }) {
                   {isEnrolled ? (
                     <button
                       onClick={() => navigate(`/course/${courseId}`)}
-                      className="w-full py-3 sm:py-3.5 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition flex items-center justify-center gap-2 text-sm sm:text-base"
+                      className="w-full py-3 sm:py-3.5 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer shadow hover:shadow-lg"
                     >
                       <i className="fas fa-play-circle text-base"></i>
                       Continue Learning
@@ -265,7 +295,7 @@ export default function CoursePreview({ user, onLogout }) {
                   ) : (
                     <button
                       onClick={() => navigate("/login")}
-                      className="w-full py-3 sm:py-3.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold flex items-center justify-center gap-2 text-sm sm:text-base"
+                      className="w-full py-3 sm:py-3.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer shadow hover:shadow-lg"
                     >
                       <i className="fas fa-sign-in-alt text-base"></i>
                       Login to Enroll
@@ -314,11 +344,10 @@ export default function CoursePreview({ user, onLogout }) {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center gap-1 sm:gap-2 flex-shrink-0 ${
-                    activeTab === tab.id
+                  className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center gap-1 sm:gap-2 flex-shrink-0 cursor-pointer ${activeTab === tab.id
                       ? "border-blue-600 text-blue-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
+                    }`}
                 >
                   <i className={tab.icon}></i>
                   <span className="hidden sm:inline">{tab.name}</span>
@@ -344,7 +373,7 @@ export default function CoursePreview({ user, onLogout }) {
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                   {/* Course Details Card */}
-                  <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6">
+                  <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 hover:border-blue-300 transition cursor-pointer">
                     <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
                       <i className="fas fa-clipboard-list text-blue-600 text-base sm:text-lg"></i>
                       Course Details
@@ -393,7 +422,7 @@ export default function CoursePreview({ user, onLogout }) {
                   </div>
 
                   {/* Prerequisites Card */}
-                  <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6">
+                  <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 hover:border-green-300 transition cursor-pointer">
                     <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
                       <i className="fas fa-book text-green-600 text-base sm:text-lg"></i>
                       Prerequisites
@@ -408,7 +437,7 @@ export default function CoursePreview({ user, onLogout }) {
 
                 {/* What You Will Learn */}
                 {course.highlights && course.highlights.length > 0 && (
-                  <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6">
+                  <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-6 hover:border-purple-300 transition cursor-pointer">
                     <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
                       <i className="fas fa-graduation-cap text-purple-600 text-base sm:text-lg"></i>
                       What You Will Learn
@@ -417,7 +446,7 @@ export default function CoursePreview({ user, onLogout }) {
                       {course.highlights.map((item, idx) => (
                         <div
                           key={idx}
-                          className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg border border-purple-100"
+                          className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg border border-purple-100 hover:border-purple-300 transition cursor-pointer"
                         >
                           <i className="fas fa-check text-green-600 mt-0.5 flex-shrink-0"></i>
                           <span className="text-gray-700 text-sm sm:text-base break-words">{item}</span>
@@ -441,7 +470,7 @@ export default function CoursePreview({ user, onLogout }) {
                     {course.curriculum.map((module, idx) => (
                       <div
                         key={idx}
-                        className="border border-gray-200 rounded-xl overflow-hidden hover:border-blue-300 transition"
+                        className="border border-gray-200 rounded-xl overflow-hidden hover:border-blue-300 transition cursor-pointer"
                       >
                         <div className="bg-blue-50 p-3 sm:p-4 flex items-center gap-3">
                           <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -459,7 +488,7 @@ export default function CoursePreview({ user, onLogout }) {
                             {module.topics.map((topic, topicIdx) => (
                               <li
                                 key={topicIdx}
-                                className="flex items-center gap-3 text-gray-700 p-2 hover:bg-gray-50 rounded-lg"
+                                className="flex items-center gap-3 text-gray-700 p-2 hover:bg-gray-50 rounded-lg cursor-pointer"
                               >
                                 <i className="fas fa-play-circle text-blue-400 text-sm flex-shrink-0"></i>
                                 <span className="text-sm sm:text-base break-words">{topic}</span>
@@ -491,7 +520,7 @@ export default function CoursePreview({ user, onLogout }) {
                   {course.courseIncludes ? (
                     <>
                       {course.courseIncludes.videos && (
-                        <div className="bg-white border border-gray-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-sm transition">
+                        <div className="bg-white border border-gray-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-sm transition cursor-pointer">
                           <div className="flex items-center gap-3 mb-2">
                             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                               <i className="fas fa-video text-blue-600 text-lg sm:text-xl"></i>
@@ -508,7 +537,7 @@ export default function CoursePreview({ user, onLogout }) {
                         </div>
                       )}
                       {course.courseIncludes.liveLectures && (
-                        <div className="bg-white border border-gray-200 rounded-xl p-4 hover:border-green-300 hover:shadow-sm transition">
+                        <div className="bg-white border border-gray-200 rounded-xl p-4 hover:border-green-300 hover:shadow-sm transition cursor-pointer">
                           <div className="flex items-center gap-3 mb-2">
                             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
                               <i className="fas fa-broadcast-tower text-green-600 text-lg sm:text-xl"></i>
@@ -521,7 +550,7 @@ export default function CoursePreview({ user, onLogout }) {
                         </div>
                       )}
                       {course.courseIncludes.pdfs && (
-                        <div className="bg-white border border-gray-200 rounded-xl p-4 hover:border-purple-300 hover:shadow-sm transition">
+                        <div className="bg-white border border-gray-200 rounded-xl p-4 hover:border-purple-300 hover:shadow-sm transition cursor-pointer">
                           <div className="flex items-center gap-3 mb-2">
                             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
                               <i className="fas fa-file-pdf text-purple-600 text-lg sm:text-xl"></i>
@@ -536,7 +565,7 @@ export default function CoursePreview({ user, onLogout }) {
                         </div>
                       )}
                       {course.courseIncludes.quizzes && (
-                        <div className="bg-white border border-gray-200 rounded-xl p-4 hover:border-yellow-300 hover:shadow-sm transition">
+                        <div className="bg-white border border-gray-200 rounded-xl p-4 hover:border-yellow-300 hover:shadow-sm transition cursor-pointer">
                           <div className="flex items-center gap-3 mb-2">
                             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
                               <i className="fas fa-question-circle text-yellow-600 text-lg sm:text-xl"></i>
@@ -549,7 +578,7 @@ export default function CoursePreview({ user, onLogout }) {
                         </div>
                       )}
                       {course.courseIncludes.assignments && (
-                        <div className="bg-white border border-gray-200 rounded-xl p-4 hover:border-pink-300 hover:shadow-sm transition">
+                        <div className="bg-white border border-gray-200 rounded-xl p-4 hover:border-pink-300 hover:shadow-sm transition cursor-pointer">
                           <div className="flex items-center gap-3 mb-2">
                             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-pink-100 rounded-lg flex items-center justify-center flex-shrink-0">
                               <i className="fas fa-tasks text-pink-600 text-lg sm:text-xl"></i>
@@ -562,7 +591,7 @@ export default function CoursePreview({ user, onLogout }) {
                         </div>
                       )}
                       {course.courseIncludes.certificates && (
-                        <div className="bg-white border border-gray-200 rounded-xl p-4 hover:border-red-300 hover:shadow-sm transition">
+                        <div className="bg-white border border-gray-200 rounded-xl p-4 hover:border-red-300 hover:shadow-sm transition cursor-pointer">
                           <div className="flex items-center gap-3 mb-2">
                             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
                               <i className="fas fa-certificate text-red-600 text-lg sm:text-xl"></i>
@@ -609,15 +638,17 @@ export default function CoursePreview({ user, onLogout }) {
                 ) : (
                   <button
                     onClick={() => navigate("/login")}
-                    className="w-full sm:w-auto px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm sm:text-base whitespace-nowrap"
+                    className="w-full sm:w-auto px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm sm:text-base whitespace-nowrap cursor-pointer shadow hover:shadow-lg"
                   >
+                    <i className="fas fa-sign-in-alt mr-2"></i>
                     Login to Enroll
                   </button>
                 )}
                 <button
-                  onClick={handleBack}
-                  className="w-full sm:w-auto px-6 py-2.5 sm:py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition font-semibold text-sm sm:text-base whitespace-nowrap"
+                  onClick={() => navigate("/view-all-courses")}
+                  className="w-full sm:w-auto px-6 py-2.5 sm:py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition font-semibold text-sm sm:text-base whitespace-nowrap cursor-pointer"
                 >
+                  <i className="fas fa-search mr-2"></i>
                   Browse More Courses
                 </button>
               </div>
@@ -629,6 +660,127 @@ export default function CoursePreview({ user, onLogout }) {
           </div>
         )}
       </div>
+
+      {/* Footer - Same as home page */}
+      <footer className="bg-gray-900 text-gray-300 py-8 sm:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
+            <div>
+              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">About Biology.Trunk</h4>
+              <p className="text-xs text-gray-400 leading-relaxed">
+                India's premier online learning platform providing quality education led by Ph.D. experts, NET & GATE
+                qualified faculty with 15+ years of government college teaching experience.
+              </p>
+              <div className="flex gap-2 sm:gap-3 mt-2">
+                <a href="#" className="text-gray-400 hover:text-white transition cursor-pointer">
+                  <i className="fab fa-facebook text-sm"></i>
+                </a>
+                <a href="#" className="text-gray-400 hover:text-white transition cursor-pointer">
+                  <i className="fab fa-twitter text-sm"></i>
+                </a>
+                <a href="#" className="text-gray-400 hover:text-white transition cursor-pointer">
+                  <i className="fab fa-linkedin text-sm"></i>
+                </a>
+                <a href="#" className="text-gray-400 hover:text-white transition cursor-pointer">
+                  <i className="fab fa-instagram text-sm"></i>
+                </a>
+              </div>
+            </div>
+            <div>
+              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">Courses</h4>
+              <ul className="text-xs space-y-1.5">
+                {[
+                  "Classes 9-12",
+                  "JEE Preparation",
+                  "NEET Preparation",
+                  "AIIMS Paramedical",
+                  "Nursing Entrance",
+                  "CUET (UG)",
+                  "TGT/PGT Preparation",
+                  "KVS/NVS",
+                  "NET & GATE",
+                  "KYPS Olympiad",
+                  "Foreign Languages",
+                ].map((item) => (
+                  <li key={item}>
+                    <div 
+                      onClick={() => navigate(`/view-all-courses?category=${encodeURIComponent(item)}`)}
+                      className="text-gray-400 hover:text-white transition flex items-center gap-1 cursor-pointer"
+                    >
+                      <i className="fas fa-chevron-right text-xs"></i>
+                      {item}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">Faculty Credentials</h4>
+              <ul className="text-xs space-y-1.5">
+                {[
+                  "Ph.D. Holders",
+                  "NET & GATE Qualified",
+                  "Ex Government College Lecturers",
+                  "15+ Years Experience",
+                  "IIT/NIT Alumni",
+                  "Subject Matter Experts",
+                ].map((item) => (
+                  <li key={item}>
+                    <div className="text-gray-400 flex items-center gap-1">
+                      <i className="fas fa-check text-green-500 text-xs"></i>
+                      {item}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">Legal</h4>
+              <ul className="text-xs space-y-1.5">
+                <li>
+                  <Link
+                    to="/privacy-policy"
+                    className="text-gray-400 hover:text-white transition flex items-center gap-1 cursor-pointer"
+                  >
+                    <i className="fas fa-chevron-right text-xs"></i>
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/terms-conditions"
+                    className="text-gray-400 hover:text-white transition flex items-center gap-1 cursor-pointer"
+                  >
+                    <i className="fas fa-chevron-right text-xs"></i>
+                    Terms of Service
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/refund-policy"
+                    className="text-gray-400 hover:text-white transition flex items-center gap-1 cursor-pointer"
+                  >
+                    <i className="fas fa-chevron-right text-xs"></i>
+                    Refund Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/contact" className="text-gray-400 hover:text-white transition flex items-center gap-1 cursor-pointer">
+                    <i className="fas fa-chevron-right text-xs"></i>
+                    Contact Support
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 pt-4 text-center">
+            <p className="text-xs text-gray-400">
+              <i className="fas fa-copyright mr-1"></i>
+              2025 Biology.Trunk. All rights reserved. | Excellence in Education through Expert Guidance
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

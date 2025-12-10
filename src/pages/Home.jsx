@@ -1,135 +1,125 @@
-"use client"
+"use client";
 
-import { Link, useNavigate } from "react-router-dom"
-import { useState, useEffect, useRef } from "react"
-import axios from "axios"
-import { API_URL } from "../utils/api.js"
-import logo from "../assets/biology-trunk-logo.png"
-import roadmapVideo from "../assets/biology-trunk-introduction.mp4"
-import { showErrorToast } from "../utils/toast.js"
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import axios from "axios";
+import { API_URL } from "../utils/api.js";
+import logo from "../assets/biology-trunk-logo.png";
+import roadmapVideo from "../assets/biology-trunk-introduction.mp4";
+import { showErrorToast } from "../utils/toast.js";
 
 // Import all 8 gallery images from assets/image-gallery folder
-import gallery1 from "../assets/image-gallery/study1.jpg"
-import gallery2 from "../assets/image-gallery/study2.jpg"
-import gallery3 from "../assets/image-gallery/study3.jpg"
-import gallery4 from "../assets/image-gallery/study4.jpg"
-import gallery5 from "../assets/image-gallery/study5.jpg"
-import gallery6 from "../assets/image-gallery/study6.jpg"
-import gallery7 from "../assets/image-gallery/study7.jpg"
-import gallery8 from "../assets/image-gallery/study8.jpg"
+import gallery1 from "../assets/image-gallery/study1.jpg";
+import gallery2 from "../assets/image-gallery/study2.jpg";
+import gallery3 from "../assets/image-gallery/study3.jpg";
+import gallery4 from "../assets/image-gallery/study4.jpg";
+import gallery5 from "../assets/image-gallery/study5.jpg";
+import gallery6 from "../assets/image-gallery/study6.jpg";
+import gallery7 from "../assets/image-gallery/study7.jpg";
+import gallery8 from "../assets/image-gallery/study8.jpg";
 
 export default function Home({ user, onLogout }) {
-  const navigate = useNavigate()
-  const videoRef = useRef(null)
-  const galleryIntervalRef = useRef(null)
+  const navigate = useNavigate();
+  const videoRef = useRef(null);
+  const galleryIntervalRef = useRef(null);
   const [stats, setStats] = useState({
     totalCourses: 0,
     premiumCourses: 0,
     totalFaculty: 0,
     totalStudents: 0,
-  })
-  const [faqOpen, setFaqOpen] = useState(null)
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [isAutoScroll, setIsAutoScroll] = useState(true)
-  const [showDemoModal, setShowDemoModal] = useState(false)
-  const DEMO_VIDEO_URL = "https://youtu.be/mNs8ewx5JrU?si=MROQVRQY3eCVCcdP"
+  });
+  const [faqOpen, setFaqOpen] = useState(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isAutoScroll, setIsAutoScroll] = useState(true);
+  const [showDemoModal, setShowDemoModal] = useState(false);
+  const DEMO_VIDEO_URL = "https://youtu.be/mNs8ewx5JrU?si=MROQVRQY3eCVCcdP";
 
   // Gallery images array with imported images
   const [galleryImages] = useState([
-    { src: gallery1, alt: "Biology Trunk Classroom 1" },
-    { src: gallery2, alt: "Biology Trunk Study Session 2" },
-    { src: gallery3, alt: "Biology Trunk Laboratory 3" },
-    { src: gallery4, alt: "Biology Trunk Study Group 4" },
-    { src: gallery5, alt: "Biology Trunk Faculty Teaching 5" },
-    { src: gallery6, alt: "Biology Trunk Students Learning 6" },
-    { src: gallery7, alt: "Biology Trunk Interactive Session 7" },
-    { src: gallery8, alt: "Biology Trunk Success Celebration 8" },
-  ])
+    { src: gallery1, alt: "Biology Trunk Classroom" },
+    { src: gallery2, alt: "Biology Trunk Study Session" },
+    { src: gallery3, alt: "Biology Trunk Laboratory" },
+    { src: gallery4, alt: "Biology Trunk Study Group" },
+    { src: gallery5, alt: "Biology Trunk Faculty Teaching" },
+    { src: gallery6, alt: "Biology Trunk Students Learning" },
+    { src: gallery7, alt: "Biology Trunk Interactive Session" },
+    { src: gallery8, alt: "Biology Trunk Success Celebration" },
+  ]);
 
-  const hasCalledFetchStatsRef = useRef(false)
-  const [categories, setCategories] = useState([])
+  const hasCalledFetchStatsRef = useRef(false);
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     if (!hasCalledFetchStatsRef.current) {
-      fetchStats()
-      fetchCategories()
-      hasCalledFetchStatsRef.current = true
+      fetchStats();
+      fetchCategories();
+      hasCalledFetchStatsRef.current = true;
     }
 
     // Start auto-scroll only if enabled
     if (isAutoScroll) {
-      startAutoScroll()
+      startAutoScroll();
     }
 
     return () => {
       // Cleanup interval on component unmount
       if (galleryIntervalRef.current) {
-        clearInterval(galleryIntervalRef.current)
+        clearInterval(galleryIntervalRef.current);
       }
-    }
-  }, [isAutoScroll]) // Re-run when auto-scroll state changes
+    };
+  }, [isAutoScroll]); // Re-run when auto-scroll state changes
 
   const startAutoScroll = () => {
     // Clear existing interval
     if (galleryIntervalRef.current) {
-      clearInterval(galleryIntervalRef.current)
+      clearInterval(galleryIntervalRef.current);
     }
 
     // Start new interval for auto-scroll
     galleryIntervalRef.current = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % galleryImages.length)
-    }, 3000) // Change image every 3 seconds
-  }
+      setCurrentImageIndex((prev) => (prev + 1) % galleryImages.length);
+    }, 3000); // Change image every 3 seconds
+  };
 
   const stopAutoScroll = () => {
-    setIsAutoScroll(false)
+    setIsAutoScroll(false);
     if (galleryIntervalRef.current) {
-      clearInterval(galleryIntervalRef.current)
-      galleryIntervalRef.current = null
+      clearInterval(galleryIntervalRef.current);
+      galleryIntervalRef.current = null;
     }
-  }
-
-  const handleThumbnailClick = (index) => {
-    setCurrentImageIndex(index)
-    stopAutoScroll() // Stop auto-scroll when user clicks on thumbnail
-  }
+  };
 
   const handlePrevClick = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length)
-    stopAutoScroll() // Stop auto-scroll when user clicks navigation
-  }
+    setCurrentImageIndex(
+      (prev) => (prev - 1 + galleryImages.length) % galleryImages.length
+    );
+    stopAutoScroll();
+  };
 
   const handleNextClick = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % galleryImages.length)
-    stopAutoScroll() // Stop auto-scroll when user clicks navigation
-  }
-
-  const toggleAutoScroll = () => {
-    if (isAutoScroll) {
-      stopAutoScroll()
-    } else {
-      setIsAutoScroll(true)
-      startAutoScroll()
-    }
-  }
+    setCurrentImageIndex((prev) => (prev + 1) % galleryImages.length);
+    stopAutoScroll();
+  };
 
   const handleWatchDemo = () => {
-    setShowDemoModal(true)
-  }
+    setShowDemoModal(true);
+  };
 
   const getEmbedUrl = (url) => {
     try {
-      let videoId = ""
+      let videoId = "";
       if (url.includes("youtube.com")) {
-        videoId = url.split("v=")[1]?.split("&")[0]
+        videoId = url.split("v=")[1]?.split("&")[0];
       } else if (url.includes("youtu.be")) {
-        videoId = url.split("/").pop()?.split("?")[0]
+        videoId = url.split("/").pop()?.split("?")[0];
       }
-      return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1` : ""
+      return videoId
+        ? `https://www.youtube.com/embed/${videoId}?autoplay=1`
+        : "";
     } catch (error) {
-      return ""
+      return "";
     }
-  }
+  };
 
   const fetchStats = async () => {
     try {
@@ -137,39 +127,46 @@ export default function Home({ user, onLogout }) {
         axios.get(`${API_URL}/courses?limit=1000`),
         axios.get(`${API_URL}/users/role/faculty`),
         axios.get(`${API_URL}/users/role/student`),
-      ])
+      ]);
 
-      const courseCount = courses.data.courses ? courses.data.courses.length : courses.data.length
+      const courseCount = courses.data.courses
+        ? courses.data.courses.length
+        : courses.data.length;
       const premiumCourses = courses.data.courses
         ? courses.data.courses.filter((c) => c.price > 0).length
-        : courses.data.filter((c) => c.price > 0).length
+        : courses.data.filter((c) => c.price > 0).length;
 
       setStats({
         totalCourses: courseCount,
         premiumCourses: premiumCourses,
         totalFaculty: faculty.data.length,
         totalStudents: students.data.length,
-      })
+      });
     } catch (error) {
-      console.error("Failed to fetch stats:", error)
+      console.error("Failed to fetch stats:", error);
       if (stats.totalCourses > 0) {
-        showErrorToast("Failed to reload homepage statistics")
+        showErrorToast("Failed to reload homepage statistics");
       }
     }
-  }
+  };
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get(`${API_URL}/courses/categories/list`)
-      setCategories(response.data)
+      const response = await axios.get(`${API_URL}/courses/categories/list`);
+      // Limit to only 8 categories as requested
+      setCategories(response.data.slice(0, 8));
     } catch (error) {
-      console.error("Failed to fetch categories:", error)
+      console.error("Failed to fetch categories:", error);
     }
-  }
+  };
 
   const handleCategoryClick = (category) => {
-    navigate("/view-all-courses")
-  }
+    navigate(`/view-all-courses?category=${encodeURIComponent(category)}`);
+  };
+
+  const handleFooterCourseClick = (course) => {
+    navigate(`/view-all-courses?category=${encodeURIComponent(course)}`);
+  };
 
   const faqItems = [
     {
@@ -202,7 +199,7 @@ export default function Home({ user, onLogout }) {
       answer:
         "Yes, we provide comprehensive study materials including PDF notes, practice questions, previous year papers, mock tests, and research papers. All materials are regularly updated according to the latest exam patterns.",
     },
-  ]
+  ];
 
   return (
     <div className="min-h-screen bg-white">
@@ -218,15 +215,19 @@ export default function Home({ user, onLogout }) {
                   className="w-full h-full object-contain"
                 />
               </div>
-              <span className="text-gray-900 font-bold text-2xl sm:text-3xl hidden sm:block">Biology.Trunk</span>
+              <span className="text-gray-900 font-bold text-2xl sm:text-3xl hidden sm:block">
+                Biology.Trunk
+              </span>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
               {user ? (
                 <>
-                  <span className="text-gray-700 font-medium text-sm sm:text-base hidden sm:inline">{user.name}</span>
+                  <span className="text-gray-700 font-medium text-sm sm:text-base hidden sm:inline">
+                    {user.name}
+                  </span>
                   <button
                     onClick={onLogout}
-                    className="px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
+                    className="px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm sm:text-base cursor-pointer"
                   >
                     <i className="fas fa-sign-out-alt text-sm"></i>
                     <span className="hidden sm:inline">Logout</span>
@@ -236,14 +237,14 @@ export default function Home({ user, onLogout }) {
                 <>
                   <Link
                     to="/login"
-                    className="px-3 sm:px-4 py-2 text-gray-700 hover:text-blue-600 transition font-medium flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
+                    className="px-3 sm:px-4 py-2 text-gray-700 hover:text-blue-600 transition font-medium flex items-center gap-1 sm:gap-2 text-sm sm:text-base cursor-pointer"
                   >
                     <i className="fas fa-sign-in-alt text-sm"></i>
                     <span className="hidden sm:inline">Login</span>
                   </Link>
                   <Link
                     to="/register"
-                    className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
+                    className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm sm:text-base cursor-pointer"
                   >
                     <i className="fas fa-user-plus text-sm"></i>
                     <span className="hidden sm:inline">Register</span>
@@ -269,18 +270,23 @@ export default function Home({ user, onLogout }) {
                   </span>
                 </h1>
                 <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-4 sm:mb-6 leading-relaxed">
-                  Join India's premier online learning platform led by Ph.D. holders, NET & GATE qualified experts with
-                  15+ years of government college teaching experience. Access comprehensive courses and personalized
-                  mentorship for academic excellence.
+                  Join India's premier online learning platform led by Ph.D.
+                  holders, NET & GATE qualified experts with 15+ years of
+                  government college teaching experience. Access comprehensive
+                  courses and personalized mentorship for academic excellence.
                 </p>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 text-gray-600">
                   <div className="flex items-center gap-2">
                     <i className="fas fa-check-circle text-green-500 text-lg"></i>
-                    <span className="text-base sm:text-lg">Ph.D. Qualified Faculty</span>
+                    <span className="text-base sm:text-lg">
+                      Ph.D. Qualified Faculty
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <i className="fas fa-check-circle text-green-500 text-lg"></i>
-                    <span className="text-base sm:text-lg">15+ Years Experience</span>
+                    <span className="text-base sm:text-lg">
+                      15+ Years Experience
+                    </span>
                   </div>
                 </div>
               </div>
@@ -289,14 +295,14 @@ export default function Home({ user, onLogout }) {
                 <div className="flex gap-3 sm:gap-4 flex-wrap">
                   <Link
                     to="/register"
-                    className="px-5 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold shadow-lg hover:shadow-xl flex items-center gap-2 text-base sm:text-lg"
+                    className="px-5 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold shadow-lg hover:shadow-xl flex items-center gap-2 text-base sm:text-lg cursor-pointer"
                   >
                     <i className="fas fa-rocket"></i>
                     Enroll Now
                   </Link>
                   <button
                     onClick={handleWatchDemo}
-                    className="px-5 sm:px-6 py-2.5 sm:py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition font-semibold flex items-center gap-2 text-base sm:text-lg"
+                    className="px-5 sm:px-6 py-2.5 sm:py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition font-semibold flex items-center gap-2 text-base sm:text-lg cursor-pointer"
                   >
                     <i className="fas fa-play-circle"></i>
                     Watch Demo
@@ -306,7 +312,7 @@ export default function Home({ user, onLogout }) {
               {user && (
                 <Link
                   to={`/${user.role}-dashboard`}
-                  className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold shadow-lg text-base sm:text-lg"
+                  className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold shadow-lg text-base sm:text-lg cursor-pointer"
                 >
                   <i className="fas fa-tachometer-alt"></i>
                   Go to Dashboard
@@ -316,54 +322,72 @@ export default function Home({ user, onLogout }) {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-4 sm:gap-6">
-              <div className="bg-white p-5 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-blue-200">
+              <div className="bg-white p-5 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-blue-200 cursor-pointer">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                     <i className="fas fa-star text-blue-600 text-xl"></i>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-gray-900">{stats.premiumCourses}+</div>
-                    <div className="text-gray-700 font-semibold">Premium Courses</div>
-                    <div className="text-gray-500 text-sm">Expert-Curated Content</div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {stats.premiumCourses}+
+                    </div>
+                    <div className="text-gray-700 font-semibold">
+                      Premium Courses
+                    </div>
+                    <div className="text-gray-500 text-sm">
+                      Expert-Curated Content
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white p-5 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-green-200">
+              <div className="bg-white p-5 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-green-200 cursor-pointer">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                     <i className="fas fa-users text-green-600 text-xl"></i>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-900">50K+</div>
-                    <div className="text-gray-700 font-semibold">Successful Students</div>
+                    <div className="text-gray-700 font-semibold">
+                      Successful Students
+                    </div>
                     <div className="text-gray-500 text-sm">Proven Results</div>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white p-5 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-purple-200">
+              <div className="bg-white p-5 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-purple-200 cursor-pointer">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                     <i className="fas fa-user-graduate text-purple-600 text-xl"></i>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-gray-900">{stats.totalFaculty}+</div>
-                    <div className="text-gray-700 font-semibold">Ph.D. Faculty</div>
-                    <div className="text-gray-500 text-sm">NET & GATE Qualified</div>
+                    <div className="text-2xl font-bold text-gray-900">
+                      {stats.totalFaculty}+
+                    </div>
+                    <div className="text-gray-700 font-semibold">
+                      Ph.D. Faculty
+                    </div>
+                    <div className="text-gray-500 text-sm">
+                      NET & GATE Qualified
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white p-5 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-orange-200">
+              <div className="bg-white p-5 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-orange-200 cursor-pointer">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
                     <i className="fas fa-chart-line text-orange-600 text-xl"></i>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-900">98%</div>
-                    <div className="text-gray-700 font-semibold">Success Track Record</div>
-                    <div className="text-gray-500 text-sm">Exceptional Results</div>
+                    <div className="text-gray-700 font-semibold">
+                      Success Track Record
+                    </div>
+                    <div className="text-gray-500 text-sm">
+                      Exceptional Results
+                    </div>
                   </div>
                 </div>
               </div>
@@ -372,191 +396,149 @@ export default function Home({ user, onLogout }) {
         </div>
       </section>
 
-      {/* Photo Gallery Section - Removed auto-scroll indicator box */}
-      <section className="py-12 sm:py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">Our Learning Environment Gallery</h2>
-            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
-              Explore our state-of-the-art facilities and vibrant learning community
+      {/* Photo Gallery Section - Simplified */}
+      <section className="py-8 sm:py-12 bg-gray-50">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+              Our Learning Environment
+            </h2>
+            <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
+              Explore our state-of-the-art facilities
             </p>
-            <div className="flex items-center justify-center gap-3 mt-3">
-              <button
-                onClick={toggleAutoScroll}
-                className={`px-3 py-1.5 rounded-lg font-medium flex items-center gap-2 text-sm ${
-                  isAutoScroll
-                    ? "bg-green-100 text-green-700 hover:bg-green-200"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                <i className={`fas ${isAutoScroll ? "fa-pause" : "fa-play"}`}></i>
-                {isAutoScroll ? "Pause Auto-scroll" : "Start Auto-scroll"}
-              </button>
-              <div className="text-xs sm:text-sm text-gray-500">
-                <i className="fas fa-info-circle mr-1"></i>
-                Click any image to stop auto-scroll
-              </div>
-            </div>
           </div>
 
-          {/* Main Gallery */}
-          <div className="relative max-w-6xl mx-auto">
-            <div className="bg-white p-3 sm:p-4 md:p-5 rounded-xl shadow-lg">
+          {/* Main Gallery - Simplified */}
+          <div className="relative">
+            <div className="bg-white p-2 sm:p-3 rounded-xl shadow-lg">
               <div className="relative overflow-hidden rounded-lg aspect-video">
                 <img
-                  src={galleryImages[currentImageIndex].src || "/placeholder.svg"}
+                  src={
+                    galleryImages[currentImageIndex].src || "/placeholder.svg"
+                  }
                   alt={galleryImages[currentImageIndex].alt}
                   className="w-full h-full object-cover transition-opacity duration-500"
-                  onClick={stopAutoScroll} // Stop auto-scroll when clicking main image
+                  onClick={stopAutoScroll}
                 />
 
-                {/* Navigation Buttons */}
+                {/* Navigation Buttons Only */}
                 <button
                   onClick={handlePrevClick}
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all"
+                  className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all cursor-pointer"
                 >
-                  <i className="fas fa-chevron-left text-sm"></i>
+                  <i className="fas fa-chevron-left text-lg"></i>
                 </button>
                 <button
                   onClick={handleNextClick}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all"
+                  className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all cursor-pointer"
                 >
-                  <i className="fas fa-chevron-right text-sm"></i>
+                  <i className="fas fa-chevron-right text-lg"></i>
                 </button>
-
-                {/* Image Counter */}
-                <div className="absolute top-3 left-3 bg-black/50 text-white px-2 py-1 rounded-full text-xs sm:text-sm font-medium">
-                  {currentImageIndex + 1} / {galleryImages.length}
-                </div>
-
-                {/* Removed Auto-scroll Indicator Box */}
-
-                {/* Image Title */}
-                <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-3 py-1.5 rounded-lg text-xs sm:text-sm">
-                  {galleryImages[currentImageIndex].alt}
-                </div>
               </div>
-            </div>
-
-            {/* Thumbnail Strip */}
-            <div className="mt-4 sm:mt-5 overflow-x-auto pb-2">
-              <div className="flex gap-2 sm:gap-3 min-w-max">
-                {galleryImages.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleThumbnailClick(index)}
-                    className={`relative overflow-hidden rounded-lg aspect-video w-24 sm:w-28 md:w-32 flex-shrink-0 transition-all duration-300 ${
-                      index === currentImageIndex
-                        ? "ring-3 sm:ring-4 ring-blue-500 scale-105 shadow-lg"
-                        : "ring-1 ring-gray-200 hover:ring-2 hover:ring-blue-300"
-                    }`}
-                  >
-                    <img
-                      src={image.src || "/placeholder.svg"}
-                      alt={`Thumbnail ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                    {index === currentImageIndex && <div className="absolute inset-0 bg-blue-500/20"></div>}
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-1 text-center">
-                      Image {index + 1}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Thumbnail Navigation Dots */}
-            <div className="flex justify-center gap-1.5 sm:gap-2 mt-4">
-              {galleryImages.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleThumbnailClick(index)}
-                  className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all ${
-                    index === currentImageIndex ? "bg-blue-600 scale-125" : "bg-gray-300 hover:bg-gray-400"
-                  }`}
-                  aria-label={`Go to image ${index + 1}`}
-                />
-              ))}
-            </div>
-
-            {/* Gallery Controls */}
-            <div className="flex justify-center gap-3 mt-4">
-              <button
-                onClick={handlePrevClick}
-                className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium flex items-center gap-1.5 text-sm"
-              >
-                <i className="fas fa-chevron-left text-xs"></i>
-                Previous
-              </button>
-              <button
-                onClick={handleNextClick}
-                className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium flex items-center gap-1.5 text-sm"
-              >
-                Next
-                <i className="fas fa-chevron-right text-xs"></i>
-              </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Expert Faculty Qualifications Section */}
-      <section className="py-12 sm:py-16 bg-gradient-to-r from-blue-50 to-indigo-50">
+      {/* Expert Faculty Qualifications Section - Updated */}
+      <section className="py-8 sm:py-12 bg-gradient-to-r from-blue-50 to-indigo-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">Our Esteemed Faculty Credentials</h2>
+          <div className="text-center mb-8">
+            {/* Slightly increased heading font size */}
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+              Our Esteemed Faculty Credentials
+            </h2>
+            {/* Slightly increased description font size */}
             <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
-              Learn from the best in the industry with exceptional qualifications and experience
+              Learn from the best in the industry with exceptional
+              qualifications and experience
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            <div className="bg-white p-5 sm:p-6 rounded-xl shadow-lg text-center">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <i className="fas fa-graduation-cap text-blue-600 text-xl sm:text-2xl"></i>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+            {/* Ph.D. Holders Card */}
+            <div className="bg-white p-6 sm:p-7 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-blue-200 group h-full flex flex-col cursor-pointer">
+              {/* Icon with hover effect - slightly larger */}
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-600 transition-colors">
+                <i className="fas fa-graduation-cap text-blue-600 text-xl sm:text-2xl group-hover:text-white transition-colors"></i>
               </div>
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">Ph.D. Holders</h3>
-              <p className="text-gray-600 text-sm sm:text-base">Doctoral degree holders with research expertise</p>
+              {/* Heading with fixed height for alignment - slightly larger */}
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 text-center min-h-[48px] flex items-center justify-center leading-tight">
+                Ph.D. Holders
+              </h3>
+              {/* Description with consistent alignment - slightly larger */}
+              <p className="text-gray-600 text-sm sm:text-base text-center">
+                Doctoral degree holders with research expertise
+              </p>
             </div>
-            <div className="bg-white p-5 sm:p-6 rounded-xl shadow-lg text-center">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <i className="fas fa-award text-green-600 text-xl sm:text-2xl"></i>
+
+            {/* NET & GATE Qualified Card */}
+            <div className="bg-white p-6 sm:p-7 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-green-200 group h-full flex flex-col cursor-pointer">
+              {/* Icon with hover effect - slightly larger */}
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-600 transition-colors">
+                <i className="fas fa-award text-green-600 text-xl sm:text-2xl group-hover:text-white transition-colors"></i>
               </div>
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">NET & GATE Qualified</h3>
-              <p className="text-gray-600 text-sm sm:text-base">Nationally recognized qualification holders</p>
+              {/* Heading with fixed height for alignment - slightly larger */}
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 text-center min-h-[48px] flex items-center justify-center leading-tight">
+                NET & GATE Qualified
+              </h3>
+              {/* Description with consistent alignment - slightly larger */}
+              <p className="text-gray-600 text-sm sm:text-base text-center">
+                Nationally recognized qualification holders
+              </p>
             </div>
-            <div className="bg-white p-5 sm:p-6 rounded-xl shadow-lg text-center">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <i className="fas fa-university text-purple-600 text-xl sm:text-2xl"></i>
+
+            {/* Ex Government College Lecturers Card */}
+            <div className="bg-white p-6 sm:p-7 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-purple-200 group h-full flex flex-col cursor-pointer">
+              {/* Icon with hover effect - slightly larger */}
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-purple-600 transition-colors">
+                <i className="fas fa-university text-purple-600 text-xl sm:text-2xl group-hover:text-white transition-colors"></i>
               </div>
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">Ex Government College Lecturers</h3>
-              <p className="text-gray-600 text-sm sm:text-base">
+              {/* Heading with fixed height for alignment - slightly larger */}
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 text-center min-h-[48px] flex items-center justify-center leading-tight">
+                Ex Government College Lecturers
+              </h3>
+              {/* Description with consistent alignment - slightly larger */}
+              <p className="text-gray-600 text-sm sm:text-base text-center">
                 Former lecturers with institutional teaching experience
               </p>
             </div>
-            <div className="bg-white p-5 sm:p-6 rounded-xl shadow-lg text-center">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <i className="fas fa-chart-line text-orange-600 text-xl sm:text-2xl"></i>
+
+            {/* 15+ Years Experience Card */}
+            <div className="bg-white p-6 sm:p-7 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-orange-200 group h-full flex flex-col cursor-pointer">
+              {/* Icon with hover effect - slightly larger */}
+              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-orange-600 transition-colors">
+                <i className="fas fa-chart-line text-orange-600 text-xl sm:text-2xl group-hover:text-white transition-colors"></i>
               </div>
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">15+ Years Experience</h3>
-              <p className="text-gray-600 text-sm sm:text-base">Decades of proven teaching methodology</p>
+              {/* Heading with fixed height for alignment - slightly larger */}
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 text-center min-h-[48px] flex items-center justify-center leading-tight">
+                15+ Years Experience
+              </h3>
+              {/* Description with consistent alignment - slightly larger */}
+              <p className="text-gray-600 text-sm sm:text-base text-center">
+                Decades of proven teaching methodology
+              </p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Why Choose Us */}
-      <section className="py-12 sm:py-16 md:py-20 bg-white">
+      <section className="py-8 sm:py-12 md:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3">Why Choose Biology.Trunk?</h2>
+          <div className="text-center mb-8 sm:mb-10">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+              Why Choose Biology.Trunk?
+            </h2>
             <p className="text-base sm:text-lg text-gray-600 max-w-3xl mx-auto">
-              We combine decades of teaching experience with cutting-edge technology to deliver exceptional learning
-              outcomes across all competitive exam segments.
+              We combine decades of teaching experience with cutting-edge
+              technology to deliver exceptional learning outcomes across all
+              competitive exam segments.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {/* Card 1: Ph.D. Expert Faculty */}
-            <div className="bg-white p-5 sm:p-6 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-blue-200 group h-full flex flex-col">
+            <div className="bg-white p-5 sm:p-6 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-blue-200 group h-full flex flex-col cursor-pointer">
               <div className="w-12 h-12 sm:w-14 sm:h-14 bg-blue-100 rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-blue-600 transition-colors flex-shrink-0">
                 <i className="fas fa-user-graduate text-blue-600 text-lg sm:text-xl group-hover:text-white"></i>
               </div>
@@ -564,8 +546,8 @@ export default function Home({ user, onLogout }) {
                 Ph.D. Expert Faculty
               </h3>
               <p className="text-gray-700 mb-3 leading-relaxed text-sm flex-grow">
-                Learn from Ph.D. holders, NET & GATE qualified experts with 15+ years of government college teaching
-                experience.
+                Learn from Ph.D. holders, NET & GATE qualified experts with 15+
+                years of government college teaching experience.
               </p>
               <ul className="space-y-1.5">
                 <li className="flex items-start gap-2 text-gray-600">
@@ -584,7 +566,7 @@ export default function Home({ user, onLogout }) {
             </div>
 
             {/* Card 2: Comprehensive Curriculum */}
-            <div className="bg-white p-5 sm:p-6 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-green-200 group h-full flex flex-col">
+            <div className="bg-white p-5 sm:p-6 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-green-200 group h-full flex flex-col cursor-pointer">
               <div className="w-12 h-12 sm:w-14 sm:h-14 bg-green-100 rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-green-600 transition-colors flex-shrink-0">
                 <i className="fas fa-book-open text-green-600 text-lg sm:text-xl group-hover:text-white"></i>
               </div>
@@ -592,7 +574,8 @@ export default function Home({ user, onLogout }) {
                 Comprehensive Curriculum
               </h3>
               <p className="text-gray-700 mb-3 leading-relaxed text-sm flex-grow">
-                Structured learning paths covering all major competitive exams with updated syllabus and exam patterns.
+                Structured learning paths covering all major competitive exams
+                with updated syllabus and exam patterns.
               </p>
               <ul className="space-y-1.5">
                 <li className="flex items-start gap-2 text-gray-600">
@@ -611,7 +594,7 @@ export default function Home({ user, onLogout }) {
             </div>
 
             {/* Card 3: Live Interactive Classes */}
-            <div className="bg-white p-5 sm:p-6 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-purple-200 group h-full flex flex-col">
+            <div className="bg-white p-5 sm:p-6 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-purple-200 group h-full flex flex-col cursor-pointer">
               <div className="w-12 h-12 sm:w-14 sm:h-14 bg-purple-100 rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-purple-600 transition-colors flex-shrink-0">
                 <i className="fas fa-video text-purple-600 text-lg sm:text-xl group-hover:text-white"></i>
               </div>
@@ -619,7 +602,8 @@ export default function Home({ user, onLogout }) {
                 Live Interactive Classes
               </h3>
               <p className="text-gray-700 mb-3 leading-relaxed text-sm flex-grow">
-                Real-time learning experience with expert faculty and interactive doubt-solving sessions.
+                Real-time learning experience with expert faculty and
+                interactive doubt-solving sessions.
               </p>
               <ul className="space-y-1.5">
                 <li className="flex items-start gap-2 text-gray-600">
@@ -638,7 +622,7 @@ export default function Home({ user, onLogout }) {
             </div>
 
             {/* Card 4: Performance Analytics */}
-            <div className="bg-white p-5 sm:p-6 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-orange-200 group h-full flex flex-col">
+            <div className="bg-white p-5 sm:p-6 rounded-xl border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-orange-200 group h-full flex flex-col cursor-pointer">
               <div className="w-12 h-12 sm:w-14 sm:h-14 bg-orange-100 rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-orange-600 transition-colors flex-shrink-0">
                 <i className="fas fa-chart-bar text-orange-600 text-lg sm:text-xl group-hover:text-white"></i>
               </div>
@@ -646,7 +630,8 @@ export default function Home({ user, onLogout }) {
                 Performance Analytics
               </h3>
               <p className="text-gray-700 mb-3 leading-relaxed text-sm flex-grow">
-                Detailed progress tracking with AI-powered insights and personalized improvement recommendations.
+                Detailed progress tracking with AI-powered insights and
+                personalized improvement recommendations.
               </p>
               <ul className="space-y-1.5">
                 <li className="flex items-start gap-2 text-gray-600">
@@ -667,56 +652,65 @@ export default function Home({ user, onLogout }) {
         </div>
       </section>
 
-      {/* Course Categories - Updated with dynamic data */}
-      <section className="py-12 sm:py-16 md:py-20 bg-gray-50">
+      {/* Course Categories - Limited to 8 categories as requested */}
+      <section className="py-8 sm:py-12 md:py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+          <div className="text-center mb-8 sm:mb-10">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
               Comprehensive Course Catalog
             </h2>
             <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
-              Explore our extensive range of courses designed for academic excellence and competitive success.
+              Explore our extensive range of courses designed for academic
+              excellence and competitive success.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
             {categories.length > 0 ? (
               categories.map((cat) => (
                 <div
                   key={cat._id}
-                  onClick={() => navigate(`/view-all-courses?category=${encodeURIComponent(cat._id)}`)}
-                  className="bg-white p-4 sm:p-5 md:p-6 rounded-xl border border-gray-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 cursor-pointer group"
+                  onClick={() =>
+                    navigate(
+                      `/view-all-courses?category=${encodeURIComponent(
+                        cat._id
+                      )}`
+                    )
+                  }
+                  className="bg-white p-4 sm:p-5 rounded-xl border border-gray-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 cursor-pointer group"
                 >
                   <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                     <div className="w-12 h-12 sm:w-14 sm:h-14 bg-blue-100 rounded-xl flex items-center justify-center transition-colors group-hover:bg-blue-600">
                       <i className="fas fa-book text-blue-600 text-lg sm:text-xl group-hover:text-white transition-colors"></i>
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="font-bold text-gray-900 text-sm sm:text-base md:text-lg line-clamp-1">
+                      <div className="font-bold text-gray-900 text-sm sm:text-base line-clamp-1">
                         {cat._id}
                       </div>
-                      <div className="text-gray-500 text-xs sm:text-sm">{cat.count} Courses</div>
+                      <div className="text-gray-500 text-xs sm:text-sm">
+                        {cat.count} Courses
+                      </div>
                     </div>
                   </div>
-                  <div className="flex justify-between items-center text-sm text-gray-600">
-                    <span className="font-medium">{Math.round(cat.count * 1.2)}K+ Students</span>
+                  <div className="flex justify-between items-center text-xs sm:text-sm text-gray-600">
+                    <span className="font-medium">
+                      {Math.round(cat.count * 1.2)}K+ Students
+                    </span>
                     <i className="fas fa-arrow-right text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity text-base"></i>
                   </div>
                 </div>
               ))
             ) : (
-              <div className="col-span-full text-center py-8 text-gray-500">Loading categories...</div>
+              <div className="col-span-full text-center py-8 text-gray-500">
+                Loading categories...
+              </div>
             )}
           </div>
 
-          {/* Update the "View all courses" button text and link in the Comprehensive Course Catalog section */}
-          {/* Find the section where categories are displayed and update it to show "View All Courses" link */}
-
-          {/* In the return JSX, update the navigation button for View All Courses: */}
           {/* View All Courses Button */}
-          <div className="mt-8 sm:mt-10 lg:mt-12 flex justify-center">
+          <div className="mt-8 sm:mt-10 flex justify-center">
             <Link to="/view-all-courses">
-              <button className="px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold flex items-center gap-2 text-base sm:text-lg">
+              <button className="px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold flex items-center gap-2 text-base sm:text-lg cursor-pointer">
                 <i className="fas fa-arrow-right"></i>
                 View All Courses
               </button>
@@ -726,20 +720,42 @@ export default function Home({ user, onLogout }) {
       </section>
 
       {/* Additional Courses Section */}
-      <section className="py-12 sm:py-16 bg-white">
+      <section className="py-8 sm:py-12 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">Specialized Preparation Courses</h2>
+          <div className="text-center mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+              Specialized Preparation Courses
+            </h2>
             <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
               Advanced courses for specialized competitive examinations
             </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              { name: "KVS/NVS", icon: "fas fa-school", color: "text-blue-600", students: "3K+" },
-              { name: "NET & GATE", icon: "fas fa-award", color: "text-green-600", students: "4K+" },
-              { name: "KYPS Olympiad", icon: "fas fa-medal", color: "text-purple-600", students: "2K+" },
-              { name: "Foreign Languages", icon: "fas fa-globe", color: "text-orange-600", students: "1.5K+" },
+              {
+                name: "KVS/NVS",
+                icon: "fas fa-school",
+                color: "text-blue-600",
+                students: "3K+",
+              },
+              {
+                name: "NET & GATE",
+                icon: "fas fa-award",
+                color: "text-green-600",
+                students: "4K+",
+              },
+              {
+                name: "KYPS Olympiad",
+                icon: "fas fa-medal",
+                color: "text-purple-600",
+                students: "2K+",
+              },
+              {
+                name: "Foreign Languages",
+                icon: "fas fa-globe",
+                color: "text-orange-600",
+                students: "1.5K+",
+              },
             ].map((course) => (
               <div
                 key={course.name}
@@ -748,11 +764,17 @@ export default function Home({ user, onLogout }) {
               >
                 <div className="flex items-center gap-2 sm:gap-3">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-lg flex items-center justify-center">
-                    <i className={`${course.icon} ${course.color} text-base`}></i>
+                    <i
+                      className={`${course.icon} ${course.color} text-base`}
+                    ></i>
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-900 text-sm">{course.name}</div>
-                    <div className="text-xs text-gray-500">{course.students} Students</div>
+                    <div className="font-semibold text-gray-900 text-sm">
+                      {course.name}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {course.students} Students
+                    </div>
                   </div>
                 </div>
               </div>
@@ -762,7 +784,7 @@ export default function Home({ user, onLogout }) {
       </section>
 
       {/* Learning Methodology with Video */}
-      <section className="py-12 sm:py-16 md:py-20 bg-white">
+      <section className="py-8 sm:py-12 md:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 md:gap-10 items-center">
             <div>
@@ -770,8 +792,9 @@ export default function Home({ user, onLogout }) {
                 Our Proven Learning Methodology
               </h2>
               <p className="text-base sm:text-lg text-gray-600 mb-4 sm:mb-6">
-                Our structured approach ensures comprehensive concept understanding and exam readiness through
-                systematic progression and continuous assessment.
+                Our structured approach ensures comprehensive concept
+                understanding and exam readiness through systematic progression
+                and continuous assessment.
               </p>
               <div className="space-y-3 sm:space-y-4">
                 {[
@@ -798,11 +821,17 @@ export default function Home({ user, onLogout }) {
                 ].map((step, index) => (
                   <div key={index} className="flex items-center gap-2 sm:gap-3">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <i className={`${step.icon} text-blue-600 text-sm sm:text-base`}></i>
+                      <i
+                        className={`${step.icon} text-blue-600 text-sm sm:text-base`}
+                      ></i>
                     </div>
                     <div>
-                      <h4 className="font-bold text-gray-900 text-sm sm:text-base">{step.title}</h4>
-                      <p className="text-gray-600 text-xs sm:text-sm">{step.desc}</p>
+                      <h4 className="font-bold text-gray-900 text-sm sm:text-base">
+                        {step.title}
+                      </h4>
+                      <p className="text-gray-600 text-xs sm:text-sm">
+                        {step.desc}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -829,31 +858,41 @@ export default function Home({ user, onLogout }) {
                   <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
                     1
                   </div>
-                  <span className="text-xs sm:text-sm">Diagnostic Test & Goal Setting</span>
+                  <span className="text-xs sm:text-sm">
+                    Diagnostic Test & Goal Setting
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5 sm:gap-2 text-gray-700">
                   <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
                     2
                   </div>
-                  <span className="text-xs sm:text-sm">Structured Learning Path</span>
+                  <span className="text-xs sm:text-sm">
+                    Structured Learning Path
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5 sm:gap-2 text-gray-700">
                   <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
                     3
                   </div>
-                  <span className="text-xs sm:text-sm">Regular Practice & Assessments</span>
+                  <span className="text-xs sm:text-sm">
+                    Regular Practice & Assessments
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5 sm:gap-2 text-gray-700">
                   <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
                     4
                   </div>
-                  <span className="text-xs sm:text-sm">Performance Analysis</span>
+                  <span className="text-xs sm:text-sm">
+                    Performance Analysis
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5 sm:gap-2 text-gray-700">
                   <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
                     5
                   </div>
-                  <span className="text-xs sm:text-sm">Revision & Mock Tests</span>
+                  <span className="text-xs sm:text-sm">
+                    Revision & Mock Tests
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5 sm:gap-2 text-gray-700">
                   <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
@@ -868,12 +907,15 @@ export default function Home({ user, onLogout }) {
       </section>
 
       {/* Testimonials */}
-      <section className="py-12 sm:py-16 md:py-20 bg-gray-50">
+      <section className="py-8 sm:py-12 md:py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3">Student Success Stories</h2>
+          <div className="text-center mb-8 sm:mb-10">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+              Student Success Stories
+            </h2>
             <p className="text-base sm:text-lg text-gray-600">
-              Hear from our students who have achieved remarkable success in their academic journeys.
+              Hear from our students who have achieved remarkable success in
+              their academic journeys.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -905,16 +947,23 @@ export default function Home({ user, onLogout }) {
             ].map((testimonial, idx) => (
               <div
                 key={idx}
-                className="bg-white p-4 sm:p-5 md:p-6 rounded-xl border border-gray-200 hover:shadow-lg transition"
+                className="bg-white p-4 sm:p-5 md:p-6 rounded-xl border border-gray-200 hover:shadow-lg transition cursor-pointer"
               >
                 <div className="flex items-center mb-3">
                   {[...Array(5)].map((_, i) => (
-                    <i key={i} className="fas fa-star text-yellow-400 text-sm"></i>
+                    <i
+                      key={i}
+                      className="fas fa-star text-yellow-400 text-sm"
+                    ></i>
                   ))}
                 </div>
-                <p className="text-gray-700 mb-3 sm:mb-4 italic leading-relaxed text-sm">"{testimonial.feedback}"</p>
+                <p className="text-gray-700 mb-3 sm:mb-4 italic leading-relaxed text-sm">
+                  "{testimonial.feedback}"
+                </p>
                 <div className="border-t border-gray-200 pt-2 sm:pt-3">
-                  <p className="font-bold text-gray-900 text-sm sm:text-base">{testimonial.name}</p>
+                  <p className="font-bold text-gray-900 text-sm sm:text-base">
+                    {testimonial.name}
+                  </p>
                   <p className="text-blue-600 font-semibold text-xs sm:text-sm">
                     {testimonial.score} • {testimonial.exam}
                   </p>
@@ -929,33 +978,41 @@ export default function Home({ user, onLogout }) {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-12 sm:py-16 md:py-20 bg-white">
+      <section className="py-8 sm:py-12 md:py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+          <div className="text-center mb-8 sm:mb-10">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
               Frequently Asked Questions
             </h2>
             <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
-              Find answers to common questions about Biology.Trunk courses, enrollment, and learning experience.
+              Find answers to common questions about Biology.Trunk courses,
+              enrollment, and learning experience.
             </p>
           </div>
           <div className="space-y-2 sm:space-y-3">
             {faqItems.map((item, index) => (
-              <div key={index} className="border border-gray-200 rounded-xl overflow-hidden">
+              <div
+                key={index}
+                className="border border-gray-200 rounded-xl overflow-hidden"
+              >
                 <button
-                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-left flex justify-between items-center hover:bg-gray-50 transition-colors"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-left flex justify-between items-center hover:bg-gray-50 transition-colors cursor-pointer"
                   onClick={() => setFaqOpen(faqOpen === index ? null : index)}
                 >
                   <span className="font-semibold text-gray-900 text-sm sm:text-base text-left pr-3">
                     {item.question}
                   </span>
                   <i
-                    className={`fas fa-chevron-${faqOpen === index ? "up" : "down"} text-blue-600 flex-shrink-0 text-sm`}
+                    className={`fas fa-chevron-${
+                      faqOpen === index ? "up" : "down"
+                    } text-blue-600 flex-shrink-0 text-sm`}
                   ></i>
                 </button>
                 {faqOpen === index && (
                   <div className="px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 border-t border-gray-200">
-                    <p className="text-gray-700 text-xs sm:text-sm">{item.answer}</p>
+                    <p className="text-gray-700 text-xs sm:text-sm">
+                      {item.answer}
+                    </p>
                   </div>
                 )}
               </div>
@@ -965,7 +1022,7 @@ export default function Home({ user, onLogout }) {
             <p className="text-gray-600 mb-2 sm:mb-3">Still have questions?</p>
             <Link
               to="/contact"
-              className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm"
+              className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm cursor-pointer"
             >
               <i className="fas fa-headset"></i>
               Contact Support
@@ -981,21 +1038,22 @@ export default function Home({ user, onLogout }) {
             Ready to Transform Your Academic Journey?
           </h2>
           <p className="text-sm sm:text-base md:text-lg text-blue-100 mb-4 sm:mb-6 max-w-2xl mx-auto">
-            Join thousands of successful students who have achieved their dreams with Biology.Trunk. Start your
-            preparation today with our Ph.D. expert-led courses and comprehensive learning ecosystem.
+            Join thousands of successful students who have achieved their dreams
+            with Biology.Trunk. Start your preparation today with our Ph.D.
+            expert-led courses and comprehensive learning ecosystem.
           </p>
           {!user && (
             <div className="flex gap-2 sm:gap-3 justify-center flex-wrap">
               <Link
                 to="/register"
-                className="px-3 sm:px-4 py-1.5 sm:py-2.5 bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition font-bold shadow-lg hover:shadow-xl flex items-center gap-1 text-sm"
+                className="px-3 sm:px-4 py-1.5 sm:py-2.5 bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition font-bold shadow-lg hover:shadow-xl flex items-center gap-1 text-sm cursor-pointer"
               >
                 <i className="fas fa-rocket"></i>
                 Get Started Now
               </Link>
               <button
                 onClick={handleWatchDemo}
-                className="px-3 sm:px-4 py-1.5 sm:py-2.5 border-2 border-white text-white rounded-lg hover:bg-blue-500 transition font-bold flex items-center gap-1 text-sm"
+                className="px-3 sm:px-4 py-1.5 sm:py-2.5 border-2 border-white text-white rounded-lg hover:bg-blue-500 transition font-bold flex items-center gap-1 text-sm cursor-pointer"
               >
                 <i className="fas fa-play"></i>
                 Watch Demo
@@ -1006,14 +1064,14 @@ export default function Home({ user, onLogout }) {
             <div className="flex gap-2 sm:gap-3 justify-center flex-wrap">
               <Link
                 to={`/${user.role}-dashboard`}
-                className="px-3 sm:px-4 py-1.5 sm:py-2.5 bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition font-bold shadow-lg flex items-center gap-1 text-sm"
+                className="px-3 sm:px-4 py-1.5 sm:py-2.5 bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition font-bold shadow-lg flex items-center gap-1 text-sm cursor-pointer"
               >
                 <i className="fas fa-tachometer-alt"></i>
                 Continue Learning
               </Link>
               <Link
                 to="/courses"
-                className="px-3 sm:px-4 py-1.5 sm:py-2.5 border-2 border-white text-white rounded-lg hover:bg-blue-500 transition font-bold flex items-center gap-1 text-sm"
+                className="px-3 sm:px-4 py-1.5 sm:py-2.5 border-2 border-white text-white rounded-lg hover:bg-blue-500 transition font-bold flex items-center gap-1 text-sm cursor-pointer"
               >
                 <i className="fas fa-search"></i>
                 Explore Courses
@@ -1032,28 +1090,45 @@ export default function Home({ user, onLogout }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
             <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">About Biology.Trunk</h4>
+              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">
+                About Biology.Trunk
+              </h4>
               <p className="text-xs text-gray-400 leading-relaxed">
-                India's premier online learning platform providing quality education led by Ph.D. experts, NET & GATE
-                qualified faculty with 15+ years of government college teaching experience.
+                India's premier online learning platform providing quality
+                education led by Ph.D. experts, NET & GATE qualified faculty
+                with 15+ years of government college teaching experience.
               </p>
               <div className="flex gap-2 sm:gap-3 mt-2">
-                <a href="#" className="text-gray-400 hover:text-white transition">
+                <a
+                  href="#"
+                  className="text-gray-400 hover:text-white transition cursor-pointer"
+                >
                   <i className="fab fa-facebook text-sm"></i>
                 </a>
-                <a href="#" className="text-gray-400 hover:text-white transition">
+                <a
+                  href="#"
+                  className="text-gray-400 hover:text-white transition cursor-pointer"
+                >
                   <i className="fab fa-twitter text-sm"></i>
                 </a>
-                <a href="#" className="text-gray-400 hover:text-white transition">
+                <a
+                  href="#"
+                  className="text-gray-400 hover:text-white transition cursor-pointer"
+                >
                   <i className="fab fa-linkedin text-sm"></i>
                 </a>
-                <a href="#" className="text-gray-400 hover:text-white transition">
+                <a
+                  href="#"
+                  className="text-gray-400 hover:text-white transition cursor-pointer"
+                >
                   <i className="fab fa-instagram text-sm"></i>
                 </a>
               </div>
             </div>
             <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">Courses</h4>
+              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">
+                Courses
+              </h4>
               <ul className="text-xs space-y-1.5">
                 {[
                   "Classes 9-12",
@@ -1069,16 +1144,21 @@ export default function Home({ user, onLogout }) {
                   "Foreign Languages",
                 ].map((item) => (
                   <li key={item}>
-                    <a href="#" className="text-gray-400 hover:text-white transition flex items-center gap-1">
+                    <div
+                      onClick={() => handleFooterCourseClick(item)}
+                      className="text-gray-400 hover:text-white transition flex items-center gap-1 cursor-pointer"
+                    >
                       <i className="fas fa-chevron-right text-xs"></i>
                       {item}
-                    </a>
+                    </div>
                   </li>
                 ))}
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">Faculty Credentials</h4>
+              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">
+                Faculty Credentials
+              </h4>
               <ul className="text-xs space-y-1.5">
                 {[
                   "Ph.D. Holders",
@@ -1098,12 +1178,14 @@ export default function Home({ user, onLogout }) {
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">Legal</h4>
+              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">
+                Legal
+              </h4>
               <ul className="text-xs space-y-1.5">
                 <li>
                   <Link
                     to="/privacy-policy"
-                    className="text-gray-400 hover:text-white transition flex items-center gap-1"
+                    className="text-gray-400 hover:text-white transition flex items-center gap-1 cursor-pointer"
                   >
                     <i className="fas fa-chevron-right text-xs"></i>
                     Privacy Policy
@@ -1112,7 +1194,7 @@ export default function Home({ user, onLogout }) {
                 <li>
                   <Link
                     to="/terms-conditions"
-                    className="text-gray-400 hover:text-white transition flex items-center gap-1"
+                    className="text-gray-400 hover:text-white transition flex items-center gap-1 cursor-pointer"
                   >
                     <i className="fas fa-chevron-right text-xs"></i>
                     Terms of Service
@@ -1121,14 +1203,17 @@ export default function Home({ user, onLogout }) {
                 <li>
                   <Link
                     to="/refund-policy"
-                    className="text-gray-400 hover:text-white transition flex items-center gap-1"
+                    className="text-gray-400 hover:text-white transition flex items-center gap-1 cursor-pointer"
                   >
                     <i className="fas fa-chevron-right text-xs"></i>
                     Refund Policy
                   </Link>
                 </li>
                 <li>
-                  <Link to="/contact" className="text-gray-400 hover:text-white transition flex items-center gap-1">
+                  <Link
+                    to="/contact"
+                    className="text-gray-400 hover:text-white transition flex items-center gap-1 cursor-pointer"
+                  >
                     <i className="fas fa-chevron-right text-xs"></i>
                     Contact Support
                   </Link>
@@ -1139,7 +1224,8 @@ export default function Home({ user, onLogout }) {
           <div className="border-t border-gray-800 pt-4 text-center">
             <p className="text-xs text-gray-400">
               <i className="fas fa-copyright mr-1"></i>
-              2025 Biology.Trunk. All rights reserved. | Excellence in Education through Expert Guidance
+              2025 Biology.Trunk. All rights reserved. | Excellence in Education
+              through Expert Guidance
             </p>
           </div>
         </div>
@@ -1152,10 +1238,9 @@ export default function Home({ user, onLogout }) {
               <h2 className="text-xl font-bold text-gray-900">Watch Demo</h2>
               <button
                 onClick={() => {
-                  setShowDemoModal(false)
-                  // removed setting demoVideoUrl to empty string as it's no longer a state variable
+                  setShowDemoModal(false);
                 }}
-                className="text-gray-500 hover:text-gray-700 text-2xl"
+                className="text-gray-500 hover:text-gray-700 text-2xl cursor-pointer"
               >
                 ×
               </button>
@@ -1183,5 +1268,5 @@ export default function Home({ user, onLogout }) {
         </div>
       )}
     </div>
-  )
+  );
 }
