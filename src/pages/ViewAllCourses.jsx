@@ -281,57 +281,64 @@ export default function ViewAllCourses() {
             />
           </div>
 
-          {/* Categories Section - Updated to match home page theme */}
+          {/* Categories Section - UPDATED TO MATCH HOME PAGE STYLING */}
           <div className="mb-8 sm:mb-10 lg:mb-12">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
               <i className="fas fa-tags text-blue-600"></i>
               Browse by Category
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+              {/* All Categories Card */}
               <div
                 onClick={() => handleCategoryClick("all")}
-                className={`bg-white p-4 sm:p-5 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-xl group ${selectedCategory === "all" ? "border-blue-600 bg-blue-50 scale-[1.02]" : "border-gray-200 hover:border-blue-300"}`}
+                className={`bg-white p-4 sm:p-5 rounded-xl border border-gray-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 cursor-pointer group ${selectedCategory === "all" ? "border-blue-600 bg-blue-50" : ""}`}
               >
-                <div className="flex items-center gap-3 mb-2">
-                  <div
-                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center transition-colors ${selectedCategory === "all" ? "bg-blue-100 group-hover:bg-blue-600" : "bg-gray-100 group-hover:bg-blue-100"}`}
-                  >
-                    <i
-                      className={`fas fa-th-large text-lg transition-colors ${selectedCategory === "all" ? "text-blue-600 group-hover:text-white" : "text-gray-600 group-hover:text-blue-600"}`}
-                    ></i>
+                <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+                  <div className={`w-12 h-12 sm:w-14 sm:h-14 bg-blue-100 rounded-xl flex items-center justify-center transition-colors group-hover:bg-blue-600 ${selectedCategory === "all" ? "bg-blue-600" : ""}`}>
+                    <i className={`fas fa-th-large text-blue-600 text-lg sm:text-xl group-hover:text-white transition-colors ${selectedCategory === "all" ? "text-white" : ""}`}></i>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="font-bold text-gray-900 text-sm sm:text-base truncate">All Categories</div>
-                    <div className="text-gray-500 text-xs sm:text-sm">{courses.length} Courses</div>
+                    <div className="font-bold text-gray-900 text-sm sm:text-base line-clamp-1">
+                      All Categories
+                    </div>
+                    <div className="text-gray-500 text-xs sm:text-sm">
+                      {courses.length} Courses
+                    </div>
                   </div>
-                  <i className="fas fa-arrow-right text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity text-sm"></i>
+                </div>
+                <div className="flex justify-between items-center text-xs sm:text-sm text-gray-600">
+                  <span className="font-medium">
+                    {Math.round(courses.length * 1.2)}K+ Students
+                  </span>
+                  <i className="fas fa-arrow-right text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity text-base"></i>
                 </div>
               </div>
 
+              {/* Category Cards */}
               {categories.map((category) => (
                 <div
                   key={category.name}
                   onClick={() => handleCategoryClick(category.name)}
-                  className={`bg-white p-4 sm:p-5 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-xl group ${selectedCategory === category.name ? "border-blue-600 bg-blue-50 scale-[1.02]" : "border-gray-200 hover:border-blue-300"}`}
+                  className={`bg-white p-4 sm:p-5 rounded-xl border border-gray-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 cursor-pointer group ${selectedCategory === category.name ? "border-blue-600 bg-blue-50" : ""}`}
                 >
-                  <div className="flex items-center gap-3 mb-2">
-                    <div
-                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center transition-colors ${selectedCategory === category.name ? "bg-blue-100 group-hover:bg-blue-600" : "bg-gray-100 group-hover:bg-blue-100"}`}
-                    >
-                      <i
-                        className={`fas fa-book text-lg transition-colors ${selectedCategory === category.name ? "text-blue-600 group-hover:text-white" : "text-gray-600 group-hover:text-blue-600"}`}
-                      ></i>
+                  <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+                    <div className={`w-12 h-12 sm:w-14 sm:h-14 bg-blue-100 rounded-xl flex items-center justify-center transition-colors group-hover:bg-blue-600 ${selectedCategory === category.name ? "bg-blue-600" : ""}`}>
+                      <i className={`fas fa-book text-blue-600 text-lg sm:text-xl group-hover:text-white transition-colors ${selectedCategory === category.name ? "text-white" : ""}`}></i>
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="font-bold text-gray-900 text-sm sm:text-base truncate" title={category.name}>
+                      <div className="font-bold text-gray-900 text-sm sm:text-base line-clamp-1" title={category.name}>
                         {category.name}
                       </div>
-                      <div className="text-gray-500 text-xs sm:text-sm">{category.count} Courses</div>
+                      <div className="text-gray-500 text-xs sm:text-sm">
+                        {category.count} Courses
+                      </div>
                     </div>
-                    <i className="fas fa-arrow-right text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity text-sm"></i>
                   </div>
-                  <div className="flex justify-between items-center text-xs sm:text-sm text-gray-600 mt-2">
-                    <span className="font-medium">{Math.round(category.count * 1.2)}K+ Students</span>
+                  <div className="flex justify-between items-center text-xs sm:text-sm text-gray-600">
+                    <span className="font-medium">
+                      {Math.round(category.count * 1.2)}K+ Students
+                    </span>
+                    <i className="fas fa-arrow-right text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity text-base"></i>
                   </div>
                 </div>
               ))}
@@ -408,7 +415,7 @@ export default function ViewAllCourses() {
             </div>
           </div>
 
-          {/* Courses Grid Section - Reduced card sizes */}
+          {/* Courses Grid Section - UNCHANGED */}
           <div id="courses-section" className="mb-8 sm:mb-10 lg:mb-12">
             <div className="flex items-center justify-between mb-4 sm:mb-6">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -436,19 +443,19 @@ export default function ViewAllCourses() {
               </div>
             ) : (
               <>
-                {/* Reduced course card sizes */}
+                {/* Course cards - UNCHANGED */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-8">
                   {filteredCourses.map((course) => (
                     <div
                       key={course._id}
-                      className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl hover:border-blue-300 transition-all duration-300 cursor-pointer group"
+                      className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl hover:border-blue-300 transition-all duration-300 cursor-pointer group flex flex-col h-full"
                     >
-                      {/* Course Image/Thumbnail Area - Reduced height */}
+                      {/* Course Image/Thumbnail Area */}
                       <div
-                        className="relative h-36 sm:h-40 lg:h-44 bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center overflow-hidden border-b border-gray-200"
+                        className="relative h-40 sm:h-44 bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center overflow-hidden border-b border-gray-200"
                         onClick={() => handleCourseClick(course._id)}
                       >
-                        <div className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28">
+                        <div className="w-24 h-24 sm:w-28 sm:h-28">
                           <img
                             src={logo || "/placeholder.svg"}
                             alt="Biology.Trunk Logo"
@@ -476,65 +483,67 @@ export default function ViewAllCourses() {
                         <div className="absolute inset-0 bg-blue-600 opacity-0 group-hover:opacity-10 transition-opacity"></div>
                       </div>
 
-                      {/* Course Content - Reduced padding and font sizes */}
-                      <div className="p-3 sm:p-4">
-                        {/* Course Title */}
+                      {/* Course Content - Improved spacing and parallel alignment */}
+                      <div className="p-4 sm:p-5 flex flex-col flex-grow">
+                        {/* Course Title with consistent height */}
                         <h3
-                          className="font-bold text-gray-900 text-base sm:text-lg mb-1 line-clamp-2 group-hover:text-blue-600 transition cursor-pointer"
+                          className="font-bold text-gray-900 text-lg sm:text-xl mb-2 group-hover:text-blue-600 transition cursor-pointer min-h-[56px] flex items-start"
                           onClick={() => handleCourseClick(course._id)}
                         >
                           {course.title || "Untitled Course"}
                         </h3>
 
-                        {/* Course Description */}
-                        <p className="text-gray-600 text-xs sm:text-sm mb-2 line-clamp-2">
+                        {/* Course Description with consistent height */}
+                        <p className="text-gray-600 text-sm mb-4 line-clamp-2 min-h-[40px] flex-grow">
                           {course.description || "No description available"}
                         </p>
 
                         {/* Instructor Info */}
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
                             <i className="fas fa-user text-gray-600 text-xs"></i>
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="text-xs text-gray-500 truncate">Instructor</p>
+                            <p className="text-xs text-gray-500">Instructor</p>
                             <p className="text-xs font-semibold text-gray-900 truncate">
                               {course.faculty?.name || "Unknown Instructor"}
                             </p>
                           </div>
                         </div>
 
-                        {/* Course Stats - Made more compact */}
-                        <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
-                          <div className="flex items-center gap-1">
+                        {/* Course Stats - Made consistent across cards */}
+                        <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
+                          <div className="flex items-center gap-2">
                             <i className="fas fa-clock text-blue-500"></i>
                             <span>{course.duration || "Flexible"}</span>
                           </div>
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-2">
                             <i className="fas fa-users text-green-500"></i>
                             <span>{course.students?.length || 0} students</span>
                           </div>
                         </div>
 
-                        {/* Price and Action Button - Made more compact */}
-                        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                          <div>
-                            {course.price > 0 ? (
-                              <div className="flex items-baseline gap-1">
-                                <i className="fas fa-rupee-sign text-gray-600 text-xs"></i>
-                                <span className="text-lg font-bold text-gray-900">{course.price}</span>
-                              </div>
-                            ) : (
-                              <span className="text-lg font-bold text-green-600">FREE</span>
-                            )}
+                        {/* Price and Action Button - At bottom with consistent spacing */}
+                        <div className="mt-auto pt-3 border-t border-gray-100">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              {course.price > 0 ? (
+                                <div className="flex items-baseline gap-1">
+                                  <i className="fas fa-rupee-sign text-gray-600 text-sm"></i>
+                                  <span className="text-xl font-bold text-gray-900">{course.price}</span>
+                                </div>
+                              ) : (
+                                <span className="text-xl font-bold text-green-600">FREE</span>
+                              )}
+                            </div>
+                            <button
+                              onClick={() => handleCourseClick(course._id)}
+                              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm flex items-center gap-2 cursor-pointer shadow hover:shadow-md"
+                            >
+                              <i className="fas fa-eye text-xs"></i>
+                              View Details
+                            </button>
                           </div>
-                          <button
-                            onClick={() => handleCourseClick(course._id)}
-                            className="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-xs flex items-center gap-1 cursor-pointer shadow hover:shadow-md"
-                          >
-                            <i className="fas fa-eye text-xs"></i>
-                            View Details
-                          </button>
                         </div>
                       </div>
                     </div>

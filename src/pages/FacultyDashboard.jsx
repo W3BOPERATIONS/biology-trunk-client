@@ -5,10 +5,10 @@ import axios from "axios"
 import { API_URL } from "../utils/api.js"
 import { showSuccessToast, showErrorToast } from "../utils/toast.js"
 import logo from "../assets/biology-trunk-logo.png"
-import { useNavigate } from "react-router-dom" // Assuming you are using react-router-dom for navigation
+import { useNavigate } from "react-router-dom"
 
 export default function FacultyDashboard({ user, onLogout }) {
-  const navigate = useNavigate() // Initialize navigate
+  const navigate = useNavigate()
 
   const [courses, setCourses] = useState([])
   const [allEnrollments, setAllEnrollments] = useState({})
@@ -43,6 +43,17 @@ export default function FacultyDashboard({ user, onLogout }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteContentId, setDeleteContentId] = useState(null)
 
+  const formatCourseTitle = (title) => {
+    if (!title) return "";
+    return title.trim();
+  };
+
+  const formatDescription = (description, maxLength = 100) => {
+    if (!description) return "";
+    if (description.length <= maxLength) return description;
+    return description.substring(0, maxLength) + "...";
+  };
+
   useEffect(() => {
     fetchFacultyCourses()
     fetchNotifications()
@@ -64,9 +75,21 @@ export default function FacultyDashboard({ user, onLogout }) {
   const fetchFacultyCourses = async () => {
     try {
       const response = await axios.get(`${API_URL}/courses/faculty/${user._id}`)
-      setCourses(response.data)
-      if (response.data.length > 0) {
-        setSelectedCourse(response.data[0])
+      const formattedCourses = response.data.map(course => ({
+        ...course,
+        title: formatCourseTitle(course.title),
+        description: formatDescription(course.description, 120),
+        price: course.price ? parseInt(course.price) || 0 : 0,
+        courseIncludes: course.courseIncludes || {
+          videos: true,
+          liveLectures: true,
+          pdfs: true,
+          quizzes: true
+        }
+      }))
+      setCourses(formattedCourses)
+      if (formattedCourses.length > 0) {
+        setSelectedCourse(formattedCourses[0])
       }
       setLoading(false)
     } catch (error) {
@@ -121,7 +144,6 @@ export default function FacultyDashboard({ user, onLogout }) {
   }
 
   const fetchPerformanceStats = async () => {
-    // Mock performance data - replace with actual API calls
     setPerformanceStats({
       totalViews: 12540,
       completionRate: 78,
@@ -158,7 +180,7 @@ export default function FacultyDashboard({ user, onLogout }) {
         liveClassDate: "",
         liveClassTime: "",
       })
-      fetchCourseContent() // Refresh content list
+      fetchCourseContent()
     } catch (error) {
       console.error("Failed to upload content:", error)
       showErrorToast("Failed to upload content")
@@ -178,7 +200,6 @@ export default function FacultyDashboard({ user, onLogout }) {
   const handleCloseNotificationModal = async () => {
     if (notifications.length > 0) {
       try {
-        // Mark all visible notifications as read when closing modal
         await Promise.all(
           notifications.map((n) =>
             axios.put(`${API_URL}/notifications/${n._id}`).catch((err) => {
@@ -335,12 +356,11 @@ export default function FacultyDashboard({ user, onLogout }) {
         </div>
       )}
 
-      {/* Header - Same responsive design as StudentDashboard */}
+      {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
           <div className="flex justify-between items-center h-16 sm:h-20">
             <div className="flex items-center gap-2 sm:gap-3">
-              {/* Logo - Same as StudentDashboard */}
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center overflow-hidden">
                 <img
                   src={logo || "/placeholder.svg"}
@@ -393,7 +413,7 @@ export default function FacultyDashboard({ user, onLogout }) {
           </div>
         ) : (
           <>
-            {/* Dashboard Stats - Responsive like StudentDashboard */}
+            {/* Dashboard Stats */}
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
               <div className="bg-white rounded-xl p-3 sm:p-4 lg:p-6 shadow-sm border border-gray-200">
                 <div className="flex items-center justify-between">
@@ -505,18 +525,16 @@ export default function FacultyDashboard({ user, onLogout }) {
                         <button
                           key={course._id}
                           onClick={() => setSelectedCourse(course)}
-                          className={`w-full text-left p-3 sm:p-4 rounded-lg transition-all duration-200 flex items-start gap-2 sm:gap-3 ${
-                            selectedCourse?._id === course._id
+                          className={`w-full text-left p-3 sm:p-4 rounded-lg transition-all duration-200 flex items-start gap-2 sm:gap-3 ${selectedCourse?._id === course._id
                               ? "bg-blue-600 text-white shadow-md"
                               : "bg-gray-50 text-gray-900 border border-gray-200 hover:border-blue-300 hover:shadow-sm"
-                          }`}
+                            }`}
                         >
                           <div
-                            className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center ${
-                              selectedCourse?._id === course._id
+                            className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center ${selectedCourse?._id === course._id
                                 ? "bg-white text-blue-600"
                                 : "bg-blue-100 text-blue-600"
-                            }`}
+                              }`}
                           >
                             <i className="fas fa-graduation-cap text-sm sm:text-base"></i>
                           </div>
@@ -524,7 +542,7 @@ export default function FacultyDashboard({ user, onLogout }) {
                             <div className="font-semibold text-xs sm:text-sm leading-tight truncate">
                               {course.title}
                             </div>
-                            <div className="text-xs opacity-75 mt-0.5 truncate">{course.category}</div>
+                            <div className="text-xs opacity-75 mt-0.5 truncate">{course.category || "General"}</div>
                             <div className="text-xs mt-1 sm:mt-2 opacity-60 flex items-center gap-1">
                               <i className="fas fa-users text-xs"></i>
                               {(allEnrollments[course._id] || []).length} students
@@ -539,7 +557,7 @@ export default function FacultyDashboard({ user, onLogout }) {
 
               {/* Main Content Area */}
               <div className="lg:col-span-3">
-                {/* ADDED: Button to create new course */}
+                {/* Create New Course Button */}
                 <div className="mb-6">
                   <button
                     onClick={() => navigate("/faculty/course/create")}
@@ -569,10 +587,10 @@ export default function FacultyDashboard({ user, onLogout }) {
                             </span>
                             <span className="flex items-center gap-1">
                               <i className="fas fa-tag text-xs"></i>
-                              {selectedCourse.category}
+                              {selectedCourse.category || "General"}
                             </span>
                             <span className="flex items-center gap-1">
-                              <i className="fas fa-rupee-sign text-xs"></i>₹{selectedCourse.price}
+                              <i className="fas fa-rupee-sign text-xs"></i>₹{selectedCourse.price || 0}
                             </span>
                           </div>
                         </div>
@@ -590,7 +608,6 @@ export default function FacultyDashboard({ user, onLogout }) {
                           </div>
                           <div className="text-xs text-gray-600">Enrolled</div>
                         </div>
-                        {/* Added Course Content count to quick stats */}
                         <div className="text-center p-3 sm:p-4 bg-green-50 rounded-lg border border-green-200">
                           <i className="fas fa-file-alt text-green-600 text-lg sm:text-xl mb-1 sm:mb-2"></i>
                           <div className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600">
@@ -619,7 +636,6 @@ export default function FacultyDashboard({ user, onLogout }) {
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-4 sm:mb-6 overflow-hidden">
                       <div className="border-b border-gray-200 overflow-x-auto">
                         <nav className="flex space-x-4 sm:space-x-8 px-3 sm:px-4 lg:px-6 min-w-max">
-                          {/* Simplified tab structure and added conditional label for upload/edit */}
                           {[
                             { id: "overview", name: "Content", icon: "fas fa-list" },
                             { id: "students", name: "Students", icon: "fas fa-users" },
@@ -633,20 +649,17 @@ export default function FacultyDashboard({ user, onLogout }) {
                               key={tab.id}
                               onClick={() => {
                                 setActiveTab(tab.id)
-                                // Reset edit state if switching away from upload tab
                                 if (tab.id !== "upload" && editingContentId) {
                                   cancelEdit()
                                 }
                               }}
-                              className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center gap-1 sm:gap-2 flex-shrink-0 transition ${
-                                activeTab === tab.id
+                              className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center gap-1 sm:gap-2 flex-shrink-0 transition ${activeTab === tab.id
                                   ? "border-blue-600 text-blue-600"
                                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                              }`}
+                                }`}
                             >
                               <i className={tab.icon}></i>
                               <span className="hidden sm:inline">{tab.name}</span>
-                              {/* Shortened mobile tab name */}
                               <span className="sm:hidden">{tab.name.split(" ")[0]}</span>
                             </button>
                           ))}
@@ -654,7 +667,7 @@ export default function FacultyDashboard({ user, onLogout }) {
                       </div>
 
                       <div className="p-3 sm:p-4 lg:p-6">
-                        {/* Overview Tab - Renamed to Content List Tab */}
+                        {/* Content Tab */}
                         {activeTab === "overview" && (
                           <div>
                             <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">
@@ -724,7 +737,6 @@ export default function FacultyDashboard({ user, onLogout }) {
                         {/* Students Tab */}
                         {activeTab === "students" && (
                           <div>
-                            {/* Added Search bar for students */}
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-4">
                               <h3 className="text-lg sm:text-xl font-bold text-gray-900">
                                 Enrolled Students ({filteredEnrollments.length})
@@ -746,7 +758,6 @@ export default function FacultyDashboard({ user, onLogout }) {
                                 <p className="text-gray-600 text-base sm:text-lg">No students enrolled yet</p>
                               </div>
                             ) : (
-                              // Changed student list to a scrollable div instead of table
                               <div className="space-y-2 sm:space-y-3 max-h-96 overflow-y-auto">
                                 {filteredEnrollments.map((enrollment) => (
                                   <div
@@ -778,13 +789,12 @@ export default function FacultyDashboard({ user, onLogout }) {
                           </div>
                         )}
 
-                        {/* Upload Tab - now Upload/Edit Tab */}
+                        {/* Upload/Edit Tab */}
                         {activeTab === "upload" && (
                           <div>
                             <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">
                               {editingContentId ? "Edit Content" : "Upload New Content"}
                             </h3>
-                            {/* Combined upload and edit forms */}
                             <form
                               onSubmit={editingContentId ? handleUpdateContent : handleUploadContent}
                               className="space-y-4 sm:space-y-6"
@@ -982,7 +992,7 @@ export default function FacultyDashboard({ user, onLogout }) {
                   </>
                 )}
 
-                {/* ADDED: Your Courses Section */}
+                {/* Your Courses Section - FIXED: Parallel description alignment */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
                   <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                     <i className="fas fa-list text-blue-600"></i>
@@ -1005,31 +1015,44 @@ export default function FacultyDashboard({ user, onLogout }) {
                       {getFilteredCourses().map((course) => (
                         <div
                           key={course._id}
-                          className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200 hover:shadow-lg transition"
+                          className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200 hover:shadow-lg transition flex flex-col h-full"
                         >
-                          <div className="flex justify-between items-start mb-4">
-                            <h3 className="text-lg font-bold text-gray-900 flex-1">{course.title}</h3>
-                            <button
-                              onClick={() => navigate(`/faculty/course/${course._id}/edit`)}
-                              className="ml-2 p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition"
-                              title="Edit course description"
-                            >
-                              <i className="fas fa-edit"></i>
-                            </button>
+                          {/* Fixed: Heading container with fixed height */}
+                          <div className="min-h-[4.5rem] mb-4">
+                            <div className="flex justify-between items-start">
+                              <h3 className="text-lg font-bold text-gray-900 flex-1 line-clamp-3">
+                                {course.title || "Untitled Course"}
+                              </h3>
+                              <button
+                                onClick={() => navigate(`/faculty/course/${course._id}/edit`)}
+                                className="ml-2 p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition flex-shrink-0"
+                                title="Edit course description"
+                              >
+                                <i className="fas fa-edit"></i>
+                              </button>
+                            </div>
                           </div>
 
-                          <p className="text-gray-700 text-sm mb-4 line-clamp-3">{course.description}</p>
+                          {/* Fixed: Description starts at same position for all cards */}
+                          <div className="mb-6 flex-grow">
+                            <div className="min-h-[4.5rem]">
+                              <p className="text-gray-700 text-sm line-clamp-3 leading-relaxed">
+                                {course.description || "No description available."}
+                              </p>
+                            </div>
+                          </div>
 
-                          <div className="space-y-2 text-sm mb-4">
-                            <div className="flex justify-between">
+                          {/* Course details with consistent spacing */}
+                          <div className="space-y-3 text-sm mb-6">
+                            <div className="flex justify-between items-center min-h-[1.5rem]">
                               <span className="text-gray-600">Duration:</span>
-                              <span className="font-semibold text-gray-900">{course.duration}</span>
+                              <span className="font-semibold text-gray-900">{course.duration || "Not specified"}</span>
                             </div>
-                            <div className="flex justify-between">
+                            <div className="flex justify-between items-center min-h-[1.5rem]">
                               <span className="text-gray-600">Price:</span>
-                              <span className="font-semibold text-gray-900">₹{course.price}</span>
+                              <span className="font-semibold text-gray-900">₹{course.price || "Free"}</span>
                             </div>
-                            <div className="flex justify-between">
+                            <div className="flex justify-between items-center min-h-[1.5rem]">
                               <span className="text-gray-600">Students:</span>
                               <span className="font-semibold text-gray-900">
                                 {(allEnrollments[course._id] || []).length}
@@ -1037,43 +1060,52 @@ export default function FacultyDashboard({ user, onLogout }) {
                             </div>
                           </div>
 
-                          {course.courseIncludes && (
-                            <div className="border-t pt-4">
-                              <p className="text-xs font-semibold text-gray-600 mb-2">INCLUDES:</p>
-                              <div className="flex flex-wrap gap-2">
-                                {course.courseIncludes.videos && (
-                                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">Videos</span>
-                                )}
-                                {course.courseIncludes.liveLectures && (
-                                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-                                    Live Lectures
+                          {/* INCLUDES section at bottom */}
+                          <div className="border-t pt-4 mt-auto">
+                            <p className="text-xs font-semibold text-gray-600 mb-2">INCLUDES:</p>
+                            <div className="flex flex-wrap gap-2">
+                              {course.courseIncludes?.videos && (
+                                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded flex-shrink-0">
+                                  Videos
+                                </span>
+                              )}
+                              {course.courseIncludes?.liveLectures && (
+                                <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded flex-shrink-0">
+                                  Live Lectures
+                                </span>
+                              )}
+                              {course.courseIncludes?.pdfs && (
+                                <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded flex-shrink-0">
+                                  PDFs
+                                </span>
+                              )}
+                              {course.courseIncludes?.quizzes && (
+                                <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded flex-shrink-0">
+                                  Quizzes
+                                </span>
+                              )}
+                              {(!course.courseIncludes?.videos &&
+                                !course.courseIncludes?.liveLectures &&
+                                !course.courseIncludes?.pdfs &&
+                                !course.courseIncludes?.quizzes) && (
+                                  <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                                    No features listed
                                   </span>
                                 )}
-                                {course.courseIncludes.pdfs && (
-                                  <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">PDFs</span>
-                                )}
-                                {course.courseIncludes.quizzes && (
-                                  <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">
-                                    Quizzes
-                                  </span>
-                                )}
-                              </div>
                             </div>
-                          )}
+                          </div>
                         </div>
                       ))}
                     </div>
                   )}
                 </div>
-
-                {/* Moved the course content/upload/student tabs to be under the selected course */}
               </div>
             </div>
           </>
         )}
       </div>
 
-      {/* Notification Modal - Responsive like StudentDashboard */}
+      {/* Notification Modal */}
       {showNotificationModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-40 p-4">
           <div className="bg-white rounded-xl p-6 max-w-md w-full max-h-96 overflow-y-auto">

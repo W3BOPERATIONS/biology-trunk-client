@@ -146,6 +146,21 @@ export default function CoursePreview({ user, onLogout }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Add CSS to ensure Razorpay button has pointer cursor */}
+      <style jsx>{`
+        /* Ensure all buttons including Razorpay ones have pointer cursor */
+        button {
+          cursor: pointer !important;
+        }
+        
+        /* Target Razorpay payment button specifically */
+        .razorpay-payment-button,
+        [class*="razorpay"],
+        [id*="razorpay"] {
+          cursor: pointer !important;
+        }
+      `}</style>
+      
       {/* Header - Consistent with Student Dashboard */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -331,7 +346,7 @@ export default function CoursePreview({ user, onLogout }) {
                       Continue Learning
                     </button>
                   ) : user ? (
-                    <>
+                    <div className="razorpay-button-wrapper">
                       <RazorpayPayment
                         course={course}
                         student={user}
@@ -342,7 +357,7 @@ export default function CoursePreview({ user, onLogout }) {
                         <i className="fas fa-info-circle mr-1"></i>
                         Secure payment powered by Razorpay
                       </div>
-                    </>
+                    </div>
                   ) : (
                     <button
                       onClick={() => navigate("/login")}
@@ -668,7 +683,7 @@ export default function CoursePreview({ user, onLogout }) {
           </div>
         </div>
 
-        {/* Enrollment CTA */}
+        {/* Enrollment CTA - Fixed Version */}
         {!isEnrolled && !checkingEnrollment && (
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4 sm:p-6 text-center">
             <div className="max-w-2xl mx-auto">
@@ -680,34 +695,41 @@ export default function CoursePreview({ user, onLogout }) {
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
                 {user ? (
-                  <div className="w-full sm:w-auto">
-                    <RazorpayPayment
-                      course={course}
-                      student={user}
-                      onPaymentSuccess={handleEnrollmentSuccess}
-                      onPaymentCancel={handlePaymentCancel}
-                    />
-                    <div className="mt-2 text-xs text-gray-500 text-center">
-                      <i className="fas fa-lock mr-1"></i>
-                      Secure SSL encrypted payment
+                  <>
+                    <div className="w-full sm:w-auto sm:flex-1 max-w-xs mx-auto sm:mx-0 razorpay-button-wrapper">
+                      <RazorpayPayment
+                        course={course}
+                        student={user}
+                        onPaymentSuccess={handleEnrollmentSuccess}
+                        onPaymentCancel={handlePaymentCancel}
+                      />
                     </div>
-                  </div>
+                    <button
+                      onClick={() => navigate("/view-all-courses")}
+                      className="w-full sm:w-auto px-6 py-2.5 sm:py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition font-semibold text-sm sm:text-base whitespace-nowrap cursor-pointer flex-1 max-w-xs"
+                    >
+                      <i className="fas fa-search mr-2"></i>
+                      Browse More Courses
+                    </button>
+                  </>
                 ) : (
-                  <button
-                    onClick={() => navigate("/login")}
-                    className="w-full sm:w-auto px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm sm:text-base whitespace-nowrap cursor-pointer shadow hover:shadow-lg"
-                  >
-                    <i className="fas fa-sign-in-alt mr-2"></i>
-                    Login to Enroll
-                  </button>
+                  <>
+                    <button
+                      onClick={() => navigate("/login")}
+                      className="w-full sm:w-auto px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm sm:text-base whitespace-nowrap cursor-pointer shadow hover:shadow-lg flex-1 max-w-xs"
+                    >
+                      <i className="fas fa-sign-in-alt mr-2"></i>
+                      Login to Enroll
+                    </button>
+                    <button
+                      onClick={() => navigate("/view-all-courses")}
+                      className="w-full sm:w-auto px-6 py-2.5 sm:py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition font-semibold text-sm sm:text-base whitespace-nowrap cursor-pointer flex-1 max-w-xs"
+                    >
+                      <i className="fas fa-search mr-2"></i>
+                      Browse More Courses
+                    </button>
+                  </>
                 )}
-                <button
-                  onClick={() => navigate("/view-all-courses")}
-                  className="w-full sm:w-auto px-6 py-2.5 sm:py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition font-semibold text-sm sm:text-base whitespace-nowrap cursor-pointer"
-                >
-                  <i className="fas fa-search mr-2"></i>
-                  Browse More Courses
-                </button>
               </div>
               <p className="text-gray-500 text-xs sm:text-sm mt-4 sm:mt-6">
                 <i className="fas fa-shield-alt text-green-600 mr-1"></i>

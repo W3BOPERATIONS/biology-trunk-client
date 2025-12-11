@@ -5,7 +5,7 @@ import axios from "axios"
 import { API_URL } from "../utils/api.js"
 import { useNavigate } from "react-router-dom"
 import { useLocation } from "react-router-dom"
-import logo from "../assets/biology-trunk-logo.png" // Add logo import
+import logo from "../assets/biology-trunk-logo.png"
 import { showErrorToast, showWarningToast } from "../utils/toast.js"
 
 const ITEMS_PER_PAGE = 9
@@ -14,10 +14,10 @@ export default function StudentDashboard({ user, onLogout }) {
   const location = useLocation()
   const searchParams = new URLSearchParams(location.search)
   const navigate = useNavigate()
-  const [categories, setCategories] = useState([]) // New state to track available categories from backend
+  const [categories, setCategories] = useState([])
   const [courses, setCourses] = useState([])
   const [enrolledCourses, setEnrolledCourses] = useState([])
-  const [enrolledCoursesData, setEnrolledCoursesData] = useState([]) // New state for enrolled courses data
+  const [enrolledCoursesData, setEnrolledCoursesData] = useState([])
   const [selectedCategory, setSelectedCategory] = useState(() => {
     return localStorage.getItem("studentDashboardCategory") || searchParams.get("category") || ""
   })
@@ -95,9 +95,9 @@ export default function StudentDashboard({ user, onLogout }) {
     try {
       const response = await axios.get(`${API_URL}/enrollments/student/${user._id}`)
       const enrolledIds = response.data.map((e) => e.course._id)
-      const enrolledCoursesData = response.data.map((e) => e.course) // Get full course data
+      const enrolledCoursesData = response.data.map((e) => e.course)
       setEnrolledCourses(enrolledIds)
-      setEnrolledCoursesData(enrolledCoursesData) // Store enrolled courses data
+      setEnrolledCoursesData(enrolledCoursesData)
     } catch (error) {
       console.error("Failed to fetch enrolled courses:", error)
     }
@@ -122,9 +122,7 @@ export default function StudentDashboard({ user, onLogout }) {
   }
 
   const handleEnrollmentSuccess = async (paymentData) => {
-    // Refresh enrolled courses
     fetchCourses(currentPage)
-    // Optional: navigate to course if desired
   }
 
   const handleViewCourse = (courseId) => {
@@ -143,7 +141,6 @@ export default function StudentDashboard({ user, onLogout }) {
   const handleCloseNotificationModal = async () => {
     if (notifications.length > 0) {
       try {
-        // Mark all visible notifications as read when closing modal
         await Promise.all(
           notifications.map((n) =>
             axios.put(`${API_URL}/notifications/${n._id}`).catch((err) => {
@@ -176,7 +173,6 @@ export default function StudentDashboard({ user, onLogout }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 sm:h-20">
             <div className="flex items-center gap-2 sm:gap-3">
-              {/* Logo - Same as Home page */}
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center overflow-hidden">
                 <img
                   src={logo || "/placeholder.svg"}
@@ -221,7 +217,7 @@ export default function StudentDashboard({ user, onLogout }) {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
-        {/* Dashboard Stats - Made responsive */}
+        {/* Dashboard Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
           <div className="bg-white rounded-xl p-3 sm:p-4 lg:p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
@@ -284,7 +280,7 @@ export default function StudentDashboard({ user, onLogout }) {
           </div>
         </div>
 
-        {/* Navigation Tabs - Made responsive */}
+        {/* Navigation Tabs */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-4 sm:mb-6">
           <div className="border-b border-gray-200">
             <nav className="flex space-x-2 sm:space-x-4 lg:space-x-8 px-3 sm:px-4 lg:px-6 overflow-x-auto">
@@ -311,7 +307,7 @@ export default function StudentDashboard({ user, onLogout }) {
           </div>
 
           <div className="p-3 sm:p-4 lg:p-6">
-            {/* Discover Courses Tab */}
+            {/* Discover Courses Tab - UPDATED COURSE CARDS */}
             {activeTab === "discover" && (
               <div className="space-y-4 sm:space-y-6">
                 {/* Header Section */}
@@ -377,7 +373,7 @@ export default function StudentDashboard({ user, onLogout }) {
                   </div>
                 </div>
 
-                {/* Courses Grid */}
+                {/* Courses Grid - UPDATED TO MATCH VIEW ALL COURSES */}
                 {loading ? (
                   <div className="text-center py-12 sm:py-16 lg:py-20">
                     <i className="fas fa-spinner fa-spin text-3xl sm:text-4xl mb-3 sm:mb-4 text-blue-600"></i>
@@ -391,77 +387,116 @@ export default function StudentDashboard({ user, onLogout }) {
                   </div>
                 ) : (
                   <>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 mb-6 sm:mb-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-8">
                       {displayedCourses.map((course) => (
                         <div
                           key={course._id}
-                          className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-blue-600 hover:shadow-lg transition-all duration-300 group flex flex-col h-full"
+                          className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl hover:border-blue-300 transition-all duration-300 cursor-pointer group flex flex-col h-full"
                         >
-                          {/* Course Image/Header - Updated with white background and logo */}
-                          <div className="h-28 sm:h-32 lg:h-36 bg-white border-b border-gray-200 flex items-center justify-center relative overflow-hidden">
-                            <img
-                              src={logo || "/placeholder.svg"}
-                              alt="Biology.Trunk Logo"
-                              className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 object-contain"
-                            />
-                            {enrolledCourses.includes(course._id) && (
-                              <div className="absolute top-2 right-2 bg-green-500 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-bold flex items-center gap-0.5 sm:gap-1">
-                                <i className="fas fa-check text-xs"></i>
-                                <span className="hidden sm:inline">Enrolled</span>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Course Content */}
-                          <div className="p-3 sm:p-4 lg:p-5 flex-grow flex flex-col">
-                            <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1 sm:mb-2 line-clamp-2 min-h-[2.8rem] sm:min-h-[3rem]">
-                              {course.title}
-                            </h3>
-                            <div className="flex-grow">
-                              <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3 lg:mb-4 line-clamp-3 h-[3.6rem] sm:h-[3.9rem] overflow-hidden">
-                                {course.description}
-                              </p>
+                          {/* Course Image/Thumbnail Area - Matches View All Courses */}
+                          <div
+                            className="relative h-40 sm:h-44 bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center overflow-hidden border-b border-gray-200"
+                            onClick={() => handleViewDetails(course._id)}
+                          >
+                            <div className="w-24 h-24 sm:w-28 sm:h-28">
+                              <img
+                                src={logo || "/placeholder.svg"}
+                                alt="Biology.Trunk Logo"
+                                className="w-full h-full object-contain opacity-90 group-hover:opacity-100 transition-opacity"
+                              />
                             </div>
 
-                            {/* Course Meta */}
-                            <div className="flex justify-between items-center mb-2 sm:mb-3 py-2 border-y border-gray-200">
-                              <div>
-                                <span className="text-blue-600 text-xs font-semibold bg-blue-50 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full flex items-center gap-0.5 sm:gap-1 whitespace-nowrap">
-                                  <i className="fas fa-tag text-xs"></i>
-                                  {course.category}
-                                </span>
-                              </div>
-                              <span className="text-base sm:text-lg font-bold text-gray-900 flex items-center gap-0.5 sm:gap-1 whitespace-nowrap">
-                                <i className="fas fa-rupee-sign text-xs sm:text-sm"></i>
-                                {course.price}
+                            {/* Course Category Badge */}
+                            <div className="absolute top-2 left-2">
+                              <span className="bg-blue-600 text-white px-2 py-1 rounded-lg text-xs font-semibold shadow-md">
+                                {course.category || "General"}
                               </span>
                             </div>
 
-                            {/* Student Count */}
-                            <div className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 flex items-center gap-1 sm:gap-2 whitespace-nowrap">
-                              <i className="fas fa-users text-xs sm:text-sm"></i>
-                              {course.students?.length || 0} students
+                            {/* Enrolled Badge */}
+                            {enrolledCourses.includes(course._id) && (
+                              <div className="absolute top-2 right-2">
+                                <span className="bg-green-100 text-green-700 px-2 py-1 rounded-lg text-xs font-semibold">
+                                  Enrolled
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Hover Overlay */}
+                            <div className="absolute inset-0 bg-blue-600 opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                          </div>
+
+                          {/* Course Content - Matches View All Courses styling */}
+                          <div className="p-4 sm:p-5 flex flex-col flex-grow">
+                            {/* Course Title with consistent height */}
+                            <h3
+                              className="font-bold text-gray-900 text-lg sm:text-xl mb-2 group-hover:text-blue-600 transition cursor-pointer min-h-[56px] flex items-start"
+                              onClick={() => handleViewDetails(course._id)}
+                            >
+                              {course.title || "Untitled Course"}
+                            </h3>
+
+                            {/* Course Description with consistent height */}
+                            <p className="text-gray-600 text-sm mb-4 line-clamp-2 min-h-[40px] flex-grow">
+                              {course.description || "No description available"}
+                            </p>
+
+                            {/* Instructor Info */}
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                <i className="fas fa-user text-gray-600 text-xs"></i>
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-xs text-gray-500">Instructor</p>
+                                <p className="text-xs font-semibold text-gray-900 truncate">
+                                  {course.faculty?.name || "Unknown Instructor"}
+                                </p>
+                              </div>
                             </div>
 
-                            {/* Buttons */}
-                            <div className="mt-auto pt-2">
-                              {enrolledCourses.includes(course._id) ? (
-                                <button
-                                  onClick={() => handleViewCourse(course._id)}
-                                  className="w-full py-2 sm:py-2.5 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition flex items-center justify-center gap-1 sm:gap-2 text-sm"
-                                >
-                                  <i className="fas fa-play-circle text-xs sm:text-sm"></i>
-                                  Continue Learning
-                                </button>
-                              ) : (
-                                <button
-                                  onClick={() => handleViewDetails(course._id)}
-                                  className="w-full py-2 sm:py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center justify-center gap-2 text-sm"
-                                >
-                                  <i className="fas fa-eye"></i>
-                                  <span>View Details & Enroll</span>
-                                </button>
-                              )}
+                            {/* Course Stats - Made consistent across cards */}
+                            <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
+                              <div className="flex items-center gap-2">
+                                <i className="fas fa-clock text-blue-500"></i>
+                                <span>{course.duration || "Flexible"}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <i className="fas fa-users text-green-500"></i>
+                                <span>{course.students?.length || 0} students</span>
+                              </div>
+                            </div>
+
+                            {/* Price and Action Button - At bottom with consistent spacing */}
+                            <div className="mt-auto pt-3 border-t border-gray-100">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  {course.price > 0 ? (
+                                    <div className="flex items-baseline gap-1">
+                                      <i className="fas fa-rupee-sign text-gray-600 text-sm"></i>
+                                      <span className="text-xl font-bold text-gray-900">{course.price}</span>
+                                    </div>
+                                  ) : (
+                                    <span className="text-xl font-bold text-green-600">FREE</span>
+                                  )}
+                                </div>
+                                {enrolledCourses.includes(course._id) ? (
+                                  <button
+                                    onClick={() => handleViewCourse(course._id)}
+                                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold text-sm flex items-center gap-2 cursor-pointer shadow hover:shadow-md"
+                                  >
+                                    <i className="fas fa-play text-xs"></i>
+                                    Continue
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() => handleViewDetails(course._id)}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm flex items-center gap-2 cursor-pointer shadow hover:shadow-md"
+                                  >
+                                    <i className="fas fa-eye text-xs"></i>
+                                    View Details
+                                  </button>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -522,7 +557,7 @@ export default function StudentDashboard({ user, onLogout }) {
               </div>
             )}
 
-            {/* My Courses Tab */}
+            {/* My Courses Tab - UPDATED TO MATCH VIEW ALL COURSES STYLING */}
             {activeTab === "my-courses" && (
               <div>
                 <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
@@ -543,48 +578,91 @@ export default function StudentDashboard({ user, onLogout }) {
                     </button>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
                     {enrolledCoursesData.map((course) => (
                       <div
                         key={course._id}
-                        className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-green-600/50 rounded-xl p-3 sm:p-4 lg:p-5 hover:shadow-lg transition-all duration-300 flex flex-col h-full"
+                        className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl hover:border-green-300 transition-all duration-300 cursor-pointer group flex flex-col h-full"
                       >
-                        <div className="flex items-start justify-between mb-2 sm:mb-3">
-                          <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                            <i className="fas fa-check text-green-600 text-base sm:text-lg lg:text-xl"></i>
+                        {/* Course Image/Thumbnail Area */}
+                        <div
+                          className="relative h-40 sm:h-44 bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center overflow-hidden border-b border-gray-200"
+                          onClick={() => handleViewCourse(course._id)}
+                        >
+                          <div className="w-24 h-24 sm:w-28 sm:h-28">
+                            <img
+                              src={logo || "/placeholder.svg"}
+                              alt="Biology.Trunk Logo"
+                              className="w-full h-full object-contain opacity-90 group-hover:opacity-100 transition-opacity"
+                            />
                           </div>
-                          <span className="text-green-600 font-bold flex items-center gap-0.5 sm:gap-1 text-xs sm:text-sm whitespace-nowrap">
-                            <i className="fas fa-circle text-xs"></i>
-                            Active
-                          </span>
-                        </div>
-                        <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1 sm:mb-2 line-clamp-2 min-h-[2.8rem] sm:min-h-[3rem]">
-                          {course.title}
-                        </h3>
-                        <div className="flex-grow">
-                          <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-3 h-[3.6rem] sm:h-[3.9rem] overflow-hidden">
-                            {course.description}
-                          </p>
+
+                          {/* Enrolled Badge */}
+                          <div className="absolute top-2 left-2">
+                            <span className="bg-green-600 text-white px-2 py-1 rounded-lg text-xs font-semibold shadow-md">
+                              {course.category || "General"}
+                            </span>
+                          </div>
+
+                          <div className="absolute top-2 right-2">
+                            <span className="bg-green-100 text-green-700 px-2 py-1 rounded-lg text-xs font-semibold">
+                              Enrolled
+                            </span>
+                          </div>
+
+                          {/* Hover Overlay */}
+                          <div className="absolute inset-0 bg-green-600 opacity-0 group-hover:opacity-10 transition-opacity"></div>
                         </div>
 
-                        <div className="mb-3 sm:mb-4">
-                          <div className="flex justify-between text-xs sm:text-sm text-gray-600 mb-1 whitespace-nowrap">
-                            <span>Progress</span>
-                            <span>65%</span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
-                            <div className="bg-green-600 h-1.5 sm:h-2 rounded-full" style={{ width: "65%" }}></div>
-                          </div>
-                        </div>
-
-                        <div className="mt-auto pt-2">
-                          <button
+                        {/* Course Content */}
+                        <div className="p-4 sm:p-5 flex flex-col flex-grow">
+                          {/* Course Title */}
+                          <h3
+                            className="font-bold text-gray-900 text-lg sm:text-xl mb-2 group-hover:text-green-600 transition cursor-pointer min-h-[56px] flex items-start"
                             onClick={() => handleViewCourse(course._id)}
-                            className="w-full py-2 sm:py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition flex items-center justify-center gap-1 sm:gap-2 text-sm"
                           >
-                            <i className="fas fa-play text-xs sm:text-sm"></i>
-                            Continue Learning
-                          </button>
+                            {course.title || "Untitled Course"}
+                          </h3>
+
+                          {/* Course Description */}
+                          <p className="text-gray-600 text-sm mb-4 line-clamp-2 min-h-[40px] flex-grow">
+                            {course.description || "No description available"}
+                          </p>
+
+                          {/* Instructor Info */}
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                              <i className="fas fa-user text-gray-600 text-xs"></i>
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-xs text-gray-500">Instructor</p>
+                              <p className="text-xs font-semibold text-gray-900 truncate">
+                                {course.faculty?.name || "Unknown Instructor"}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Progress Bar */}
+                          <div className="mb-3">
+                            <div className="flex justify-between text-xs sm:text-sm text-gray-600 mb-1">
+                              <span>Progress</span>
+                              <span>65%</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
+                              <div className="bg-green-600 h-1.5 sm:h-2 rounded-full" style={{ width: "65%" }}></div>
+                            </div>
+                          </div>
+
+                          {/* Continue Learning Button */}
+                          <div className="mt-auto pt-3 border-t border-gray-100">
+                            <button
+                              onClick={() => handleViewCourse(course._id)}
+                              className="w-full py-2 sm:py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition flex items-center justify-center gap-2 text-sm"
+                            >
+                              <i className="fas fa-play text-xs"></i>
+                              Continue Learning
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -593,7 +671,7 @@ export default function StudentDashboard({ user, onLogout }) {
               </div>
             )}
 
-            {/* Progress Tab */}
+            {/* Progress Tab - UNCHANGED */}
             {activeTab === "progress" && (
               <div>
                 <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
@@ -695,7 +773,7 @@ export default function StudentDashboard({ user, onLogout }) {
         </div>
       </div>
 
-      {/* Notification Modal - Made responsive */}
+      {/* Notification Modal */}
       {showNotificationModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-full w-full sm:max-w-md max-h-[80vh] sm:max-h-96 overflow-y-auto">
