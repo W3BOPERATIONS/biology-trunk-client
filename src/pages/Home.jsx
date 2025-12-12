@@ -263,16 +263,21 @@ export default function Home({ user, onLogout }) {
             <div className="space-y-4 sm:space-y-6">
               <div>
                 {/* Reduced font size for main headline */}
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
-                  Transform Your Academic Career with{" "}
+                <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
+                  Transform Your Academic Career with {/* Ph.D. */}
                   <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                     Ph.D. Expert Faculty
                   </span>{" "}
-                  &{" "}
+                  <span className="text-black">&</span> {/* IIT */}
+                  <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    IIT
+                  </span>{" "}
+                  <span className="text-black">&</span> {/* NITian */}
                   <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                    IIT & NIT Faculty
+                    NITian Faculty
                   </span>
                 </h1>
+
                 <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-4 sm:mb-6 leading-relaxed">
                   Join India's premier online learning platform led by Ph.D.
                   holders, NET & GATE qualified experts with 15+ years of
