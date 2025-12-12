@@ -270,7 +270,7 @@ export default function Home({ user, onLogout }) {
                   </span>{" "}
                   &{" "}
                   <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                    NEET Faculty
+                    IIT & NIT Faculty
                   </span>
                 </h1>
                 <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-4 sm:mb-6 leading-relaxed">
