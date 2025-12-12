@@ -421,13 +421,13 @@ export default function CourseDetail({ user, onLogout }) {
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
           <div className="flex justify-between items-center h-14 sm:h-16">
             <div className="flex items-center gap-2 sm:gap-3">
-              <button
+              {/* <button
                 onClick={handleBack}
                 className="text-gray-600 hover:text-gray-900 text-base sm:text-lg flex-shrink-0"
                 aria-label="Go back"
               >
                 <i className="fas fa-arrow-left"></i>
-              </button>
+              </button> */}
               {/* Logo - Increased size and removed text on mobile */}
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
                 <img
