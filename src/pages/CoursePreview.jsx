@@ -35,7 +35,6 @@ export default function CoursePreview({ user, onLogout }) {
   }
 
   useEffect(() => {
-    sessionStorage.setItem("previousPath", window.location.pathname)
     fetchCourse()
   }, [courseId, user])
 
@@ -99,11 +98,15 @@ export default function CoursePreview({ user, onLogout }) {
   }
 
   const handleBack = () => {
-    const previousPath = sessionStorage.getItem("previousPath")
-    if (previousPath && previousPath !== window.location.pathname) {
-      navigate(-1)
-    } else {
+    const referrer = document.referrer
+    const previousTab = sessionStorage.getItem("dashboardTab")
+
+    if (referrer.includes("/student-dashboard") && previousTab) {
+      navigate(`/student-dashboard?tab=${previousTab}`)
+    } else if (referrer.includes("/student-dashboard")) {
       navigate("/student-dashboard")
+    } else {
+      navigate("/")
     }
   }
 
@@ -247,13 +250,13 @@ export default function CoursePreview({ user, onLogout }) {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Back Button */}
-        <button
+        {/* <button
           onClick={handleBack}
           className="mb-4 sm:mb-6 flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold text-sm sm:text-base cursor-pointer"
         >
           <i className="fas fa-arrow-left"></i>
           Back to Courses
-        </button>
+        </button> */}
 
         {/* Course Header Card - Enhanced with Dashboard Theme */}
         <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-xl p-4 sm:p-6 lg:p-8 mb-6 sm:mb-8 border border-blue-200 shadow-sm">
@@ -387,7 +390,7 @@ export default function CoursePreview({ user, onLogout }) {
                     </div>
                   ) : (
                     <button
-                      onClick={() => navigate("/login")}
+                      onClick={() => navigate("/login", { state: { from: `/course-preview/${courseId}` } })}
                       className="w-full py-3 sm:py-3.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer shadow hover:shadow-lg"
                     >
                       <i className="fas fa-sign-in-alt text-base"></i>
@@ -742,7 +745,7 @@ export default function CoursePreview({ user, onLogout }) {
                 ) : (
                   <>
                     <button
-                      onClick={() => navigate("/login")}
+                      onClick={() => navigate("/login", { state: { from: `/course-preview/${courseId}` } })}
                       className="w-full sm:w-auto px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm sm:text-base whitespace-nowrap cursor-pointer shadow hover:shadow-lg flex-1 max-w-xs"
                     >
                       <i className="fas fa-sign-in-alt mr-2"></i>

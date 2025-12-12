@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react"
 import axios from "axios"
 import { API_URL } from "../utils/api.js"
-import { useNavigate } from "react-router-dom"
-import { useLocation } from "react-router-dom"
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom"
 import logo from "../assets/biology-trunk-logo.png"
 import { showErrorToast, showWarningToast } from "../utils/toast.js"
 
@@ -14,6 +13,10 @@ export default function StudentDashboard({ user, onLogout }) {
   const location = useLocation()
   const searchParams = new URLSearchParams(location.search)
   const navigate = useNavigate()
+  const [searchParamsFromHook, setSearchParams] = useSearchParams()
+
+  const [activeTab, setActiveTab] = useState(searchParamsFromHook.get("tab") || "discover")
+
   const [categories, setCategories] = useState([])
   const [courses, setCourses] = useState([])
   const [enrolledCourses, setEnrolledCourses] = useState([])
@@ -33,7 +36,7 @@ export default function StudentDashboard({ user, onLogout }) {
   const [notifications, setNotifications] = useState([])
   const [showNotificationModal, setShowNotificationModal] = useState(false)
   const [selectedNotification, setSelectedNotification] = useState(null)
-  const [activeTab, setActiveTab] = useState("discover")
+  // const [activeTab, setActiveTab] = useState("discover") // Replaced by new initialization
   // const [learningStats, setLearningStats] = useState({ // Replaced with studentAnalytics
   //   totalHours: 45,
   //   completedCourses: 3,
@@ -57,6 +60,10 @@ export default function StudentDashboard({ user, onLogout }) {
     localStorage.setItem("studentDashboardPage", currentPage.toString())
     localStorage.setItem("studentDashboardSearch", searchTerm)
   }, [selectedCategory, currentPage, searchTerm])
+
+  useEffect(() => {
+    setSearchParams({ tab: activeTab }, { replace: true })
+  }, [activeTab, setSearchParams])
 
   useEffect(() => {
     const fetchAvailableCategories = async () => {
@@ -375,6 +382,10 @@ export default function StudentDashboard({ user, onLogout }) {
     }
   }
 
+  const handleLogout = () => {
+    onLogout()
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -413,7 +424,7 @@ export default function StudentDashboard({ user, onLogout }) {
                 </button>
               </div>
               <button
-                onClick={onLogout}
+                onClick={handleLogout}
                 className="px-3 sm:px-4 py-1.5 sm:py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
               >
                 <i className="fas fa-sign-out-alt text-sm"></i>

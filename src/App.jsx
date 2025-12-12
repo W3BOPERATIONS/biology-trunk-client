@@ -46,8 +46,10 @@ export default function App() {
 
   const handleLogout = () => {
     localStorage.removeItem("user")
-    sessionStorage.removeItem("previousPath")
+    localStorage.removeItem("token")
+    sessionStorage.clear()
     setUser(null)
+    window.location.href = "/"
   }
 
   if (loading) {

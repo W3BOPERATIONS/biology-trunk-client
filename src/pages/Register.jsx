@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import axios from "axios"
 import { API_URL } from "../utils/api.js"
@@ -18,6 +18,16 @@ export default function Register({ setUser }) {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const handlePopState = (e) => {
+      e.preventDefault()
+      navigate("/login", { replace: true })
+    }
+
+    window.addEventListener("popstate", handlePopState)
+    return () => window.removeEventListener("popstate", handlePopState)
+  }, [navigate])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -57,9 +67,10 @@ export default function Register({ setUser }) {
       })
 
       localStorage.setItem("user", JSON.stringify(response.data.user))
+      localStorage.setItem("token", response.data.token)
       setUser(response.data.user)
       showSuccessToast(`Welcome, ${response.data.user.name}! Account created successfully.`)
-      navigate(`/${response.data.user.role}-dashboard`)
+      navigate(`/${response.data.user.role}-dashboard`, { replace: true })
     } catch (err) {
       const errorMessage = err.response?.data?.message || "Registration failed"
       setError(errorMessage)

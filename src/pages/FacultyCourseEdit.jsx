@@ -240,13 +240,13 @@ export default function FacultyCourseEdit({ user, onLogout }) {
 
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Back Button */}
-        <button
+        {/* <button
           onClick={() => navigate("/faculty-dashboard")}
           className="mb-4 sm:mb-6 flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold text-sm sm:text-base"
         >
           <i className="fas fa-arrow-left"></i>
           Back to Dashboard
-        </button>
+        </button> */}
 
         <div className="bg-white rounded-xl shadow-lg border border-gray-200">
           {/* Header Section */}

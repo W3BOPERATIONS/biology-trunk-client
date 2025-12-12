@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { Link, useNavigate, useLocation } from "react-router-dom"
 import axios from "axios"
 import { API_URL } from "../utils/api.js"
 import { showSuccessToast, showErrorToast } from "../utils/toast.js"
@@ -12,6 +12,18 @@ export default function Login({ setUser }) {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
+  const redirectTo = location.state?.from || null
+
+  useEffect(() => {
+    const handlePopState = (e) => {
+      e.preventDefault()
+      navigate("/", { replace: true })
+    }
+
+    window.addEventListener("popstate", handlePopState)
+    return () => window.removeEventListener("popstate", handlePopState)
+  }, [navigate])
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -25,10 +37,16 @@ export default function Login({ setUser }) {
       })
 
       localStorage.setItem("user", JSON.stringify(response.data.user))
+      localStorage.setItem("token", response.data.token)
       localStorage.setItem("loginTime", new Date().toISOString())
       setUser(response.data.user)
       showSuccessToast(`Welcome back, ${response.data.user.name}!`)
-      navigate(`/${response.data.user.role}-dashboard`)
+
+      if (redirectTo) {
+        navigate(redirectTo, { replace: true })
+      } else {
+        navigate(`/${response.data.user.role}-dashboard`, { replace: true })
+      }
     } catch (err) {
       const errorMessage = err.response?.data?.message || "Login failed"
       setError(errorMessage)
@@ -41,9 +59,7 @@ export default function Login({ setUser }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
-        {/* Enhanced Card with Better Shadow and Border */}
         <div className="bg-white rounded-2xl p-6 md:p-8 shadow-2xl border border-gray-100">
-          {/* Enhanced Logo Section */}
           <div className="flex justify-center mb-6 md:mb-8">
             <div className="relative">
               <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg transform rotate-3">
@@ -53,7 +69,6 @@ export default function Login({ setUser }) {
             </div>
           </div>
 
-          {/* Enhanced Header */}
           <div className="text-center mb-6 md:mb-8">
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               Welcome Back
@@ -61,7 +76,6 @@ export default function Login({ setUser }) {
             <p className="text-gray-600 font-medium text-sm md:text-base">Sign in to continue your learning journey</p>
           </div>
 
-          {/* Enhanced Error Message */}
           {error && (
             <div className="mb-4 md:mb-6 p-3 md:p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs md:text-sm font-medium flex items-center gap-2 md:gap-3">
               <i className="fas fa-exclamation-circle text-red-500 text-base md:text-lg"></i>
@@ -69,7 +83,6 @@ export default function Login({ setUser }) {
             </div>
           )}
 
-          {/* Enhanced Login Form */}
           <form onSubmit={handleLogin} className="space-y-4 md:space-y-6">
             <div className="space-y-2">
               <label className="block text-gray-700 text-xs md:text-sm font-semibold mb-1 md:mb-2 flex items-center gap-1 md:gap-2">
@@ -126,7 +139,6 @@ export default function Login({ setUser }) {
             </button>
           </form>
 
-          {/* Enhanced Register Link */}
           <div className="text-center mt-6 md:mt-8 pt-4 md:pt-6 border-t border-gray-100">
             <p className="text-gray-600 font-medium text-xs md:text-sm">
               Don't have an account?{" "}
@@ -140,7 +152,6 @@ export default function Login({ setUser }) {
             </p>
           </div>
 
-          {/* Enhanced Divider */}
           <div className="my-6 md:my-8 relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-200"></div>
@@ -153,7 +164,6 @@ export default function Login({ setUser }) {
             </div>
           </div>
 
-          {/* Enhanced Demo Credentials - Fixed for mobile */}
           <div className="space-y-3 md:space-y-4 bg-gradient-to-br from-blue-50 to-indigo-50 p-4 md:p-6 rounded-2xl border border-blue-200">
             <div className="text-center">
               <h3 className="font-bold text-gray-800 text-xs md:text-sm uppercase tracking-wider flex items-center justify-center gap-1 md:gap-2">

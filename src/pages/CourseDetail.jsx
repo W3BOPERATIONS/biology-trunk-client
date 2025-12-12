@@ -24,7 +24,6 @@ export default function CourseDetail({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState("content")
 
   useEffect(() => {
-    localStorage.setItem("lastPath", window.location.pathname)
     fetchCourseAndContent()
     checkEnrollment()
   }, [courseId])
@@ -120,6 +119,20 @@ export default function CourseDetail({ user, onLogout }) {
   useEffect(() => {
     loadNotes()
   }, [courseId, user._id])
+
+  const handleBack = () => {
+    const referrer = document.referrer
+    const dashboardTab = sessionStorage.getItem("dashboardTab")
+
+    // If coming from student dashboard and we have a saved tab, restore it
+    if (referrer.includes("/student-dashboard") && dashboardTab) {
+      navigate(`/student-dashboard?tab=${dashboardTab}`)
+    } else if (referrer.includes("/student-dashboard")) {
+      navigate("/student-dashboard")
+    } else {
+      navigate("/student-dashboard?tab=my-courses")
+    }
+  }
 
   const filteredContent = content.filter((item) => {
     const matchesSearch =
@@ -389,13 +402,13 @@ export default function CourseDetail({ user, onLogout }) {
           <p className="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base">
             You must be enrolled in this course to view its content.
           </p>
-          <button
+          {/* <button
             onClick={() => navigate("/student-dashboard")}
             className="px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm sm:text-base flex items-center justify-center gap-1 sm:gap-2 mx-auto"
           >
             <i className="fas fa-arrow-left text-xs sm:text-sm"></i>
             <span>Back to Dashboard</span>
-          </button>
+          </button> */}
         </div>
       </div>
     )
@@ -409,7 +422,7 @@ export default function CourseDetail({ user, onLogout }) {
           <div className="flex justify-between items-center h-14 sm:h-16">
             <div className="flex items-center gap-2 sm:gap-3">
               <button
-                onClick={() => navigate("/student-dashboard")}
+                onClick={handleBack}
                 className="text-gray-600 hover:text-gray-900 text-base sm:text-lg flex-shrink-0"
                 aria-label="Go back"
               >
