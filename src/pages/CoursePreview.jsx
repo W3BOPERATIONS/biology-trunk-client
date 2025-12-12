@@ -16,6 +16,23 @@ export default function CoursePreview({ user, onLogout }) {
   const [checkingEnrollment, setCheckingEnrollment] = useState(false)
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState("overview")
+  const [showDemoModal, setShowDemoModal] = useState(false)
+
+  const getEmbedUrl = (url) => {
+    if (!url) return ""
+    try {
+      let videoId = ""
+      if (url.includes("youtube.com")) {
+        videoId = url.split("v=")[1]?.split("&")[0]
+      } else if (url.includes("youtu.be")) {
+        videoId = url.split("/").pop()?.split("?")[0]
+      }
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : ""
+    } catch (error) {
+      console.error("Error parsing video URL:", error)
+      return ""
+    }
+  }
 
   useEffect(() => {
     sessionStorage.setItem("previousPath", window.location.pathname)
@@ -46,18 +63,18 @@ export default function CoursePreview({ user, onLogout }) {
     try {
       setCheckingEnrollment(true)
       console.log("[DEBUG] Checking enrollment for user:", user?._id, "course:", courseId)
-      
+
       // Fix: Use the correct endpoint with query parameters
       const response = await axios.get(`${API_URL}/enrollments/check`, {
         params: {
           courseId: courseId,
-          studentId: user?._id
+          studentId: user?._id,
         },
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       })
-      
+
       console.log("[DEBUG] Enrollment check response:", response.data)
       setIsEnrolled(response.data.isEnrolled || false)
     } catch (error) {
@@ -141,7 +158,7 @@ export default function CoursePreview({ user, onLogout }) {
     userId: user?._id,
     userName: user?.name,
     isEnrolled: isEnrolled,
-    checkingEnrollment: checkingEnrollment
+    checkingEnrollment: checkingEnrollment,
   })
 
   return (
@@ -160,7 +177,7 @@ export default function CoursePreview({ user, onLogout }) {
           cursor: pointer !important;
         }
       `}</style>
-      
+
       {/* Header - Consistent with Student Dashboard */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -328,6 +345,16 @@ export default function CoursePreview({ user, onLogout }) {
                       <div className="text-3xl sm:text-4xl font-bold text-green-600">FREE</div>
                     )}
                   </div>
+
+                  {course.demoVideoUrl && (
+                    <button
+                      onClick={() => setShowDemoModal(true)}
+                      className="w-full py-3 sm:py-3.5 mb-3 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 transition flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer shadow hover:shadow-lg"
+                    >
+                      <i className="fas fa-play-circle text-base"></i>
+                      View Demo Video
+                    </button>
+                  )}
 
                   {checkingEnrollment ? (
                     <button
@@ -739,6 +766,51 @@ export default function CoursePreview({ user, onLogout }) {
           </div>
         )}
       </div>
+
+      {showDemoModal && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4"
+          onClick={() => setShowDemoModal(false)}
+        >
+          <div
+            className="bg-white rounded-xl max-w-4xl w-full p-4 sm:p-6 relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowDemoModal(false)}
+              className="absolute top-2 right-2 sm:top-4 sm:right-4 w-8 h-8 sm:w-10 sm:h-10 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center transition cursor-pointer z-10"
+            >
+              <i className="fas fa-times text-gray-700 text-sm sm:text-base"></i>
+            </button>
+
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+              <i className="fas fa-play-circle text-purple-600"></i>
+              Course Demo Video
+            </h3>
+
+            {course.demoVideoUrl && getEmbedUrl(course.demoVideoUrl) ? (
+              <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
+                <iframe
+                  src={getEmbedUrl(course.demoVideoUrl)}
+                  className="absolute top-0 left-0 w-full h-full rounded-lg"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  title="Course Demo Video"
+                ></iframe>
+              </div>
+            ) : (
+              <div className="text-center py-12 bg-gray-50 rounded-lg">
+                <i className="fas fa-video-slash text-5xl text-gray-300 mb-4"></i>
+                <p className="text-gray-600 text-lg font-semibold">
+                  Sorry, there is no demo video for this particular course
+                </p>
+                <p className="text-gray-500 text-sm mt-2">Please check back later or contact the instructor</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Footer - Same as home page */}
       <footer className="bg-gray-900 text-gray-300 py-8 sm:py-12">

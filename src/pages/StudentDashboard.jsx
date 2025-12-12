@@ -34,11 +34,21 @@ export default function StudentDashboard({ user, onLogout }) {
   const [showNotificationModal, setShowNotificationModal] = useState(false)
   const [selectedNotification, setSelectedNotification] = useState(null)
   const [activeTab, setActiveTab] = useState("discover")
-  const [learningStats, setLearningStats] = useState({
-    totalHours: 45,
-    completedCourses: 3,
-    certificates: 2,
-    streakDays: 7,
+  // const [learningStats, setLearningStats] = useState({ // Replaced with studentAnalytics
+  //   totalHours: 45,
+  //   completedCourses: 3,
+  //   certificates: 2,
+  //   streakDays: 7,
+  // })
+
+  const [courseProgress, setCourseProgress] = useState({})
+  const [studentAnalytics, setStudentAnalytics] = useState({
+    totalCoursesCompleted: 0,
+    totalEnrolled: 0,
+    averageProgress: 0,
+    totalStudyTime: 0,
+    recentActivities: [],
+    studyStreak: 0,
   })
 
   useEffect(() => {
@@ -66,12 +76,29 @@ export default function StudentDashboard({ user, onLogout }) {
     fetchCourses(currentPage)
     fetchEnrolledCourses()
     fetchNotifications()
-  }, [selectedCategory])
+  }, [selectedCategory, currentPage]) // Dependency added for currentPage
+
+  useEffect(() => {
+    if (user && user._id) {
+      fetchEnrolledCourses() // Fetch enrolled courses when user info is available
+      fetchNotifications() // Fetch notifications when user info is available
+    }
+  }, [user]) // Fetch when user object changes
+
+  const fetchCourseProgress = async (courseId, studentId) => {
+    try {
+      const response = await axios.get(`${API_URL}/progress/course/${courseId}/student/${studentId}`)
+      return response.data.percentage || 0
+    } catch (error) {
+      console.error(`Failed to fetch progress for course ${courseId}:`, error)
+      return 0
+    }
+  }
 
   const fetchCourses = async (page) => {
     try {
       const url = selectedCategory
-        ? `${API_URL}/courses/category/${selectedCategory}?page=${page}&limit=${ITEMS_PER_PAGE}`
+        ? `${API_URL}/courses/category/${encodeURIComponent(selectedCategory)}?page=${page}&limit=${ITEMS_PER_PAGE}`
         : `${API_URL}/courses?page=${page}&limit=${ITEMS_PER_PAGE}`
       const response = await axios.get(url)
 
@@ -92,18 +119,48 @@ export default function StudentDashboard({ user, onLogout }) {
   }
 
   const fetchEnrolledCourses = async () => {
+    if (!user || !user._id) return // Ensure user and user._id exist
+
     try {
       const response = await axios.get(`${API_URL}/enrollments/student/${user._id}`)
       const enrolledIds = response.data.map((e) => e.course._id)
       const enrolledCoursesData = response.data.map((e) => e.course)
       setEnrolledCourses(enrolledIds)
       setEnrolledCoursesData(enrolledCoursesData)
+
+      const progressData = {}
+      for (const enrollment of response.data) {
+        progressData[enrollment.course._id] = enrollment.progress || 0
+      }
+      setCourseProgress(progressData)
+
+      const totalEnrolled = response.data.length
+      const completedCourses = response.data.filter((e) => e.progress === 100).length
+      const totalProgress = response.data.reduce((sum, e) => sum + (e.progress || 0), 0)
+      const averageProgress = totalEnrolled > 0 ? Math.round(totalProgress / totalEnrolled) : 0
+
+      // Calculate study time based on content consumed (rough estimate)
+      const totalStudyTime = Math.round(averageProgress * totalEnrolled * 0.5) // Rough estimate: 50 minutes per course percentage
+
+      // Calculate study streak (days with activity)
+      const studyStreak = calculateStudyStreak(response.data)
+
+      setStudentAnalytics({
+        totalCoursesCompleted: completedCourses,
+        totalEnrolled,
+        averageProgress,
+        totalStudyTime,
+        studyStreak,
+        recentActivities: generateRecentActivities(response.data),
+      })
     } catch (error) {
+      showErrorToast("Failed to load enrolled courses")
       console.error("Failed to fetch enrolled courses:", error)
     }
   }
 
   const fetchNotifications = async () => {
+    if (!user || !user._id) return // Ensure user and user._id exist
     try {
       const response = await axios.get(`${API_URL}/notifications/user/${user._id}`)
       setNotifications(response.data.filter((n) => !n.read))
@@ -123,6 +180,7 @@ export default function StudentDashboard({ user, onLogout }) {
 
   const handleEnrollmentSuccess = async (paymentData) => {
     fetchCourses(currentPage)
+    fetchEnrolledCourses() // Refresh enrolled courses after enrollment
   }
 
   const handleViewCourse = (courseId) => {
@@ -163,8 +221,159 @@ export default function StudentDashboard({ user, onLogout }) {
       course.description.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
-  const shouldShowViewAll = !selectedCategory && !searchTerm && currentPage === 1 && courses.length > 9
-  const displayedCourses = shouldShowViewAll ? filteredCourses.slice(0, 9) : filteredCourses
+  const shouldShowViewAll = !selectedCategory && !searchTerm && currentPage === 1 && courses.length > ITEMS_PER_PAGE
+  const displayedCourses = shouldShowViewAll ? filteredCourses.slice(0, ITEMS_PER_PAGE) : filteredCourses
+
+  const calculateStudyStreak = (enrollments) => {
+    // Simple calculation based on recent enrollments and progress
+    // In a real app, you'd track daily activity
+    const recentEnrollments = enrollments.filter((e) => {
+      const enrollDate = new Date(e.enrolledAt)
+      const daysSince = Math.floor((Date.now() - enrollDate) / (1000 * 60 * 60 * 24))
+      return daysSince <= 7 && e.progress > 0
+    })
+    return recentEnrollments.length > 0 ? Math.min(recentEnrollments.length * 2, 30) : 0
+  }
+
+  const generateRecentActivities = (enrollments) => {
+    const activities = []
+    const sortedEnrollments = [...enrollments].sort((a, b) => new Date(b.enrolledAt) - new Date(a.enrolledAt))
+
+    sortedEnrollments.slice(0, 3).forEach((enrollment) => {
+      if (enrollment.progress === 100) {
+        activities.push({
+          type: "completed",
+          course: enrollment.course.title,
+          icon: "check-circle",
+          color: "green",
+          time: formatRelativeTime(enrollment.enrolledAt),
+        })
+      } else if (enrollment.progress > 0) {
+        activities.push({
+          type: "in-progress",
+          course: enrollment.course.title,
+          icon: "play-circle",
+          color: "blue",
+          time: formatRelativeTime(enrollment.enrolledAt),
+        })
+      } else {
+        activities.push({
+          type: "enrolled",
+          course: enrollment.course.title,
+          icon: "book",
+          color: "purple",
+          time: formatRelativeTime(enrollment.enrolledAt),
+        })
+      }
+    })
+
+    return activities
+  }
+
+  const formatRelativeTime = (date) => {
+    const days = Math.floor((Date.now() - new Date(date)) / (1000 * 60 * 60 * 24))
+    if (days === 0) return "Today"
+    if (days === 1) return "Yesterday"
+    if (days < 7) return `${days} days ago`
+    if (days < 30) return `${Math.floor(days / 7)} weeks ago`
+    return `${Math.floor(days / 30)} months ago`
+  }
+
+  const getAchievements = () => {
+    const achievements = []
+
+    // Quick Learner - enrolled in 3+ courses
+    if (studentAnalytics.totalEnrolled >= 3) {
+      achievements.push({
+        id: "quick-learner",
+        name: "Quick Learner",
+        description: "Enrolled in 3+ courses",
+        icon: "⚡",
+        color: "orange",
+        earned: true,
+      })
+    }
+
+    // Perfect Score - completed at least 1 course
+    if (studentAnalytics.totalCoursesCompleted >= 1) {
+      achievements.push({
+        id: "perfect-score",
+        name: "Course Completer",
+        description: "Completed a course",
+        icon: "⭐",
+        color: "yellow",
+        earned: true,
+      })
+    }
+
+    // Week Warrior - 7+ day streak
+    if (studentAnalytics.studyStreak >= 7) {
+      achievements.push({
+        id: "week-warrior",
+        name: "Week Warrior",
+        description: "7+ day study streak",
+        icon: "🏆",
+        color: "blue",
+        earned: true,
+      })
+    }
+
+    // Course Master - average progress > 80%
+    if (studentAnalytics.averageProgress >= 80) {
+      achievements.push({
+        id: "course-master",
+        name: "Course Master",
+        description: "80%+ average progress",
+        icon: "🎓",
+        color: "purple",
+        earned: true,
+      })
+    }
+
+    // Add locked achievements if not earned
+    if (studentAnalytics.totalEnrolled < 3) {
+      achievements.push({
+        id: "quick-learner",
+        name: "Quick Learner",
+        description: "Enroll in 3+ courses",
+        icon: "🔒",
+        color: "gray",
+        earned: false,
+      })
+    }
+    if (studentAnalytics.totalCoursesCompleted < 1) {
+      achievements.push({
+        id: "perfect-score",
+        name: "Course Completer",
+        description: "Complete a course",
+        icon: "🔒",
+        color: "gray",
+        earned: false,
+      })
+    }
+
+    return achievements
+  }
+
+  // Helper function for badge colors, adapted for Tailwind CSS classes
+  function getBadgeColor(color) {
+    switch (color) {
+      case "yellow":
+        return "bg-yellow-500"
+      case "gold":
+        return "bg-yellow-600"
+      case "blue":
+        return "bg-blue-500"
+      case "purple":
+        return "bg-purple-500"
+      case "orange":
+        return "bg-orange-500"
+      case "gray":
+        return "bg-gray-400"
+      default:
+        return "bg-gray-500"
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -216,7 +425,8 @@ export default function StudentDashboard({ user, onLogout }) {
       </header>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
+      {/* Using a container class for better control over padding and max-width */}
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         {/* Dashboard Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
           <div className="bg-white rounded-xl p-3 sm:p-4 lg:p-6 shadow-sm border border-gray-200">
@@ -228,7 +438,7 @@ export default function StudentDashboard({ user, onLogout }) {
                 </p>
               </div>
               <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <i className="fas fa-book-open text-blue-600 text-sm sm:text-base lg:text-xl"></i>
+                <i className="fas fa-book-open text-blue-600 text-sm"></i>
               </div>
             </div>
             <p className="text-xs text-gray-500 mt-1 sm:mt-2">Active courses</p>
@@ -237,13 +447,13 @@ export default function StudentDashboard({ user, onLogout }) {
           <div className="bg-white rounded-xl p-3 sm:p-4 lg:p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">Hours</p>
+                <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">Study time</p>
                 <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">
-                  {learningStats.totalHours}+
+                  {studentAnalytics.totalStudyTime}h
                 </p>
               </div>
               <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <i className="fas fa-clock text-green-600 text-sm sm:text-base lg:text-xl"></i>
+                <i className="fas fa-clock text-green-600 text-sm"></i>
               </div>
             </div>
             <p className="text-xs text-gray-500 mt-1 sm:mt-2">Study time</p>
@@ -252,13 +462,13 @@ export default function StudentDashboard({ user, onLogout }) {
           <div className="bg-white rounded-xl p-3 sm:p-4 lg:p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">Certificates</p>
+                <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">Achievements</p>
                 <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">
-                  {learningStats.certificates}
+                  {getAchievements().filter((a) => a.earned).length}
                 </p>
               </div>
-              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <i className="fas fa-award text-purple-600 text-sm sm:text-base lg:text-xl"></i>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                <i className="fas fa-trophy text-yellow-600 text-sm"></i>
               </div>
             </div>
             <p className="text-xs text-gray-500 mt-1 sm:mt-2">Achievements</p>
@@ -267,13 +477,13 @@ export default function StudentDashboard({ user, onLogout }) {
           <div className="bg-white rounded-xl p-3 sm:p-4 lg:p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">Streak</p>
+                <p className="text-gray-600 text-xs sm:text-sm font-semibold uppercase tracking-wide">Progress</p>
                 <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mt-1 sm:mt-2">
-                  {learningStats.streakDays} days
+                  {studentAnalytics.averageProgress}%
                 </p>
               </div>
-              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <i className="fas fa-fire text-orange-600 text-sm sm:text-base lg:text-xl"></i>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <i className="fas fa-chart-line text-purple-600 text-sm"></i>
               </div>
             </div>
             <p className="text-xs text-gray-500 mt-1 sm:mt-2">Keep learning!</p>
@@ -282,8 +492,8 @@ export default function StudentDashboard({ user, onLogout }) {
 
         {/* Navigation Tabs */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-4 sm:mb-6">
-          <div className="border-b border-gray-200">
-            <nav className="flex space-x-2 sm:space-x-4 lg:space-x-8 px-3 sm:px-4 lg:px-6 overflow-x-auto">
+          <div className="border-b border-gray-200 px-4 sm:px-6">
+            <nav className="flex space-x-2 sm:space-x-4 lg:space-x-8 overflow-x-auto">
               {[
                 { id: "discover", name: "Discover", icon: "fas fa-compass" },
                 { id: "my-courses", name: "My Courses", icon: "fas fa-book" },
@@ -423,7 +633,7 @@ export default function StudentDashboard({ user, onLogout }) {
                             )}
 
                             {/* Hover Overlay */}
-                            <div className="absolute inset-0 bg-blue-600 opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                            <div className="absolute inset-0 bg-blue-600 opacity-0 group-hover:opacity-1 transition-opacity"></div>
                           </div>
 
                           {/* Course Content - Matches View All Courses styling */}
@@ -579,190 +789,244 @@ export default function StudentDashboard({ user, onLogout }) {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-                    {enrolledCoursesData.map((course) => (
-                      <div
-                        key={course._id}
-                        className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl hover:border-green-300 transition-all duration-300 cursor-pointer group flex flex-col h-full"
-                      >
-                        {/* Course Image/Thumbnail Area */}
+                    {enrolledCoursesData.map((course) => {
+                      const progress = courseProgress[course._id] || 0
+                      return (
                         <div
-                          className="relative h-40 sm:h-44 bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center overflow-hidden border-b border-gray-200"
-                          onClick={() => handleViewCourse(course._id)}
+                          key={course._id}
+                          className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl hover:border-green-300 transition-all duration-300 cursor-pointer group flex flex-col h-full"
                         >
-                          <div className="w-24 h-24 sm:w-28 sm:h-28">
-                            <img
-                              src={logo || "/placeholder.svg"}
-                              alt="Biology.Trunk Logo"
-                              className="w-full h-full object-contain opacity-90 group-hover:opacity-100 transition-opacity"
-                            />
-                          </div>
-
-                          {/* Enrolled Badge */}
-                          <div className="absolute top-2 left-2">
-                            <span className="bg-green-600 text-white px-2 py-1 rounded-lg text-xs font-semibold shadow-md">
-                              {course.category || "General"}
-                            </span>
-                          </div>
-
-                          <div className="absolute top-2 right-2">
-                            <span className="bg-green-100 text-green-700 px-2 py-1 rounded-lg text-xs font-semibold">
-                              Enrolled
-                            </span>
-                          </div>
-
-                          {/* Hover Overlay */}
-                          <div className="absolute inset-0 bg-green-600 opacity-0 group-hover:opacity-10 transition-opacity"></div>
-                        </div>
-
-                        {/* Course Content */}
-                        <div className="p-4 sm:p-5 flex flex-col flex-grow">
-                          {/* Course Title */}
-                          <h3
-                            className="font-bold text-gray-900 text-lg sm:text-xl mb-2 group-hover:text-green-600 transition cursor-pointer min-h-[56px] flex items-start"
+                          {/* Course Image/Thumbnail Area */}
+                          <div
+                            className="relative h-40 sm:h-44 bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center overflow-hidden border-b border-gray-200"
                             onClick={() => handleViewCourse(course._id)}
                           >
-                            {course.title || "Untitled Course"}
-                          </h3>
-
-                          {/* Course Description */}
-                          <p className="text-gray-600 text-sm mb-4 line-clamp-2 min-h-[40px] flex-grow">
-                            {course.description || "No description available"}
-                          </p>
-
-                          {/* Instructor Info */}
-                          <div className="flex items-center gap-2 mb-3">
-                            <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                              <i className="fas fa-user text-gray-600 text-xs"></i>
+                            <div className="w-24 h-24 sm:w-28 sm:h-28">
+                              <img
+                                src={logo || "/placeholder.svg"}
+                                alt="Biology.Trunk Logo"
+                                className="w-full h-full object-contain opacity-90 group-hover:opacity-100 transition-opacity"
+                              />
                             </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-xs text-gray-500">Instructor</p>
-                              <p className="text-xs font-semibold text-gray-900 truncate">
-                                {course.faculty?.name || "Unknown Instructor"}
-                              </p>
+
+                            {/* Enrolled Badge */}
+                            <div className="absolute top-2 left-2">
+                              <span className="bg-green-600 text-white px-2 py-1 rounded-lg text-xs font-semibold shadow-md">
+                                {course.category || "General"}
+                              </span>
                             </div>
+
+                            <div className="absolute top-2 right-2">
+                              <span className="bg-green-100 text-green-700 px-2 py-1 rounded-lg text-xs font-semibold">
+                                Enrolled
+                              </span>
+                            </div>
+
+                            {/* Hover Overlay */}
+                            <div className="absolute inset-0 bg-green-600 opacity-0 group-hover:opacity-1 transition-opacity"></div>
                           </div>
 
-                          {/* Progress Bar */}
-                          <div className="mb-3">
-                            <div className="flex justify-between text-xs sm:text-sm text-gray-600 mb-1">
-                              <span>Progress</span>
-                              <span>65%</span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
-                              <div className="bg-green-600 h-1.5 sm:h-2 rounded-full" style={{ width: "65%" }}></div>
-                            </div>
-                          </div>
-
-                          {/* Continue Learning Button */}
-                          <div className="mt-auto pt-3 border-t border-gray-100">
-                            <button
+                          {/* Course Content */}
+                          <div className="p-4 sm:p-5 flex flex-col flex-grow">
+                            {/* Course Title */}
+                            <h3
+                              className="font-bold text-gray-900 text-lg sm:text-xl mb-2 group-hover:text-green-600 transition cursor-pointer min-h-[56px] flex items-start"
                               onClick={() => handleViewCourse(course._id)}
-                              className="w-full py-2 sm:py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition flex items-center justify-center gap-2 text-sm"
                             >
-                              <i className="fas fa-play text-xs"></i>
-                              Continue Learning
-                            </button>
+                              {course.title || "Untitled Course"}
+                            </h3>
+
+                            {/* Course Description */}
+                            <p className="text-gray-600 text-sm mb-4 line-clamp-2 min-h-[40px] flex-grow">
+                              {course.description || "No description available"}
+                            </p>
+
+                            {/* Instructor Info */}
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                <i className="fas fa-user text-gray-600 text-xs"></i>
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-xs text-gray-500">Instructor</p>
+                                <p className="text-xs font-semibold text-gray-900 truncate">
+                                  {course.faculty?.name || "Dr. Abhishek Jha"}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Progress Bar */}
+                            <div className="mb-3">
+                              <div className="flex justify-between text-xs sm:text-sm text-gray-600 mb-1">
+                                <span>Progress</span>
+                                <span>{progress}%</span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
+                                <div
+                                  className="bg-green-600 h-1.5 sm:h-2 rounded-full transition-all"
+                                  style={{ width: `${progress}%` }}
+                                ></div>
+                              </div>
+                            </div>
+
+                            {/* Continue Learning Button */}
+                            <div className="mt-auto pt-3 border-t border-gray-100">
+                              <button
+                                onClick={() => handleViewCourse(course._id)}
+                                className="w-full py-2 sm:py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition flex items-center justify-center gap-2 text-sm"
+                              >
+                                <i className="fas fa-play text-xs"></i>
+                                Continue Learning
+                              </button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 )}
               </div>
             )}
 
-            {/* Progress Tab - UNCHANGED */}
+            {/* Progress Tab */}
             {activeTab === "progress" && (
               <div>
                 <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
                   Your Learning Progress
                 </h2>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
-                  {/* Progress Overview */}
-                  <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 lg:p-6">
-                    <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 lg:mb-4 flex items-center gap-1 sm:gap-2">
-                      <i className="fas fa-chart-bar text-blue-600 text-sm sm:text-base"></i>
-                      Learning Analytics
-                    </h3>
-                    <div className="space-y-2 sm:space-y-3 lg:space-y-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6">
+                  {/* Learning Analytics */}
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 sm:p-6 border border-blue-200">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-4">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <i className="fas fa-chart-bar text-white text-sm"></i>
+                      </div>
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900">Learning Analytics</h3>
+                    </div>
+
+                    <div className="space-y-3 sm:space-y-4">
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600 text-sm sm:text-base">Courses Completed</span>
-                        <span className="font-semibold text-green-600 text-sm sm:text-base">
-                          {learningStats.completedCourses}/5
+                        <span className="text-sm text-gray-700">Courses Completed</span>
+                        <span className="text-base sm:text-lg font-bold text-blue-600">
+                          {studentAnalytics.totalCoursesCompleted}/{studentAnalytics.totalEnrolled}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600 text-sm sm:text-base">Average Score</span>
-                        <span className="font-semibold text-blue-600 text-sm sm:text-base">87%</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600 text-sm sm:text-base">Study Streak</span>
-                        <span className="font-semibold text-orange-600 text-sm sm:text-base">
-                          {learningStats.streakDays} days
+                        <span className="text-sm text-gray-700">Average Progress</span>
+                        <span className="text-base sm:text-lg font-bold text-blue-600">
+                          {studentAnalytics.averageProgress}%
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600 text-sm sm:text-base">Time Spent</span>
-                        <span className="font-semibold text-purple-600 text-sm sm:text-base">
-                          {learningStats.totalHours} hours
+                        <span className="text-sm text-gray-700">Study Streak</span>
+                        <span className="text-base sm:text-lg font-bold text-orange-600">
+                          {studentAnalytics.studyStreak} days
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-700">Time Spent</span>
+                        <span className="text-base sm:text-lg font-bold text-purple-600">
+                          {studentAnalytics.totalStudyTime} hours
                         </span>
                       </div>
                     </div>
                   </div>
 
                   {/* Recent Activity */}
-                  <div className="bg-white border border-gray-200 rounded-xl p-3 sm:p-4 lg:p-6">
-                    <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 lg:mb-4 flex items-center gap-1 sm:gap-2">
-                      <i className="fas fa-history text-green-600 text-sm sm:text-base"></i>
-                      Recent Activity
-                    </h3>
-                    <div className="space-y-2 sm:space-y-3">
-                      <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-blue-50 rounded-lg">
-                        <i className="fas fa-video text-blue-600 text-sm sm:text-base"></i>
-                        <div>
-                          <p className="font-medium text-gray-900 text-sm sm:text-base">Watched: Algebra Basics</p>
-                          <p className="text-xs sm:text-sm text-gray-600">2 hours ago</p>
-                        </div>
+                  <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-4 sm:p-6 border border-green-200">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-4">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-600 rounded-lg flex items-center justify-center">
+                        <i className="fas fa-history text-white text-sm"></i>
                       </div>
-                      <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-green-50 rounded-lg">
-                        <i className="fas fa-check-circle text-green-600 text-sm sm:text-base"></i>
-                        <div>
-                          <p className="font-medium text-gray-900 text-sm sm:text-base">Completed: Physics Quiz</p>
-                          <p className="text-xs sm:text-sm text-gray-600">1 day ago</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-purple-50 rounded-lg">
-                        <i className="fas fa-book text-purple-600 text-sm sm:text-base"></i>
-                        <div>
-                          <p className="font-medium text-gray-900 text-sm sm:text-base">Enrolled: Chemistry Advanced</p>
-                          <p className="text-xs sm:text-sm text-gray-600">3 days ago</p>
-                        </div>
-                      </div>
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900">Recent Activity</h3>
+                    </div>
+
+                    <div className="space-y-3">
+                      {studentAnalytics.recentActivities.length === 0 ? (
+                        <p className="text-sm text-gray-600">No recent activity</p>
+                      ) : (
+                        studentAnalytics.recentActivities.map((activity, idx) => (
+                          <div key={idx} className="flex items-start gap-3 bg-white p-3 rounded-lg">
+                            <div
+                              className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-${activity.color}-100`}
+                            >
+                              <i className={`fas fa-${activity.icon} text-${activity.color}-600 text-xs`}></i>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold text-gray-900 truncate">{activity.course}</p>
+                              <p className="text-xs text-gray-500">{activity.time}</p>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 </div>
 
-                {/* Achievement Badges */}
-                <div className="mt-4 sm:mt-6 lg:mt-8">
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 lg:mb-4 flex items-center gap-1 sm:gap-2">
-                    <i className="fas fa-trophy text-yellow-600 text-sm sm:text-base"></i>
-                    Your Achievements
-                  </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
-                    {[
-                      { name: "Quick Learner", icon: "fas fa-bolt", color: "yellow" },
-                      { name: "Perfect Score", icon: "fas fa-star", color: "gold" },
-                      { name: "Week Warrior", icon: "fas fa-calendar", color: "blue" },
-                      { name: "Course Master", icon: "fas fa-graduation-cap", color: "purple" },
-                    ].map((badge, index) => (
-                      <div key={index} className="text-center p-2 sm:p-3 bg-gray-50 rounded-lg border border-gray-200">
-                        <div
-                          className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 ${getBadgeColor(badge.color)} rounded-full flex items-center justify-center mx-auto mb-1 sm:mb-2`}
-                        >
-                          <i className={`${badge.icon} text-white text-sm sm:text-base lg:text-lg`}></i>
-                        </div>
-                        <p className="text-xs sm:text-sm font-medium text-gray-900">{badge.name}</p>
+                {/* Course Progress List */}
+                <div className="bg-white rounded-xl p-4 sm:p-6 border border-gray-200 mb-6">
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Course Progress</h3>
+                  <div className="space-y-4">
+                    {enrolledCoursesData.length === 0 ? (
+                      <p className="text-sm text-gray-600">No enrolled courses yet</p>
+                    ) : (
+                      enrolledCoursesData.map((course) => {
+                        const progress = courseProgress[course._id] || 0
+                        return (
+                          <div
+                            key={course._id}
+                            className="flex items-center gap-3 sm:gap-4 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition cursor-pointer"
+                            onClick={() => handleViewCourse(course._id)}
+                          >
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-white flex items-center justify-center flex-shrink-0">
+                              <img
+                                src={logo || "/placeholder.svg"}
+                                alt="Course"
+                                className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-gray-900 truncate">{course.title}</h4>
+                              <div className="flex items-center gap-2 mt-1">
+                                <div className="flex-1 bg-gray-200 rounded-full h-1.5">
+                                  <div
+                                    className="bg-green-600 h-1.5 rounded-full transition-all"
+                                    style={{ width: `${progress}%` }}
+                                  ></div>
+                                </div>
+                                <span className="text-xs font-semibold text-gray-600">{progress}%</span>
+                              </div>
+                            </div>
+                            <i className="fas fa-chevron-right text-gray-400 text-xs"></i>
+                          </div>
+                        )
+                      })
+                    )}
+                  </div>
+                </div>
+
+                {/* Your Achievements */}
+                <div className="bg-white rounded-xl p-4 sm:p-6 border border-gray-200">
+                  <div className="flex items-center gap-2 sm:gap-3 mb-4">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                      <i className="fas fa-trophy text-yellow-600 text-sm"></i>
+                    </div>
+                    <h3 className="text-base sm:text-lg font-bold text-gray-900">Your Achievements</h3>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                    {getAchievements().map((achievement) => (
+                      <div
+                        key={achievement.id}
+                        className={`text-center p-3 sm:p-4 rounded-xl border-2 transition ${
+                          achievement.earned
+                            ? `bg-${achievement.color}-50 border-${achievement.color}-200`
+                            : "bg-gray-50 border-gray-200 opacity-50"
+                        }`}
+                      >
+                        <div className="text-2xl sm:text-3xl mb-2">{achievement.icon}</div>
+                        <div className="text-xs sm:text-sm font-bold text-gray-900 mb-1">{achievement.name}</div>
+                        <div className="text-xs text-gray-600">{achievement.description}</div>
                       </div>
                     ))}
                   </div>
@@ -794,7 +1058,7 @@ export default function StudentDashboard({ user, onLogout }) {
                   {new Date(selectedNotification.createdAt).toLocaleString()}
                 </div>
                 {selectedNotification.course && (
-                  <div className="bg-blue-50 p-2 sm:p-3 rounded-lg text-xs sm:text-sm text-gray-700 flex items-center gap-1 sm:gap-2">
+                  <div className="bg-blue-50 p-2 sm:p-3 rounded-lg text-xs sm:text-base text-gray-700 flex items-center gap-1 sm:gap-2">
                     <i className="fas fa-book text-blue-600 text-xs sm:text-sm"></i>
                     Course: {selectedNotification.course?.title}
                   </div>
@@ -860,15 +1124,4 @@ export default function StudentDashboard({ user, onLogout }) {
       )}
     </div>
   )
-}
-
-// Helper function for badge colors
-function getBadgeColor(color) {
-  const colors = {
-    yellow: "bg-yellow-500",
-    gold: "bg-yellow-600",
-    blue: "bg-blue-500",
-    purple: "bg-purple-500",
-  }
-  return colors[color] || "bg-gray-500"
 }

@@ -20,6 +20,7 @@ export default function FacultyCourseEdit({ user, onLogout }) {
     duration: "",
     courseLevel: "",
     prerequisites: "",
+    demoVideoUrl: "",
     curriculum: [],
     whatYouWillLearn: [],
     courseIncludes: {
@@ -33,43 +34,41 @@ export default function FacultyCourseEdit({ user, onLogout }) {
   })
 
   useEffect(() => {
+    const fetchCourse = async () => {
+      try {
+        setLoading(true)
+        const response = await axios.get(`${API_URL}/courses/${courseId}`)
+        const course = response.data
+
+        setFormData({
+          title: course.title || "",
+          description: course.description || "",
+          price: course.price || "",
+          duration: course.duration || "",
+          courseLevel: course.courseLevel || "",
+          prerequisites: course.prerequisites || "",
+          demoVideoUrl: course.demoVideoUrl || "",
+          curriculum: course.curriculum || [],
+          whatYouWillLearn: course.whatYouWillLearn || [],
+          courseIncludes: course.courseIncludes || {
+            videos: false,
+            liveLectures: false,
+            pdfs: false,
+            quizzes: false,
+            assignments: false,
+            certificates: false,
+          },
+        })
+      } catch (error) {
+        console.error("Failed to fetch course:", error)
+        showErrorToast("Failed to load course details")
+      } finally {
+        setLoading(false)
+      }
+    }
+
     fetchCourse()
   }, [courseId])
-
-  const fetchCourse = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/courses/${courseId}`)
-      if (response.data.faculty._id !== user._id) {
-        showErrorToast("You can only edit your own courses")
-        navigate("/faculty-dashboard")
-        return
-      }
-      setCourse(response.data)
-      setFormData({
-        title: response.data.title,
-        description: response.data.description,
-        price: response.data.price,
-        duration: response.data.duration,
-        courseLevel: response.data.courseLevel,
-        prerequisites: response.data.prerequisites,
-        curriculum: response.data.curriculum || [],
-        whatYouWillLearn: response.data.whatYouWillLearn || [],
-        courseIncludes: response.data.courseIncludes || {
-          videos: false,
-          liveLectures: false,
-          pdfs: false,
-          quizzes: false,
-          assignments: false,
-          certificates: false,
-        },
-      })
-      setLoading(false)
-    } catch (error) {
-      console.error("Failed to fetch course:", error)
-      showErrorToast("Failed to load course")
-      navigate("/faculty-dashboard")
-    }
-  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -168,6 +167,7 @@ export default function FacultyCourseEdit({ user, onLogout }) {
         duration: formData.duration,
         courseLevel: formData.courseLevel,
         prerequisites: formData.prerequisites,
+        demoVideoUrl: formData.demoVideoUrl,
         curriculum: formData.curriculum,
         whatYouWillLearn: formData.whatYouWillLearn,
         courseIncludes: formData.courseIncludes,
@@ -311,6 +311,25 @@ export default function FacultyCourseEdit({ user, onLogout }) {
                       placeholder="Describe what students will learn in this course"
                       required
                     ></textarea>
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-700 text-sm sm:text-base font-semibold mb-2 flex items-center gap-2">
+                      <i className="fas fa-video text-red-600 text-sm"></i>
+                      Demo Video URL (Optional)
+                    </label>
+                    <input
+                      type="url"
+                      name="demoVideoUrl"
+                      value={formData.demoVideoUrl}
+                      onChange={handleInputChange}
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition text-sm sm:text-base"
+                      placeholder="e.g., https://www.youtube.com/watch?v=..."
+                    />
+                    <p className="text-gray-500 text-xs sm:text-sm mt-1.5">
+                      <i className="fas fa-info-circle mr-1"></i>
+                      Add a demo video URL (YouTube, Vimeo, etc.) so students can preview the course before enrolling
+                    </p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
