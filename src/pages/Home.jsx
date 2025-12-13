@@ -280,8 +280,7 @@ export default function Home({ user, onLogout }) {
 
                 <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-4 sm:mb-6 leading-relaxed">
                   Join India's premier online learning platform led by Ph.D.
-                  holders, NET & GATE qualified experts with 15+ years of
-                  government college teaching experience. Access comprehensive
+                  holders, NET & GATE qualified experts with 15+ years of teaching experience. Access comprehensive
                   courses and personalized mentorship for academic excellence.
                 </p>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 text-gray-600">
@@ -505,7 +504,7 @@ export default function Home({ user, onLogout }) {
               </div>
               {/* Heading with fixed height for alignment - slightly larger */}
               <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 text-center min-h-[48px] flex items-center justify-center leading-tight">
-                Ex Government College Lecturers
+                College Lecturers
               </h3>
               {/* Description with consistent alignment - slightly larger */}
               <p className="text-gray-600 text-sm sm:text-base text-center">
@@ -1172,7 +1171,7 @@ export default function Home({ user, onLogout }) {
                 {[
                   "Ph.D. Holders",
                   "NET & GATE Qualified",
-                  "Ex Government College Lecturers",
+                  // "Ex Government College Lecturers",
                   "15+ Years Experience",
                   "IIT/NIT Alumni",
                   "Subject Matter Experts",

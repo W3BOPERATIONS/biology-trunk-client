@@ -525,7 +525,7 @@ export default function PrivacyPolicy() {
                 {[
                   "Ph.D. Holders",
                   "NET & GATE Qualified",
-                  "Ex Government College Lecturers",
+                  // "Ex Government College Lecturers",
                   "15+ Years Experience",
                   "IIT/NIT Alumni",
                   "Subject Matter Experts",
