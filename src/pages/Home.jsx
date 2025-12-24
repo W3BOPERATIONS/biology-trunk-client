@@ -32,7 +32,7 @@ export default function Home({ user, onLogout }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isAutoScroll, setIsAutoScroll] = useState(true);
   const [showDemoModal, setShowDemoModal] = useState(false);
-  const DEMO_VIDEO_URL = "https://youtu.be/mNs8ewx5JrU?si=MROQVRQY3eCVCcdP";
+  const DEMO_VIDEO_URL = "https://youtu.be/TFOylLOBzEQ?si=jtX_AO_A78vKCQyd";
 
   // Gallery images array with imported images
   const [galleryImages] = useState([
