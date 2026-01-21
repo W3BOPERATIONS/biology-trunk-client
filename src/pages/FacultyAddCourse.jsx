@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
 import { API_URL } from "../utils/api.js"
@@ -10,6 +10,9 @@ import logo from "../assets/biology-trunk-logo.png"
 export default function FacultyAddCourse({ user, onLogout }) {
   const navigate = useNavigate()
   const [saving, setSaving] = useState(false)
+  const [categories, setCategories] = useState([])
+  const [showCustomCategory, setShowCustomCategory] = useState(false)
+  const [customCategoryInput, setCustomCategoryInput] = useState("")
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -29,6 +32,47 @@ export default function FacultyAddCourse({ user, onLogout }) {
     category: "",
     price: "",
   })
+
+  // Fetch categories from the database
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/courses`)
+        const coursesData = response.data
+
+        // Extract unique categories
+        const categoryMap = {}
+        coursesData.forEach((course) => {
+          if (course.category && !categoryMap[course.category]) {
+            categoryMap[course.category] = true
+          }
+        })
+
+        const uniqueCategories = Object.keys(categoryMap).sort()
+        setCategories(uniqueCategories)
+      } catch (error) {
+        console.error("Failed to fetch categories:", error)
+        // Set default categories if fetch fails
+        setCategories([
+          "Class 9",
+          "Class 10",
+          "Class 11",
+          "Class 12",
+          "JEE",
+          "NEET",
+          "NEET Foundation",
+          "TGT/PGT",
+          "KVS/NVS",
+          "AIIMS Paramedical",
+          "Nursing Entrance",
+          "CUET (UG)",
+          "Foreign Languages",
+        ])
+      }
+    }
+
+    fetchCategories()
+  }, [])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -255,21 +299,89 @@ export default function FacultyAddCourse({ user, onLogout }) {
                         <i className="fas fa-tag text-green-600 text-sm"></i>
                         Category *
                       </label>
-                      <select
-                        name="category"
-                        value={formData.category}
-                        onChange={handleInputChange}
-                        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition text-sm sm:text-base"
-                        required
-                      >
-                        <option value="">Select Category</option>
-                        <option value="Class 9">Class 9</option>
-                        <option value="Class 10">Class 10</option>
-                        <option value="Class 11">Class 11</option>
-                        <option value="Class 12">Class 12</option>
-                        <option value="JEE">JEE</option>
-                        <option value="NEET">NEET</option>
-                      </select>
+                      {!showCustomCategory ? (
+                        <div className="space-y-2">
+                          <select
+                            name="category"
+                            value={formData.category}
+                            onChange={handleInputChange}
+                            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition text-sm sm:text-base"
+                            required={!showCustomCategory}
+                          >
+                            <option value="">Select Category</option>
+                            {categories.map((cat) => (
+                              <option key={cat} value={cat}>
+                                {cat}
+                              </option>
+                            ))}
+                          </select>
+                          <button
+                            type="button"
+                            onClick={() => setShowCustomCategory(true)}
+                            className="w-full px-3 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition flex items-center justify-center gap-2"
+                          >
+                            <i className="fas fa-plus text-xs"></i>
+                            Add Custom Category
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <input
+                            type="text"
+                            value={customCategoryInput}
+                            onChange={(e) => setCustomCategoryInput(e.target.value)}
+                            placeholder="Enter new category name"
+                            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition text-sm sm:text-base"
+                            autoFocus
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (customCategoryInput.trim()) {
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    category: customCategoryInput.trim(),
+                                  }))
+                                  setShowCustomCategory(false)
+                                  setCustomCategoryInput("")
+                                } else {
+                                  showErrorToast("Please enter a category name")
+                                }
+                              }}
+                              className="flex-1 px-3 py-2 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-2"
+                            >
+                              <i className="fas fa-check text-xs"></i>
+                              Add
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setShowCustomCategory(false)
+                                setCustomCategoryInput("")
+                              }}
+                              className="flex-1 px-3 py-2 bg-gray-300 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-400 transition flex items-center justify-center gap-2"
+                            >
+                              <i className="fas fa-times text-xs"></i>
+                              Cancel
+                            </button>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                category: "",
+                              }))
+                              setShowCustomCategory(false)
+                              setCustomCategoryInput("")
+                            }}
+                            className="w-full px-3 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition"
+                          >
+                            Select from Available
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     <div>
