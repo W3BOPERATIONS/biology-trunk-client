@@ -111,9 +111,11 @@ export default function ViewAllCourses() {
       )
     }
 
-    // Apply category filter
+    // Apply category filter (case-insensitive)
     if (selectedCategory !== "all") {
-      filtered = filtered.filter((course) => course.category === selectedCategory)
+      filtered = filtered.filter((course) => 
+        course.category?.toLowerCase() === selectedCategory?.toLowerCase()
+      )
     }
 
     // Apply level filter
@@ -626,45 +628,56 @@ export default function ViewAllCourses() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
             <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-base sm:text-lg">About Biology.Trunk</h4>
-              <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">
-                India's premier online learning platform providing quality education led by Ph.D. experts, NET & GATE
-                qualified faculty with 15+ years of government college teaching experience.
+              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">
+                About Biology.Trunk
+              </h4>
+              <p className="text-xs text-gray-400 leading-relaxed">
+                India's premier online learning platform providing quality
+                education led by Ph.D. experts, NET & GATE qualified faculty
+                with 15+ years of government college teaching experience.
               </p>
               <div className="flex gap-2 sm:gap-3 mt-2">
-                <a href="#" className="text-gray-400 hover:text-white transition cursor-pointer">
+                <a
+                  href="#"
+                  className="text-gray-400 hover:text-white transition cursor-pointer"
+                >
                   <i className="fab fa-facebook text-sm"></i>
                 </a>
-                <a href="#" className="text-gray-400 hover:text-white transition cursor-pointer">
+                <a
+                  href="#"
+                  className="text-gray-400 hover:text-white transition cursor-pointer"
+                >
                   <i className="fab fa-twitter text-sm"></i>
                 </a>
-                <a href="#" className="text-gray-400 hover:text-white transition cursor-pointer">
+                <a
+                  href="#"
+                  className="text-gray-400 hover:text-white transition cursor-pointer"
+                >
                   <i className="fab fa-linkedin text-sm"></i>
                 </a>
-                <a href="#" className="text-gray-400 hover:text-white transition cursor-pointer">
+                <a
+                  href="#"
+                  className="text-gray-400 hover:text-white transition cursor-pointer"
+                >
                   <i className="fab fa-instagram text-sm"></i>
                 </a>
               </div>
             </div>
             <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-base sm:text-lg">Courses</h4>
-              <ul className="text-xs sm:text-sm space-y-1.5">
+              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">
+                Courses
+              </h4>
+              <ul className="text-xs space-y-1.5">
                 {[
-                  "Classes 9-12",
-                  "JEE Preparation",
-                  "NEET Preparation",
+                  "Class 12",
+                  "TGT/PGT",
+                  "NEET",
                   "AIIMS Paramedical",
-                  "Nursing Entrance",
-                  "CUET (UG)",
-                  "TGT/PGT Preparation",
-                  "KVS/NVS",
-                  "NET & GATE",
-                  "KYPS Olympiad",
                   "Foreign Languages",
                 ].map((item) => (
                   <li key={item}>
-                    <div 
-                      onClick={() => handleCategoryClick(item)}
+                    <div
+                      onClick={() => handleFooterCourseClick(item)}
                       className="text-gray-400 hover:text-white transition flex items-center gap-1 cursor-pointer"
                     >
                       <i className="fas fa-chevron-right text-xs"></i>
@@ -675,8 +688,10 @@ export default function ViewAllCourses() {
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-base sm:text-lg">Faculty Credentials</h4>
-              <ul className="text-xs sm:text-sm space-y-1.5">
+              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">
+                Faculty Credentials
+              </h4>
+              <ul className="text-xs space-y-1.5">
                 {[
                   "Ph.D. Holders",
                   "NET & GATE Qualified",
@@ -695,8 +710,10 @@ export default function ViewAllCourses() {
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-base sm:text-lg">Legal</h4>
-              <ul className="text-xs sm:text-sm space-y-1.5">
+              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">
+                Legal
+              </h4>
+              <ul className="text-xs space-y-1.5">
                 <li>
                   <Link
                     to="/privacy-policy"
@@ -725,7 +742,10 @@ export default function ViewAllCourses() {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/contact" className="text-gray-400 hover:text-white transition flex items-center gap-1 cursor-pointer">
+                  <Link
+                    to="/contact"
+                    className="text-gray-400 hover:text-white transition flex items-center gap-1 cursor-pointer"
+                  >
                     <i className="fas fa-chevron-right text-xs"></i>
                     Contact Support
                   </Link>
@@ -734,9 +754,10 @@ export default function ViewAllCourses() {
             </div>
           </div>
           <div className="border-t border-gray-800 pt-4 text-center">
-            <p className="text-xs sm:text-sm text-gray-400">
+            <p className="text-xs text-gray-400">
               <i className="fas fa-copyright mr-1"></i>
-              2025 Biology.Trunk. All rights reserved. | Excellence in Education through Expert Guidance
+              2025 Biology.Trunk. All rights reserved. | Excellence in Education
+              through Expert Guidance
             </p>
           </div>
         </div>

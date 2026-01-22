@@ -19,6 +19,7 @@ export default function FacultyAddCourse({ user, onLogout }) {
     duration: "",
     courseLevel: "",
     prerequisites: "",
+    demoVideoUrl: "",
     curriculum: [],
     whatYouWillLearn: [],
     courseIncludes: {
@@ -435,6 +436,25 @@ export default function FacultyAddCourse({ user, onLogout }) {
                         <option value="Advanced">Advanced</option>
                       </select>
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-700 text-sm sm:text-base font-semibold mb-2 flex items-center gap-2">
+                      <i className="fas fa-video text-red-600 text-sm"></i>
+                      Demo Video URL (Optional)
+                    </label>
+                    <input
+                      type="url"
+                      name="demoVideoUrl"
+                      value={formData.demoVideoUrl}
+                      onChange={handleInputChange}
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition text-sm sm:text-base"
+                      placeholder="e.g., https://www.youtube.com/watch?v=... or https://youtube.com/live/..."
+                    />
+                    <p className="text-gray-500 text-xs sm:text-sm mt-1.5">
+                      <i className="fas fa-info-circle mr-1"></i>
+                      Add a demo video URL (YouTube, Vimeo, etc.) so students can preview the course before enrolling
+                    </p>
                   </div>
 
                   <div>

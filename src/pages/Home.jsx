@@ -172,7 +172,7 @@ export default function Home({ user, onLogout }) {
     {
       question: "What courses does Biology.Trunk offer?",
       answer:
-        "Biology.Trunk offers comprehensive courses for Classes 9-12, JEE Preparation, NEET Preparation, AIIMS Paramedical, Nursing Entrance, CUET (UG), TGT/PGT Preparation, KVS/NVS, NET & GATE, KYPS Olympiad, and Foreign Language Courses. Our curriculum is designed by Ph.D. qualified expert faculty with 15+ years of experience.",
+        "Biology.Trunk offers comprehensive courses for Class 12, TGT/PGT Preparation, NEET, AIIMS Paramedical, and Foreign Language Courses. Our curriculum is designed by Ph.D. qualified expert faculty with 15+ years of experience.",
     },
     {
       question: "How do I access the live classes?",
@@ -1139,16 +1139,10 @@ export default function Home({ user, onLogout }) {
               </h4>
               <ul className="text-xs space-y-1.5">
                 {[
-                  "Classes 9-12",
-                  "JEE Preparation",
-                  "NEET Preparation",
+                  "Class 12",
+                  "TGT/PGT",
+                  "NEET",
                   "AIIMS Paramedical",
-                  "Nursing Entrance",
-                  "CUET (UG)",
-                  "TGT/PGT Preparation",
-                  "KVS/NVS",
-                  "NET & GATE",
-                  "KYPS Olympiad",
                   "Foreign Languages",
                 ].map((item) => (
                   <li key={item}>

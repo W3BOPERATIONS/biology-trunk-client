@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useParams, useNavigate, Link } from "react-router-dom"
 import axios from "axios"
 import { API_URL } from "../utils/api.js"
+import { getEmbedUrl } from "../utils/videoHelper.js"
 import RazorpayPayment from "../components/RazorpayPayment.jsx"
 import logo from "../assets/biology-trunk-logo.png"
 
@@ -17,22 +18,6 @@ export default function CoursePreview({ user, onLogout }) {
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState("overview")
   const [showDemoModal, setShowDemoModal] = useState(false)
-
-  const getEmbedUrl = (url) => {
-    if (!url) return ""
-    try {
-      let videoId = ""
-      if (url.includes("youtube.com")) {
-        videoId = url.split("v=")[1]?.split("&")[0]
-      } else if (url.includes("youtu.be")) {
-        videoId = url.split("/").pop()?.split("?")[0]
-      }
-      return videoId ? `https://www.youtube.com/embed/${videoId}` : ""
-    } catch (error) {
-      console.error("Error parsing video URL:", error)
-      return ""
-    }
-  }
 
   useEffect(() => {
     fetchCourse()
@@ -349,15 +334,13 @@ export default function CoursePreview({ user, onLogout }) {
                     )}
                   </div>
 
-                  {course.demoVideoUrl && (
-                    <button
-                      onClick={() => setShowDemoModal(true)}
-                      className="w-full py-3 sm:py-3.5 mb-3 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 transition flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer shadow hover:shadow-lg"
-                    >
-                      <i className="fas fa-play-circle text-base"></i>
-                      View Demo Video
-                    </button>
-                  )}
+                  <button
+                    onClick={() => setShowDemoModal(true)}
+                    className="w-full py-3 sm:py-3.5 mb-3 bg-purple-600 text-white rounded-lg font-bold hover:bg-purple-700 transition flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer shadow hover:shadow-lg"
+                  >
+                    <i className="fas fa-play-circle text-base"></i>
+                    {course.demoVideoUrl ? "View Demo Video" : "Preview Course"}
+                  </button>
 
                   {checkingEnrollment ? (
                     <button
@@ -434,6 +417,7 @@ export default function CoursePreview({ user, onLogout }) {
             <nav className="flex space-x-2 sm:space-x-4 lg:space-x-8 px-3 sm:px-4 lg:px-6 overflow-x-auto">
               {[
                 { id: "overview", name: "Overview", icon: "fas fa-info-circle" },
+                { id: "learning", name: "What You'll Learn", icon: "fas fa-lightbulb" },
                 { id: "curriculum", name: "Curriculum", icon: "fas fa-book" },
                 { id: "includes", name: "What's Included", icon: "fas fa-check-circle" },
               ].map((tab) => (
@@ -550,6 +534,39 @@ export default function CoursePreview({ user, onLogout }) {
                         </div>
                       ))}
                     </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* What You'll Learn Tab */}
+            {activeTab === "learning" && (
+              <div className="space-y-4 sm:space-y-6">
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
+                  <i className="fas fa-lightbulb text-yellow-500 text-lg sm:text-xl"></i>
+                  What You'll Learn
+                </h2>
+                {course.whatYouWillLearn && course.whatYouWillLearn.length > 0 ? (
+                  <div className="space-y-3">
+                    {course.whatYouWillLearn.map((learning, idx) => (
+                      <div
+                        key={idx}
+                        className="flex gap-3 sm:gap-4 p-3 sm:p-4 bg-white border border-gray-200 rounded-xl hover:border-yellow-300 hover:shadow-sm transition"
+                      >
+                        <div className="flex-shrink-0 mt-0.5">
+                          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <i className="fas fa-check text-yellow-600 text-xs sm:text-sm"></i>
+                          </div>
+                        </div>
+                        <p className="text-gray-700 text-sm sm:text-base leading-relaxed">{learning}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 sm:py-12">
+                    <i className="fas fa-star text-4xl sm:text-6xl mb-3 sm:mb-4 text-gray-300"></i>
+                    <div className="text-gray-600 text-base sm:text-lg mb-2">No learning outcomes added yet</div>
+                    <p className="text-gray-500 text-sm sm:text-base">The instructor will add learning outcomes soon</p>
                   </div>
                 )}
               </div>
@@ -803,12 +820,14 @@ export default function CoursePreview({ user, onLogout }) {
                 ></iframe>
               </div>
             ) : (
-              <div className="text-center py-12 bg-gray-50 rounded-lg">
-                <i className="fas fa-video-slash text-5xl text-gray-300 mb-4"></i>
-                <p className="text-gray-600 text-lg font-semibold">
-                  Sorry, there is no demo video for this particular course
+              <div className="text-center py-12 bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg border border-purple-200">
+                <i className="fas fa-video text-5xl text-purple-300 mb-4"></i>
+                <p className="text-gray-700 text-lg font-semibold">
+                  Demo Video Coming Soon!
                 </p>
-                <p className="text-gray-500 text-sm mt-2">Please check back later or contact the instructor</p>
+                <p className="text-gray-600 text-sm mt-3 max-w-md mx-auto">
+                  The instructor will be adding a demo video shortly. Check back soon to preview this course before enrolling!
+                </p>
               </div>
             )}
           </div>
@@ -820,45 +839,56 @@ export default function CoursePreview({ user, onLogout }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
             <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">About Biology.Trunk</h4>
+              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">
+                About Biology.Trunk
+              </h4>
               <p className="text-xs text-gray-400 leading-relaxed">
-                India's premier online learning platform providing quality education led by Ph.D. experts, NET & GATE
-                qualified faculty with 15+ years of government college teaching experience.
+                India's premier online learning platform providing quality
+                education led by Ph.D. experts, NET & GATE qualified faculty
+                with 15+ years of government college teaching experience.
               </p>
               <div className="flex gap-2 sm:gap-3 mt-2">
-                <a href="#" className="text-gray-400 hover:text-white transition cursor-pointer">
+                <a
+                  href="#"
+                  className="text-gray-400 hover:text-white transition cursor-pointer"
+                >
                   <i className="fab fa-facebook text-sm"></i>
                 </a>
-                <a href="#" className="text-gray-400 hover:text-white transition cursor-pointer">
+                <a
+                  href="#"
+                  className="text-gray-400 hover:text-white transition cursor-pointer"
+                >
                   <i className="fab fa-twitter text-sm"></i>
                 </a>
-                <a href="#" className="text-gray-400 hover:text-white transition cursor-pointer">
+                <a
+                  href="#"
+                  className="text-gray-400 hover:text-white transition cursor-pointer"
+                >
                   <i className="fab fa-linkedin text-sm"></i>
                 </a>
-                <a href="#" className="text-gray-400 hover:text-white transition cursor-pointer">
+                <a
+                  href="#"
+                  className="text-gray-400 hover:text-white transition cursor-pointer"
+                >
                   <i className="fab fa-instagram text-sm"></i>
                 </a>
               </div>
             </div>
             <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">Courses</h4>
+              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">
+                Courses
+              </h4>
               <ul className="text-xs space-y-1.5">
                 {[
-                  "Classes 9-12",
-                  "JEE Preparation",
-                  "NEET Preparation",
+                  "Class 12",
+                  "TGT/PGT",
+                  "NEET",
                   "AIIMS Paramedical",
-                  "Nursing Entrance",
-                  "CUET (UG)",
-                  "TGT/PGT Preparation",
-                  "KVS/NVS",
-                  "NET & GATE",
-                  "KYPS Olympiad",
                   "Foreign Languages",
                 ].map((item) => (
                   <li key={item}>
                     <div
-                      onClick={() => navigate(`/view-all-courses?category=${encodeURIComponent(item)}`)}
+                      onClick={() => handleFooterCourseClick(item)}
                       className="text-gray-400 hover:text-white transition flex items-center gap-1 cursor-pointer"
                     >
                       <i className="fas fa-chevron-right text-xs"></i>
@@ -869,7 +899,9 @@ export default function CoursePreview({ user, onLogout }) {
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">Faculty Credentials</h4>
+              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">
+                Faculty Credentials
+              </h4>
               <ul className="text-xs space-y-1.5">
                 {[
                   "Ph.D. Holders",
@@ -889,7 +921,9 @@ export default function CoursePreview({ user, onLogout }) {
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">Legal</h4>
+              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">
+                Legal
+              </h4>
               <ul className="text-xs space-y-1.5">
                 <li>
                   <Link
@@ -933,7 +967,8 @@ export default function CoursePreview({ user, onLogout }) {
           <div className="border-t border-gray-800 pt-4 text-center">
             <p className="text-xs text-gray-400">
               <i className="fas fa-copyright mr-1"></i>
-              2025 Biology.Trunk. All rights reserved. | Excellence in Education through Expert Guidance
+              2025 Biology.Trunk. All rights reserved. | Excellence in Education
+              through Expert Guidance
             </p>
           </div>
         </div>
