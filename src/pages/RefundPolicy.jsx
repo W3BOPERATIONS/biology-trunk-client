@@ -2,6 +2,7 @@
 
 import { Link } from "react-router-dom"
 import logo from "../assets/biology-trunk-logo.png"
+import Footer from "../components/Footer"
 
 export default function RefundPolicy() {
   return (
@@ -20,8 +21,8 @@ export default function RefundPolicy() {
               </Link>
               <span className="text-gray-900 font-bold text-2xl sm:text-3xl hidden sm:block">Biology.Trunk</span>
             </div>
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
             >
               <i className="fas fa-home text-sm"></i>
@@ -69,7 +70,7 @@ export default function RefundPolicy() {
                     { id: "contact", label: "Contact Us" },
                   ].map((item) => (
                     <li key={item.id}>
-                      <a 
+                      <a
                         href={`#${item.id}`}
                         className="flex items-center gap-2 text-gray-600 hover:text-blue-600 text-sm sm:text-base py-1.5 transition-colors"
                       >
@@ -138,18 +139,18 @@ export default function RefundPolicy() {
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Refund Eligibility</h2>
                   </div>
-                  
+
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
                     <p className="text-green-800 font-medium">
                       <i className="fas fa-calendar-check mr-2"></i>
                       <strong>7-Day Money Back Guarantee</strong> from the date of enrollment
                     </p>
                   </div>
-                  
+
                   <p className="text-gray-700 leading-relaxed mb-4">
                     You are eligible for a full refund if you meet ALL of the following conditions:
                   </p>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div className="bg-white border border-green-200 rounded-lg p-4">
                       <div className="flex items-center gap-2 mb-2">
@@ -160,7 +161,7 @@ export default function RefundPolicy() {
                       </div>
                       <p className="text-gray-600 text-xs">Refund request submitted within 7 days of enrollment</p>
                     </div>
-                    
+
                     <div className="bg-white border border-green-200 rounded-lg p-4">
                       <div className="flex items-center gap-2 mb-2">
                         <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -170,7 +171,7 @@ export default function RefundPolicy() {
                       </div>
                       <p className="text-gray-600 text-xs">Not accessed more than 30% of course content</p>
                     </div>
-                    
+
                     <div className="bg-white border border-green-200 rounded-lg p-4">
                       <div className="flex items-center gap-2 mb-2">
                         <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -180,7 +181,7 @@ export default function RefundPolicy() {
                       </div>
                       <p className="text-gray-600 text-xs">Not participated in more than 2 live classes</p>
                     </div>
-                    
+
                     <div className="bg-white border border-green-200 rounded-lg p-4">
                       <div className="flex items-center gap-2 mb-2">
                         <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -201,7 +202,7 @@ export default function RefundPolicy() {
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">No Refund After 7 Days</h2>
                   </div>
-                  
+
                   <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
                     <div className="flex items-start gap-3">
                       <i className="fas fa-times-circle text-red-500 text-xl mt-0.5"></i>
@@ -213,7 +214,7 @@ export default function RefundPolicy() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-4">
                     <div className="bg-white border border-red-100 rounded-lg p-4">
                       <h3 className="font-bold text-gray-900 mb-2 text-lg">Important Considerations</h3>
@@ -232,7 +233,7 @@ export default function RefundPolicy() {
                         </li>
                       </ul>
                     </div>
-                    
+
                     <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                       <div className="flex items-start gap-2">
                         <i className="fas fa-info-circle text-blue-600 mt-0.5"></i>
@@ -255,7 +256,7 @@ export default function RefundPolicy() {
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Non-Refundable Courses & Conditions</h2>
                   </div>
-                  
+
                   <div className="space-y-3">
                     {[
                       {
@@ -304,14 +305,14 @@ export default function RefundPolicy() {
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Refund Process</h2>
                   </div>
-                  
+
                   <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-4">
                     <p className="text-indigo-800 font-medium">
                       <i className="fas fa-list-ol mr-2"></i>
                       To request a refund (within 7 days), follow these steps:
                     </p>
                   </div>
-                  
+
                   <div className="space-y-4">
                     {[
                       {
@@ -353,7 +354,7 @@ export default function RefundPolicy() {
                       </div>
                     ))}
                   </div>
-                  
+
                   <div className="mt-4 bg-gray-50 border border-gray-200 rounded-lg p-4">
                     <h3 className="font-bold text-gray-900 mb-2">Refund Method</h3>
                     <p className="text-gray-700 text-sm">
@@ -370,18 +371,18 @@ export default function RefundPolicy() {
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Partial Refunds</h2>
                   </div>
-                  
+
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
                     <p className="text-yellow-800 font-medium">
                       <i className="fas fa-exclamation-circle mr-2"></i>
                       Partial refunds are rare and evaluated on a case-by-case basis
                     </p>
                   </div>
-                  
+
                   <p className="text-gray-700 leading-relaxed mb-3">
                     In exceptional cases where students have accessed significant course content but still wish to withdraw, we may consider a partial refund (typically up to 50% of the course fee).
                   </p>
-                  
+
                   <div className="space-y-2 text-sm text-gray-700">
                     <div className="flex items-start gap-2">
                       <i className="fas fa-circle text-xs text-yellow-500 mt-1.5"></i>
@@ -406,11 +407,11 @@ export default function RefundPolicy() {
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Course Quality Guarantee</h2>
                   </div>
-                  
+
                   <p className="text-gray-700 leading-relaxed mb-4">
                     We stand by the quality of our educational content and faculty expertise. If you experience any of the following within the 7-day refund period, we will work to resolve the issue or provide a full refund:
                   </p>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="bg-white border border-green-200 rounded-lg p-3">
                       <div className="flex items-center gap-2 mb-1">
@@ -419,7 +420,7 @@ export default function RefundPolicy() {
                       </div>
                       <p className="text-gray-600 text-xs">Platform accessibility problems</p>
                     </div>
-                    
+
                     <div className="bg-white border border-green-200 rounded-lg p-3">
                       <div className="flex items-center gap-2 mb-1">
                         <i className="fas fa-book text-green-600"></i>
@@ -427,7 +428,7 @@ export default function RefundPolicy() {
                       </div>
                       <p className="text-gray-600 text-xs">Inaccurate or incomplete course materials</p>
                     </div>
-                    
+
                     <div className="bg-white border border-green-200 rounded-lg p-3">
                       <div className="flex items-center gap-2 mb-1">
                         <i className="fas fa-chalkboard-teacher text-green-600"></i>
@@ -435,7 +436,7 @@ export default function RefundPolicy() {
                       </div>
                       <p className="text-gray-600 text-xs">Instructor unavailability or quality concerns</p>
                     </div>
-                    
+
                     <div className="bg-white border border-green-200 rounded-lg p-3">
                       <div className="flex items-center gap-2 mb-1">
                         <i className="fas fa-video text-green-600"></i>
@@ -454,7 +455,7 @@ export default function RefundPolicy() {
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Contact Us</h2>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-5">
                     <div className="flex items-start gap-4">
                       <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -468,8 +469,8 @@ export default function RefundPolicy() {
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
                             <i className="fas fa-envelope text-blue-600"></i>
-                            <a 
-                              href="mailto:biologytrunk145@gmail.com" 
+                            <a
+                              href="mailto:biologytrunk145@gmail.com"
                               className="text-blue-600 hover:text-blue-700 font-medium"
                             >
                               biologytrunk145@gmail.com
@@ -483,7 +484,7 @@ export default function RefundPolicy() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="mt-4 text-center">
                     <p className="text-gray-600 text-sm">
                       Please note: Refund requests received after 7 days of enrollment will not be processed under any circumstances.
@@ -525,123 +526,8 @@ export default function RefundPolicy() {
         </div>
       </section>
 
-      {/* Footer - Same as Home */}
-      <footer className="bg-gray-900 text-gray-300 py-8 sm:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
-            <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">About Biology.Trunk</h4>
-              <p className="text-xs text-gray-400 leading-relaxed">
-                India's premier online learning platform providing quality education led by Ph.D. experts, NET & GATE
-                qualified faculty with 15+ years of government college teaching experience.
-              </p>
-              <div className="flex gap-2 sm:gap-3 mt-2">
-                <a href="#" className="text-gray-400 hover:text-white transition">
-                  <i className="fab fa-facebook text-sm"></i>
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white transition">
-                  <i className="fab fa-twitter text-sm"></i>
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white transition">
-                  <i className="fab fa-linkedin text-sm"></i>
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white transition">
-                  <i className="fab fa-instagram text-sm"></i>
-                </a>
-              </div>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">Courses</h4>
-              <ul className="text-xs space-y-1.5">
-                {[
-                  "Classes 9-12",
-                  "JEE Preparation",
-                  "NEET Preparation",
-                  "AIIMS Paramedical",
-                  "Nursing Entrance",
-                  "CUET (UG)",
-                  "TGT/PGT Preparation",
-                  "KVS/NVS",
-                  "NET & GATE",
-                  "KYPS Olympiad",
-                  "Foreign Languages",
-                ].map((item) => (
-                  <li key={item}>
-                    <a href="#" className="text-gray-400 hover:text-white transition flex items-center gap-1">
-                      <i className="fas fa-chevron-right text-xs"></i>
-                      {item}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">Faculty Credentials</h4>
-              <ul className="text-xs space-y-1.5">
-                {[
-                  "Ph.D. Holders",
-                  "NET & GATE Qualified",
-                  // "Ex Government College Lecturers",
-                  "15+ Years Experience",
-                  "IIT/NIT Alumni",
-                  "Subject Matter Experts",
-                ].map((item) => (
-                  <li key={item}>
-                    <div className="text-gray-400 flex items-center gap-1">
-                      <i className="fas fa-check text-green-500 text-xs"></i>
-                      {item}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">Legal</h4>
-              <ul className="text-xs space-y-1.5">
-                <li>
-                  <Link
-                    to="/privacy-policy"
-                    className="text-gray-400 hover:text-white transition flex items-center gap-1"
-                  >
-                    <i className="fas fa-chevron-right text-xs"></i>
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/terms-conditions"
-                    className="text-gray-400 hover:text-white transition flex items-center gap-1"
-                  >
-                    <i className="fas fa-chevron-right text-xs"></i>
-                    Terms & Conditions
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/refund-policy"
-                    className="text-gray-400 hover:text-white transition flex items-center gap-1 bg-blue-900/20 px-2 rounded"
-                  >
-                    <i className="fas fa-chevron-right text-xs"></i>
-                    Refund Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/contact" className="text-gray-400 hover:text-white transition flex items-center gap-1">
-                    <i className="fas fa-chevron-right text-xs"></i>
-                    Contact Support
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 pt-4 text-center">
-            <p className="text-xs text-gray-400">
-              <i className="fas fa-copyright mr-1"></i>
-              2025 Biology.Trunk. All rights reserved. | Excellence in Education through Expert Guidance
-            </p>
-          </div>
-        </div>
-      </footer>
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

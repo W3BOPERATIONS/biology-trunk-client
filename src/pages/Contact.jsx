@@ -6,6 +6,7 @@ import axios from "axios"
 import { API_URL } from "../utils/api.js"
 import logo from "../assets/biology-trunk-logo.png"
 import { showSuccessToast, showErrorToast } from "../utils/toast.js"
+import Footer from "../components/Footer"
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -65,8 +66,8 @@ export default function Contact() {
               </Link>
               <span className="text-gray-900 font-bold text-2xl sm:text-3xl hidden sm:block">Biology.Trunk</span>
             </div>
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
             >
               <i className="fas fa-home text-sm"></i>
@@ -252,8 +253,8 @@ export default function Contact() {
                     <div>
                       <h3 className="text-lg font-bold text-gray-900 mb-1">Email Support</h3>
                       <p className="text-gray-600 mb-2">For course inquiries and general questions</p>
-                      <a 
-                        href="mailto:biologytrunk145@gmail.com" 
+                      <a
+                        href="mailto:biologytrunk145@gmail.com"
                         className="text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1"
                       >
                         biologytrunk145@gmail.com
@@ -273,8 +274,8 @@ export default function Contact() {
                     <div>
                       <h3 className="text-lg font-bold text-gray-900 mb-1">Phone Support</h3>
                       <p className="text-gray-600 mb-2">For urgent queries and technical assistance</p>
-                      <a 
-                        href="tel:+91XXXXXXXXXX" 
+                      <a
+                        href="tel:+91XXXXXXXXXX"
                         className="text-green-600 hover:text-green-700 font-medium inline-flex items-center gap-1"
                       >
                         +91 XXXXX XXXXX
@@ -360,7 +361,7 @@ export default function Contact() {
               <p className="text-gray-700">9:00 AM - 8:00 PM IST</p>
               <p className="text-gray-500 text-sm">Monday to Friday</p>
             </div>
-            
+
             <div className="bg-white p-5 rounded-xl border border-gray-200 text-center">
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
                 <i className="fas fa-calendar-alt text-green-600 text-xl"></i>
@@ -369,7 +370,7 @@ export default function Contact() {
               <p className="text-gray-700">10:00 AM - 6:00 PM IST</p>
               <p className="text-gray-500 text-sm">Saturday & Sunday</p>
             </div>
-            
+
             <div className="bg-white p-5 rounded-xl border border-gray-200 text-center">
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3">
                 <i className="fas fa-headset text-purple-600 text-xl"></i>
@@ -382,123 +383,8 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* Footer - Same as Home */}
-      <footer className="bg-gray-900 text-gray-300 py-8 sm:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
-            <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">About Biology.Trunk</h4>
-              <p className="text-xs text-gray-400 leading-relaxed">
-                India's premier online learning platform providing quality education led by Ph.D. experts, NET & GATE
-                qualified faculty with 15+ years of government college teaching experience.
-              </p>
-              <div className="flex gap-2 sm:gap-3 mt-2">
-                <a href="#" className="text-gray-400 hover:text-white transition">
-                  <i className="fab fa-facebook text-sm"></i>
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white transition">
-                  <i className="fab fa-twitter text-sm"></i>
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white transition">
-                  <i className="fab fa-linkedin text-sm"></i>
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white transition">
-                  <i className="fab fa-instagram text-sm"></i>
-                </a>
-              </div>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">Courses</h4>
-              <ul className="text-xs space-y-1.5">
-                {[
-                  "Classes 9-12",
-                  "JEE Preparation",
-                  "NEET Preparation",
-                  "AIIMS Paramedical",
-                  "Nursing Entrance",
-                  "CUET (UG)",
-                  "TGT/PGT Preparation",
-                  "KVS/NVS",
-                  "NET & GATE",
-                  "KYPS Olympiad",
-                  "Foreign Languages",
-                ].map((item) => (
-                  <li key={item}>
-                    <a href="#" className="text-gray-400 hover:text-white transition flex items-center gap-1">
-                      <i className="fas fa-chevron-right text-xs"></i>
-                      {item}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">Faculty Credentials</h4>
-              <ul className="text-xs space-y-1.5">
-                {[
-                  "Ph.D. Holders",
-                  "NET & GATE Qualified",
-                  // "Ex Government College Lecturers",
-                  "15+ Years Experience",
-                  "IIT/NIT Alumni",
-                  "Subject Matter Experts",
-                ].map((item) => (
-                  <li key={item}>
-                    <div className="text-gray-400 flex items-center gap-1">
-                      <i className="fas fa-check text-green-500 text-xs"></i>
-                      {item}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">Legal</h4>
-              <ul className="text-xs space-y-1.5">
-                <li>
-                  <Link
-                    to="/privacy-policy"
-                    className="text-gray-400 hover:text-white transition flex items-center gap-1"
-                  >
-                    <i className="fas fa-chevron-right text-xs"></i>
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/terms-conditions"
-                    className="text-gray-400 hover:text-white transition flex items-center gap-1"
-                  >
-                    <i className="fas fa-chevron-right text-xs"></i>
-                    Terms of Service
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/refund-policy"
-                    className="text-gray-400 hover:text-white transition flex items-center gap-1"
-                  >
-                    <i className="fas fa-chevron-right text-xs"></i>
-                    Refund Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/contact" className="text-gray-400 hover:text-white transition flex items-center gap-1">
-                    <i className="fas fa-chevron-right text-xs"></i>
-                    Contact Support
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 pt-4 text-center">
-            <p className="text-xs text-gray-400">
-              <i className="fas fa-copyright mr-1"></i>
-              2025 Biology.Trunk. All rights reserved. | Excellence in Education through Expert Guidance
-            </p>
-          </div>
-        </div>
-      </footer>
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

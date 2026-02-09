@@ -2,6 +2,7 @@
 
 import { Link } from "react-router-dom"
 import logo from "../assets/biology-trunk-logo.png"
+import Footer from "../components/Footer"
 
 export default function TermsAndConditions() {
   return (
@@ -20,8 +21,8 @@ export default function TermsAndConditions() {
               </Link>
               <span className="text-gray-900 font-bold text-2xl sm:text-3xl hidden sm:block">Biology.Trunk</span>
             </div>
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
             >
               <i className="fas fa-home text-sm"></i>
@@ -68,7 +69,7 @@ export default function TermsAndConditions() {
                     { id: "contact", label: "Contact Us" },
                   ].map((item) => (
                     <li key={item.id}>
-                      <a 
+                      <a
                         href={`#${item.id}`}
                         className="flex items-center gap-2 text-gray-600 hover:text-blue-600 text-sm sm:text-base py-1.5 transition-colors"
                       >
@@ -136,7 +137,7 @@ export default function TermsAndConditions() {
                   <p className="text-gray-700 leading-relaxed mb-4">
                     Subject to your compliance with these Terms, Biology.Trunk grants you a limited, non-exclusive, non-transferable, revocable license to access and use our educational platform for your personal, non-commercial educational purposes.
                   </p>
-                  
+
                   <div className="mb-4">
                     <h3 className="font-bold text-gray-900 mb-3 text-lg">Restrictions:</h3>
                     <div className="space-y-3">
@@ -187,14 +188,14 @@ export default function TermsAndConditions() {
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Course Content & Learning Materials</h2>
                   </div>
-                  
+
                   <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
                     <p className="text-purple-800 font-medium">
                       <i className="fas fa-copyright mr-2"></i>
                       All educational content on Biology.Trunk is protected by copyright and intellectual property laws.
                     </p>
                   </div>
-                  
+
                   <div className="space-y-4">
                     <div>
                       <h3 className="font-bold text-gray-900 mb-2">Ownership</h3>
@@ -202,7 +203,7 @@ export default function TermsAndConditions() {
                         All course content, videos, lecture notes, study materials, assessments, and other educational resources provided by Biology.Trunk are the exclusive property of Biology.Trunk or its licensors.
                       </p>
                     </div>
-                    
+
                     <div>
                       <h3 className="font-bold text-gray-900 mb-2">Permitted Use</h3>
                       <div className="space-y-2 ml-4">
@@ -220,7 +221,7 @@ export default function TermsAndConditions() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                       <div className="flex items-start gap-2">
                         <i className="fas fa-times-circle text-red-500 mt-0.5"></i>
@@ -243,7 +244,7 @@ export default function TermsAndConditions() {
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">User Responsibilities</h2>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     {[
                       {
@@ -282,7 +283,7 @@ export default function TermsAndConditions() {
                       </div>
                     ))}
                   </div>
-                  
+
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <div className="flex items-start gap-2">
                       <i className="fas fa-exclamation-circle text-blue-600 mt-0.5"></i>
@@ -319,19 +320,19 @@ export default function TermsAndConditions() {
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Limitation of Liability</h2>
                   </div>
-                  
+
                   <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
                     <p className="text-red-800 font-medium">
                       <i className="fas fa-gavel mr-2"></i>
                       Important Disclaimer of Warranties and Limitation of Liability
                     </p>
                   </div>
-                  
+
                   <div className="space-y-4">
                     <p className="text-gray-700 leading-relaxed">
                       To the maximum extent permitted by applicable law, Biology.Trunk shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, or any loss of data, use, goodwill, or other intangible losses resulting from:
                     </p>
-                    
+
                     <div className="space-y-2 ml-4">
                       <div className="flex items-start gap-2">
                         <i className="fas fa-times text-red-500 mt-0.5"></i>
@@ -350,7 +351,7 @@ export default function TermsAndConditions() {
                         <p className="text-gray-700 text-sm">Any errors or omissions in any content</p>
                       </div>
                     </div>
-                    
+
                     <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                       <p className="text-gray-700 text-sm">
                         <strong>Educational Disclaimer:</strong> While we strive to provide high-quality educational content, Biology.Trunk makes no guarantees regarding exam results, admission outcomes, or any other specific academic achievements. Individual results may vary based on multiple factors including personal effort, learning ability, and external circumstances.
@@ -367,19 +368,19 @@ export default function TermsAndConditions() {
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Modifications to Terms</h2>
                   </div>
-                  
+
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
                     <p className="text-yellow-800 font-medium">
                       <i className="fas fa-bell mr-2"></i>
                       We reserve the right to update these Terms & Conditions at any time
                     </p>
                   </div>
-                  
+
                   <div className="space-y-3">
                     <p className="text-gray-700 leading-relaxed">
                       Biology.Trunk reserves the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material, we will provide at least 30 days' notice prior to any new terms taking effect.
                     </p>
-                    
+
                     <div className="flex items-start gap-2 p-3 bg-gray-50 rounded-lg">
                       <i className="fas fa-info-circle text-blue-600 mt-0.5"></i>
                       <div>
@@ -389,7 +390,7 @@ export default function TermsAndConditions() {
                         </p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-start gap-2 p-3 bg-gray-50 rounded-lg">
                       <i className="fas fa-calendar-check text-green-600 mt-0.5"></i>
                       <div>
@@ -410,7 +411,7 @@ export default function TermsAndConditions() {
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Contact Us</h2>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-5">
                     <div className="flex items-start gap-4">
                       <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -424,8 +425,8 @@ export default function TermsAndConditions() {
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
                             <i className="fas fa-envelope text-blue-600"></i>
-                            <a 
-                              href="mailto:biologytrunk145@gmail.com" 
+                            <a
+                              href="mailto:biologytrunk145@gmail.com"
                               className="text-blue-600 hover:text-blue-700 font-medium"
                             >
                               biologytrunk145@gmail.com
@@ -439,7 +440,7 @@ export default function TermsAndConditions() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="mt-4 text-center">
                     <p className="text-gray-600 text-sm">
                       For privacy-related inquiries, please refer to our{" "}
@@ -463,8 +464,8 @@ export default function TermsAndConditions() {
             <p className="text-gray-600">Review our other important policies and documents</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Link 
-              to="/privacy-policy" 
+            <Link
+              to="/privacy-policy"
               className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-lg hover:border-blue-300 transition-all text-center"
             >
               <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-2">
@@ -473,9 +474,9 @@ export default function TermsAndConditions() {
               <h3 className="font-bold text-gray-900 mb-1">Privacy Policy</h3>
               <p className="text-gray-600 text-xs">How we protect your personal data</p>
             </Link>
-            
-            <Link 
-              to="/refund-policy" 
+
+            <Link
+              to="/refund-policy"
               className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-lg hover:border-green-300 transition-all text-center"
             >
               <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-2">
@@ -484,9 +485,9 @@ export default function TermsAndConditions() {
               <h3 className="font-bold text-gray-900 mb-1">Refund Policy</h3>
               <p className="text-gray-600 text-xs">Our refund and cancellation policy</p>
             </Link>
-            
-            <Link 
-              to="/contact" 
+
+            <Link
+              to="/contact"
               className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-lg hover:border-purple-300 transition-all text-center"
             >
               <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-2">
@@ -499,123 +500,8 @@ export default function TermsAndConditions() {
         </div>
       </section>
 
-      {/* Footer - Same as Home */}
-      <footer className="bg-gray-900 text-gray-300 py-8 sm:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
-            <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">About Biology.Trunk</h4>
-              <p className="text-xs text-gray-400 leading-relaxed">
-                India's premier online learning platform providing quality education led by Ph.D. experts, NET & GATE
-                qualified faculty with 15+ years of government college teaching experience.
-              </p>
-              <div className="flex gap-2 sm:gap-3 mt-2">
-                <a href="#" className="text-gray-400 hover:text-white transition">
-                  <i className="fab fa-facebook text-sm"></i>
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white transition">
-                  <i className="fab fa-twitter text-sm"></i>
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white transition">
-                  <i className="fab fa-linkedin text-sm"></i>
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white transition">
-                  <i className="fab fa-instagram text-sm"></i>
-                </a>
-              </div>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">Courses</h4>
-              <ul className="text-xs space-y-1.5">
-                {[
-                  "Classes 9-12",
-                  "JEE Preparation",
-                  "NEET Preparation",
-                  "AIIMS Paramedical",
-                  "Nursing Entrance",
-                  "CUET (UG)",
-                  "TGT/PGT Preparation",
-                  "KVS/NVS",
-                  "NET & GATE",
-                  "KYPS Olympiad",
-                  "Foreign Languages",
-                ].map((item) => (
-                  <li key={item}>
-                    <a href="#" className="text-gray-400 hover:text-white transition flex items-center gap-1">
-                      <i className="fas fa-chevron-right text-xs"></i>
-                      {item}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">Faculty Credentials</h4>
-              <ul className="text-xs space-y-1.5">
-                {[
-                  "Ph.D. Holders",
-                  "NET & GATE Qualified",
-                  // "Ex Government College Lecturers",
-                  "15+ Years Experience",
-                  "IIT/NIT Alumni",
-                  "Subject Matter Experts",
-                ].map((item) => (
-                  <li key={item}>
-                    <div className="text-gray-400 flex items-center gap-1">
-                      <i className="fas fa-check text-green-500 text-xs"></i>
-                      {item}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-2 sm:mb-3 text-sm sm:text-base">Legal</h4>
-              <ul className="text-xs space-y-1.5">
-                <li>
-                  <Link
-                    to="/privacy-policy"
-                    className="text-gray-400 hover:text-white transition flex items-center gap-1"
-                  >
-                    <i className="fas fa-chevron-right text-xs"></i>
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/terms-conditions"
-                    className="text-gray-400 hover:text-white transition flex items-center gap-1 bg-blue-900/20 px-2 rounded"
-                  >
-                    <i className="fas fa-chevron-right text-xs"></i>
-                    Terms & Conditions
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/refund-policy"
-                    className="text-gray-400 hover:text-white transition flex items-center gap-1"
-                  >
-                    <i className="fas fa-chevron-right text-xs"></i>
-                    Refund Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/contact" className="text-gray-400 hover:text-white transition flex items-center gap-1">
-                    <i className="fas fa-chevron-right text-xs"></i>
-                    Contact Support
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 pt-4 text-center">
-            <p className="text-xs text-gray-400">
-              <i className="fas fa-copyright mr-1"></i>
-              2025 Biology.Trunk. All rights reserved. | Excellence in Education through Expert Guidance
-            </p>
-          </div>
-        </div>
-      </footer>
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

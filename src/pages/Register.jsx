@@ -17,6 +17,8 @@ export default function Register({ setUser }) {
   })
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -208,20 +210,23 @@ export default function Register({ setUser }) {
                 </label>
                 <div className="relative">
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full px-4 py-4 pl-11 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200"
+                    className="w-full px-4 py-4 pl-11 pr-10 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200"
                     placeholder="••••••••"
                     required
                   />
                   <i className="fas fa-key absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  >
+                    <i className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+                  </button>
                 </div>
-                <p className="text-xs text-gray-500 mt-2 flex items-center gap-2">
-                  <i className="fas fa-info-circle text-blue-500"></i>
-                  At least 6 characters
-                </p>
               </div>
 
               <div className="space-y-2">
@@ -231,15 +236,22 @@ export default function Register({ setUser }) {
                 </label>
                 <div className="relative">
                   <input
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="w-full px-4 py-4 pl-11 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200"
+                    className="w-full px-4 py-4 pl-11 pr-10 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200"
                     placeholder="••••••••"
                     required
                   />
                   <i className="fas fa-check-circle absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  >
+                    <i className={`fas ${showConfirmPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+                  </button>
                 </div>
               </div>
             </div>
