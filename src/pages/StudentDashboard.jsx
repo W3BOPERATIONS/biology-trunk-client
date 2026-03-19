@@ -13,9 +13,9 @@ export default function StudentDashboard({ user, onLogout }) {
   const location = useLocation()
   const searchParams = new URLSearchParams(location.search)
   const navigate = useNavigate()
-  const [searchParamsFromHook, setSearchParams] = useSearchParams()
-
-  const [activeTab, setActiveTab] = useState(searchParamsFromHook.get("tab") || "discover")
+  const segments = location.pathname.split("/")
+  const activeTab = segments[2] || "discover"
+  const validTabs = ["discover", "my-courses", "progress"]
 
   const [categories, setCategories] = useState([])
   const [courses, setCourses] = useState([])
@@ -62,8 +62,12 @@ export default function StudentDashboard({ user, onLogout }) {
   }, [selectedCategory, currentPage, searchTerm])
 
   useEffect(() => {
-    setSearchParams({ tab: activeTab }, { replace: true })
-  }, [activeTab, setSearchParams])
+    if (segments[2] && !validTabs.includes(segments[2])) {
+      navigate("/404", { replace: true })
+    } else if (!segments[2]) {
+      navigate("/student-dashboard/discover", { replace: true })
+    }
+  }, [segments, navigate])
 
   useEffect(() => {
     const fetchAvailableCategories = async () => {
@@ -512,7 +516,7 @@ export default function StudentDashboard({ user, onLogout }) {
               ].map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => navigate(`/student-dashboard/${tab.id}`)}
                   className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center gap-1 sm:gap-2 flex-shrink-0 ${
                     activeTab === tab.id
                       ? "border-blue-600 text-blue-600"
@@ -791,7 +795,7 @@ export default function StudentDashboard({ user, onLogout }) {
                     <div className="text-gray-600 text-base sm:text-lg mb-2 sm:mb-4">No courses enrolled yet</div>
                     <p className="text-gray-500 text-sm sm:text-base mb-4 sm:mb-6">Start by exploring our courses</p>
                     <button
-                      onClick={() => setActiveTab("discover")}
+                      onClick={() => navigate("/student-dashboard/discover")}
                       className="px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center justify-center gap-1 sm:gap-2 mx-auto text-sm sm:text-base"
                     >
                       <i className="fas fa-compass text-sm"></i>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useNavigate, useLocation } from "react-router-dom"
 import axios from "axios"
 import { API_URL } from "../utils/api.js"
 import logo from "../assets/biology-trunk-logo.png"
@@ -12,7 +13,11 @@ export default function AdminDashboard({ user, onLogout }) {
   const [courses, setCourses] = useState([])
   const [enrollments, setEnrollments] = useState([])
   const [notifications, setNotifications] = useState([])
-  const [activeTab, setActiveTab] = useState("overview")
+  const navigate = useNavigate()
+  const location = useLocation()
+  const segments = location.pathname.split("/")
+  const activeTab = segments[2] || "overview"
+  const validTabs = ["overview", "students", "faculty", "courses", "enrollments", "revenue"]
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedNotification, setSelectedNotification] = useState(null)
@@ -28,6 +33,21 @@ export default function AdminDashboard({ user, onLogout }) {
     activeEnrollments: 0,
   })
 
+  // Add Faculty Flow States
+  const [showAddFacultyModal, setShowAddFacultyModal] = useState(false)
+  const [facultyStep, setFacultyStep] = useState(1) // 1: Email, 2: OTP, 3: Details
+  const [facultyForm, setFacultyForm] = useState({
+    email: "",
+    otp: "",
+    name: "",
+    phone: "",
+    password: "",
+  })
+  const [facultyLoading, setFacultyLoading] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleteId, setDeleteId] = useState(null)
+  const [deleteType, setDeleteType] = useState(null) // "faculty" or "course"
+
   const [courseFilters, setCourseFilters] = useState({
     class: "",
     faculty: "",
@@ -41,6 +61,14 @@ export default function AdminDashboard({ user, onLogout }) {
     fetchData()
     loadAvailableFaculty()
   }, [])
+
+  useEffect(() => {
+    if (segments[2] && !validTabs.includes(segments[2])) {
+      navigate("/404", { replace: true })
+    } else if (!segments[2]) {
+      navigate("/admin-dashboard/overview", { replace: true })
+    }
+  }, [segments, navigate])
 
   const fetchData = async () => {
     try {
@@ -252,6 +280,90 @@ export default function AdminDashboard({ user, onLogout }) {
     })
   }
 
+  // --- Add Faculty Logic ---
+  const handleSendFacultyOTP = async () => {
+    if (!facultyForm.email) return showErrorToast("Email is required")
+    try {
+      setFacultyLoading(true)
+      await axios.post(`${API_URL}/users/faculty/send-otp`, { email: facultyForm.email })
+      showSuccessToast("OTP sent successfully to " + facultyForm.email)
+      setFacultyStep(2)
+    } catch (error) {
+      showErrorToast(error.response?.data?.message || "Failed to send OTP")
+    } finally {
+      setFacultyLoading(false)
+    }
+  }
+
+  const handleVerifyFacultyOTP = async () => {
+    if (!facultyForm.otp) return showErrorToast("OTP is required")
+    try {
+      setFacultyLoading(true)
+      const res = await axios.post(`${API_URL}/users/faculty/verify-otp`, {
+        email: facultyForm.email,
+        otp: facultyForm.otp,
+      })
+      if (res.data.verified) {
+        showSuccessToast("OTP verified!")
+        setFacultyStep(3)
+      }
+    } catch (error) {
+      showErrorToast(error.response?.data?.message || "Invalid OTP")
+    } finally {
+      setFacultyLoading(false)
+    }
+  }
+
+  const handleCreateFaculty = async () => {
+    const { name, phone, password, email, otp } = facultyForm
+    if (!name || !phone || !password) return showErrorToast("All fields are required")
+    try {
+      setFacultyLoading(true)
+      await axios.post(`${API_URL}/users/faculty/register-by-admin`, {
+        name,
+        email,
+        phone,
+        password,
+        otp,
+      })
+      showSuccessToast("Faculty account created successfully!")
+      setShowAddFacultyModal(false)
+      fetchData() // Refresh faculty list
+    } catch (error) {
+      showErrorToast(error.response?.data?.message || "Failed to create faculty")
+    } finally {
+      setFacultyLoading(false)
+    }
+  }
+
+  const handleDeleteClick = (id, type) => {
+    setDeleteId(id)
+    setDeleteType(type)
+    setShowDeleteConfirm(true)
+  }
+
+  const confirmDelete = async () => {
+    try {
+      if (deleteType === "faculty") {
+        await axios.delete(`${API_URL}/users/${deleteId}`)
+        showSuccessToast("Faculty and their courses deleted successfully!")
+      } else if (deleteType === "course") {
+        await axios.delete(`${API_URL}/courses/${deleteId}`)
+        showSuccessToast("Course deleted successfully!")
+      } else if (deleteType === "student") {
+        await axios.delete(`${API_URL}/users/${deleteId}`)
+        showSuccessToast("Student and their enrollments deleted successfully!")
+      }
+      setShowDeleteConfirm(false)
+      setDeleteId(null)
+      setDeleteType(null)
+      fetchData()
+    } catch (error) {
+      console.error("Delete failed:", error)
+      showErrorToast(`Failed to delete ${deleteType}`)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
@@ -299,6 +411,43 @@ export default function AdminDashboard({ user, onLogout }) {
           </div>
         </div>
       </header>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
+          <div className="bg-white rounded-xl p-6 sm:p-8 max-w-sm w-full shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i className="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 text-center mb-2">Are you sure?</h3>
+            <p className="text-gray-600 text-center mb-8">
+              {deleteType === "faculty" 
+                ? "This will delete the faculty and ALL of their assigned courses. This action cannot be undone."
+                : deleteType === "student"
+                ? "This will delete the student and ALL of their course enrollments. This action cannot be undone."
+                : "This will permanently delete this course. This action cannot be undone."}
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowDeleteConfirm(false)
+                  setDeleteId(null)
+                  setDeleteType(null)
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
@@ -404,7 +553,7 @@ export default function AdminDashboard({ user, onLogout }) {
                 <button
                   key={tab}
                   onClick={() => {
-                    setActiveTab(tab)
+                    navigate(`/admin-dashboard/${tab}`)
                     setSearchTerm("")
                   }}
                   className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap transition ${
@@ -594,6 +743,9 @@ export default function AdminDashboard({ user, onLogout }) {
                             <th className="px-3 sm:px-4 lg:px-6 py-3 text-left text-gray-700 font-semibold text-xs sm:text-sm">
                               Enrollments
                             </th>
+                            <th className="px-3 sm:px-4 lg:px-6 py-3 text-right text-gray-700 font-semibold text-xs sm:text-sm">
+                              Action
+                            </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
@@ -631,6 +783,15 @@ export default function AdminDashboard({ user, onLogout }) {
                                     {studentEnrollments}
                                   </span>
                                 </td>
+                                <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-right">
+                                  <button
+                                    onClick={() => handleDeleteClick(student._id, "student")}
+                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border-none"
+                                    title="Delete student"
+                                  >
+                                    <i className="fas fa-trash-alt"></i>
+                                  </button>
+                                </td>
                               </tr>
                             )
                           })}
@@ -641,7 +802,23 @@ export default function AdminDashboard({ user, onLogout }) {
                 )}
 
                 {activeTab === "faculty" && (
-                  <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                  <div className="space-y-4 sm:space-y-6">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4">
+                      <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">Faculty Management</h3>
+                      <button
+                        onClick={() => {
+                          setShowAddFacultyModal(true)
+                          setFacultyStep(1)
+                          setFacultyForm({ email: "", otp: "", name: "", phone: "", password: "" })
+                        }}
+                        className="px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold flex items-center gap-1 sm:gap-2 text-sm w-full sm:w-auto justify-center"
+                      >
+                        <i className="fas fa-plus text-xs sm:text-sm"></i>
+                        <span>Add Faculty</span>
+                      </button>
+                    </div>
+
+                    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
                     <div className="overflow-x-auto">
                       <table className="w-full min-w-max">
                         <thead className="bg-gray-50 border-b border-gray-200">
@@ -660,6 +837,9 @@ export default function AdminDashboard({ user, onLogout }) {
                             </th>
                             <th className="px-3 sm:px-4 lg:px-6 py-3 text-left text-gray-700 font-semibold text-xs sm:text-sm">
                               Students
+                            </th>
+                            <th className="px-3 sm:px-4 lg:px-6 py-3 text-right text-gray-700 font-semibold text-xs sm:text-sm">
+                              Action
                             </th>
                           </tr>
                         </thead>
@@ -703,6 +883,15 @@ export default function AdminDashboard({ user, onLogout }) {
                                     {totalStudents}
                                   </span>
                                 </td>
+                                <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-right">
+                                  <button
+                                    onClick={() => handleDeleteClick(fac._id, "faculty")}
+                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                    title="Delete Faculty"
+                                  >
+                                    <i className="fas fa-trash-alt"></i>
+                                  </button>
+                                </td>
                               </tr>
                             )
                           })}
@@ -710,6 +899,7 @@ export default function AdminDashboard({ user, onLogout }) {
                       </table>
                     </div>
                   </div>
+                </div>
                 )}
 
                 {activeTab === "courses" && (
@@ -914,6 +1104,9 @@ export default function AdminDashboard({ user, onLogout }) {
                               <th className="px-3 sm:px-4 lg:px-6 py-3 text-left text-gray-700 font-semibold text-xs sm:text-sm">
                                 Status
                               </th>
+                              <th className="px-3 sm:px-4 lg:px-6 py-3 text-right text-gray-700 font-semibold text-xs sm:text-sm">
+                                Action
+                              </th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-200">
@@ -976,6 +1169,15 @@ export default function AdminDashboard({ user, onLogout }) {
                                   <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
                                     Active
                                   </span>
+                                </td>
+                                <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-right">
+                                  <button
+                                    onClick={() => handleDeleteClick(course._id, "course")}
+                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                    title="Delete Course"
+                                  >
+                                    <i className="fas fa-trash-alt"></i>
+                                  </button>
                                 </td>
                               </tr>
                             ))}
@@ -1195,6 +1397,164 @@ export default function AdminDashboard({ user, onLogout }) {
               ) : (
                 <p className="text-gray-500 text-center py-4 text-sm sm:text-base">No new notifications</p>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Faculty Modal */}
+      {showAddFacultyModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-3 sm:p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-full sm:max-w-md w-full mx-4 overflow-hidden">
+            <div className="flex justify-between items-center p-4 sm:p-6 border-b bg-green-50">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
+                <i className="fas fa-user-plus text-green-600"></i>
+                Add New Faculty
+              </h3>
+              <button
+                onClick={() => setShowAddFacultyModal(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+                disabled={facultyLoading}
+              >
+                <i className="fas fa-times text-xl"></i>
+              </button>
+            </div>
+
+            <div className="p-4 sm:p-6">
+              {/* Step indicator */}
+              <div className="flex items-center justify-between mb-8 px-2">
+                {[1, 2, 3].map((s) => (
+                  <div key={s} className="flex items-center flex-1 last:flex-none">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${
+                        facultyStep === s
+                          ? "bg-green-600 text-white"
+                          : facultyStep > s
+                            ? "bg-green-100 text-green-600"
+                            : "bg-gray-100 text-gray-400"
+                      }`}
+                    >
+                      {s}
+                    </div>
+                    {s < 3 && (
+                      <div
+                        className={`flex-1 h-1 mx-2 rounded ${facultyStep > s ? "bg-green-200" : "bg-gray-100"}`}
+                      ></div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {facultyStep === 1 && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Faculty Email Address</label>
+                    <div className="relative">
+                      <input
+                        type="email"
+                        value={facultyForm.email}
+                        onChange={(e) => setFacultyForm({ ...facultyForm, email: e.target.value })}
+                        placeholder="e.g., faculty@biologytrunk.com"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
+                      />
+                      <i className="fas fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleSendFacultyOTP}
+                    disabled={facultyLoading || !facultyForm.email}
+                    className="w-full py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {facultyLoading ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-paper-plane"></i>}
+                    Send Invitation OTP
+                  </button>
+                </div>
+              )}
+
+              {facultyStep === 2 && (
+                <div className="space-y-4">
+                  <div className="text-center mb-4">
+                    <p className="text-sm text-gray-600">Enter the 6-digit OTP sent to</p>
+                    <p className="font-bold text-gray-900">{facultyForm.email}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Verification Code</label>
+                    <input
+                      type="text"
+                      maxLength="6"
+                      value={facultyForm.otp}
+                      onChange={(e) => setFacultyForm({ ...facultyForm, otp: e.target.value })}
+                      placeholder="Enter 6-digit OTP"
+                      className="w-full px-4 py-3 text-center text-2xl tracking-[12px] font-bold border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    />
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setFacultyStep(1)}
+                      className="flex-1 py-3 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={handleVerifyFacultyOTP}
+                      disabled={facultyLoading || facultyForm.otp.length < 6}
+                      className="flex-[2] py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {facultyLoading ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-check-circle"></i>}
+                      Verify OTP
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {facultyStep === 3 && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
+                    <input
+                      type="text"
+                      value={facultyForm.name}
+                      onChange={(e) => setFacultyForm({ ...facultyForm, name: e.target.value })}
+                      placeholder="Enter faculty name"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
+                    <input
+                      type="text"
+                      value={facultyForm.phone}
+                      onChange={(e) => setFacultyForm({ ...facultyForm, phone: e.target.value })}
+                      placeholder="Enter phone number"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Set Password</label>
+                    <input
+                      type="password"
+                      value={facultyForm.password}
+                      onChange={(e) => setFacultyForm({ ...facultyForm, password: e.target.value })}
+                      placeholder="Create temporary password"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    />
+                  </div>
+                  <button
+                    onClick={handleCreateFaculty}
+                    disabled={facultyLoading || !facultyForm.name || !facultyForm.password}
+                    className="w-full py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition shadow-lg shadow-green-100 flex items-center justify-center gap-2"
+                  >
+                    {facultyLoading ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-user-check"></i>}
+                    Complete Registration
+                  </button>
+                </div>
+              )}
+            </div>
+            <div className="p-4 bg-gray-50 border-t text-center">
+               <p className="text-xs text-gray-500">
+                  <i className="fas fa-info-circle mr-1 text-green-600"></i>
+                  The faculty will receive their credentials on their registered email.
+               </p>
             </div>
           </div>
         </div>

@@ -100,9 +100,11 @@ export default function Login({ setUser }) {
       return
     }
 
-    if (newPassword.length < 6) {
-      setError("Password must be at least 6 characters")
-      showErrorToast("Password must be at least 6 characters")
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_+\-={}[\]|:;"'<>,.?/~`]).{6,}$/
+    if (!passwordRegex.test(newPassword)) {
+      const errorMsg = "Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+      setError(errorMsg)
+      showErrorToast(errorMsg)
       setForgotLoading(false)
       return
     }

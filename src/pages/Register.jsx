@@ -14,9 +14,11 @@ export default function Register({ setUser }) {
     confirmPassword: "",
     role: "student",
     phone: "",
+    otp: "",
   })
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const [otpLoading, setOtpLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const navigate = useNavigate()
@@ -39,6 +41,29 @@ export default function Register({ setUser }) {
     }))
   }
 
+  const handleSendOtp = async () => {
+    if (!formData.name || !formData.email) {
+      showErrorToast("Please enter your name and email first")
+      return
+    }
+
+    setOtpLoading(true)
+    setError("")
+
+    try {
+      await axios.post(`${API_URL}/users/student/send-otp`, {
+        email: formData.email,
+      })
+      showSuccessToast("Verification OTP sent to your email!")
+    } catch (err) {
+      const msg = err.response?.data?.message || "Failed to send OTP"
+      setError(msg)
+      showErrorToast(msg)
+    } finally {
+      setOtpLoading(false)
+    }
+  }
+
   const handleRegister = async (e) => {
     e.preventDefault()
     setError("")
@@ -50,10 +75,16 @@ export default function Register({ setUser }) {
       return
     }
 
-    if (formData.password.length < 6) {
-      const errorMsg = "Password must be at least 6 characters long"
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_+\-={}[\]|:;"'<>,.?/~`]).{6,}$/
+    if (!passwordRegex.test(formData.password)) {
+      const errorMsg = "Password must be at least 6 characters and contain uppercase, lowercase, number, and special character (# is allowed)"
       setError(errorMsg)
       showErrorToast(errorMsg)
+      return
+    }
+
+    if (!formData.otp) {
+      showErrorToast("Please enter the verification OTP")
       return
     }
 
@@ -64,15 +95,16 @@ export default function Register({ setUser }) {
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        role: formData.role,
+        role: "student",
         phone: formData.phone,
+        otp: formData.otp,
       })
 
       localStorage.setItem("user", JSON.stringify(response.data.user))
-      localStorage.setItem("token", response.data.token)
-      setUser(response.data.user)
-      showSuccessToast(`Welcome, ${response.data.user.name}! Account created successfully.`)
-      navigate(`/${response.data.user.role}-dashboard`, { replace: true })
+      // localStorage.setItem("token", response.data.token) // Do not auto-login
+      // setUser(response.data.user) // Do not auto-login
+      showSuccessToast(`Account created successfully. Please login to continue.`)
+      navigate(`/login`, { replace: true })
     } catch (err) {
       const errorMessage = err.response?.data?.message || "Registration failed"
       setError(errorMessage)
@@ -86,42 +118,35 @@ export default function Register({ setUser }) {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-2xl">
         <div className="bg-white rounded-2xl p-8 shadow-2xl border border-gray-100">
-          {/* Enhanced Header Section */}
+          {/* Header Section */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6">
               <div className="relative">
                 <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-3">
                   <i className="fas fa-user-graduate text-white text-3xl"></i>
                 </div>
-                <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full border-4 border-white"></div>
+                <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-gradient-to-br from-blue-400 to-indigo-50 rounded-full border-4 border-white"></div>
               </div>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Join EduTech Pro
+            <h1 className="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">
+              Create Your Student Account
             </h1>
-            <p className="text-gray-600 font-medium">Start your learning journey with India's most trusted platform</p>
+            <p className="text-gray-600 font-medium">Join Biology.Trunk and start your success journey</p>
           </div>
 
-          {/* Enhanced Error Message */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium flex items-center gap-3">
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium flex items-center gap-3 animate-shake">
               <i className="fas fa-exclamation-circle text-red-500 text-lg"></i>
               <span>{error}</span>
             </div>
           )}
 
-          {/* Enhanced Registration Form */}
-          <form onSubmit={handleRegister} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Personal Information Column */}
-            <div className="space-y-5">
-              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <i className="fas fa-user text-blue-500"></i>
-                Personal Information
-              </h3>
-
-              <div className="space-y-2">
-                <label className="block text-gray-700 text-sm font-semibold mb-2 flex items-center gap-2">
-                  <i className="fas fa-user text-blue-500 text-sm"></i>
+          <form onSubmit={handleRegister} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Row 1: Name and Email */}
+              <div className="space-y-1.5 text-left">
+                <label className="block text-gray-700 text-sm font-bold flex items-center gap-2">
+                  <i className="fas fa-user text-blue-500 text-xs"></i>
                   Full Name
                 </label>
                 <div className="relative">
@@ -130,36 +155,74 @@ export default function Register({ setUser }) {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className="w-full px-4 py-4 pl-11 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200"
-                    placeholder="John Doe"
+                    className="w-full px-4 py-3.5 pl-11 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"
+                    placeholder="Enter your full name"
                     required
                   />
-                  <i className="fas fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                  <i className="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-gray-700 text-sm font-semibold mb-2 flex items-center gap-2">
-                  <i className="fas fa-envelope text-blue-500 text-sm"></i>
+              <div className="space-y-1.5 text-left">
+                <label className="block text-gray-700 text-sm font-bold flex items-center gap-2">
+                  <i className="fas fa-envelope text-blue-500 text-xs"></i>
                   Email Address
+                </label>
+                <div className="relative flex flex-col md:flex-row gap-2">
+                  <div className="relative flex-1 w-full">
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3.5 pl-11 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"
+                      placeholder="name@example.com"
+                      required
+                    />
+                    <i className="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSendOtp}
+                    disabled={otpLoading}
+                    className="w-full md:w-auto px-4 py-3.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-bold text-sm whitespace-nowrap shadow-md hover:shadow-lg disabled:opacity-50 flex items-center gap-2 min-w-[110px] justify-center"
+                  >
+                    {otpLoading ? (
+                      <i className="fas fa-spinner fa-spin"></i>
+                    ) : (
+                      <>
+                        <i className="fas fa-paper-plane text-xs"></i>
+                        Send OTP
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Row 2: OTP and Phone Number */}
+              <div className="space-y-1.5 text-left">
+                <label className="block text-gray-700 text-sm font-bold flex items-center gap-2">
+                  <i className="fas fa-shield-alt text-blue-500 text-xs"></i>
+                  Verification OTP
                 </label>
                 <div className="relative">
                   <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
+                    type="text"
+                    name="otp"
+                    maxLength="6"
+                    value={formData.otp}
                     onChange={handleChange}
-                    className="w-full px-4 py-4 pl-11 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200"
-                    placeholder="your@email.com"
+                    className="w-full px-4 py-3.5 pl-11 bg-gray-100 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all font-bold tracking-widest"
+                    placeholder="123456"
                     required
                   />
-                  <i className="fas fa-envelope absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                  <i className="fas fa-key absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-gray-700 text-sm font-semibold mb-2 flex items-center gap-2">
-                  <i className="fas fa-phone text-blue-500 text-sm"></i>
+              <div className="space-y-1.5 text-left">
+                <label className="block text-gray-700 text-sm font-bold flex items-center gap-2">
+                  <i className="fas fa-phone text-blue-500 text-xs"></i>
                   Phone Number
                 </label>
                 <div className="relative">
@@ -168,44 +231,18 @@ export default function Register({ setUser }) {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full px-4 py-4 pl-11 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200"
-                    placeholder="+91 9876543210"
+                    className="w-full px-4 py-3.5 pl-11 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"
+                    placeholder="+91 98765-43210"
+                    required
                   />
-                  <i className="fas fa-phone absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-                </div>
-              </div>
-            </div>
-
-            {/* Account Information Column */}
-            <div className="space-y-5">
-              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <i className="fas fa-lock text-blue-500"></i>
-                Account Information
-              </h3>
-
-              <div className="space-y-2">
-                <label className="block text-gray-700 text-sm font-semibold mb-2 flex items-center gap-2">
-                  <i className="fas fa-user-tag text-blue-500 text-sm"></i>
-                  Role
-                </label>
-                <div className="relative">
-                  <select
-                    name="role"
-                    value={formData.role}
-                    onChange={handleChange}
-                    className="w-full px-4 py-4 pl-11 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 appearance-none"
-                  >
-                    <option value="student">Student</option>
-                    <option value="faculty">Faculty</option>
-                  </select>
-                  <i className="fas fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-                  <i className="fas fa-user-tag absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                  <i className="fas fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-gray-700 text-sm font-semibold mb-2 flex items-center gap-2">
-                  <i className="fas fa-key text-blue-500 text-sm"></i>
+              {/* Row 3: Password side by side */}
+              <div className="space-y-1.5 text-left">
+                <label className="block text-gray-700 text-sm font-bold flex items-center gap-2">
+                  <i className="fas fa-lock text-blue-500 text-xs"></i>
                   Password
                 </label>
                 <div className="relative">
@@ -214,24 +251,24 @@ export default function Register({ setUser }) {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full px-4 py-4 pl-11 pr-10 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200"
-                    placeholder="••••••••"
+                    className="w-full px-4 py-3.5 pl-11 pr-10 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"
+                    placeholder="Create a strong password"
                     required
                   />
-                  <i className="fas fa-key absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                  <i className="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-600 transition-colors"
                   >
-                    <i className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+                    <i className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"} text-xs`}></i>
                   </button>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-gray-700 text-sm font-semibold mb-2 flex items-center gap-2">
-                  <i className="fas fa-check-circle text-blue-500 text-sm"></i>
+              <div className="space-y-1.5 text-left">
+                <label className="block text-gray-700 text-sm font-bold flex items-center gap-2">
+                  <i className="fas fa-check-double text-blue-500 text-xs"></i>
                   Confirm Password
                 </label>
                 <div className="relative">
@@ -240,75 +277,68 @@ export default function Register({ setUser }) {
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="w-full px-4 py-4 pl-11 pr-10 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200"
-                    placeholder="••••••••"
+                    className="w-full px-4 py-3.5 pl-11 pr-10 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"
+                    placeholder="Repeat your password"
                     required
                   />
-                  <i className="fas fa-check-circle absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                  <i className="fas fa-check-double absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-600 transition-colors"
                   >
-                    <i className={`fas ${showConfirmPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+                    <i className={`fas ${showConfirmPassword ? "fa-eye-slash" : "fa-eye"} text-xs`}></i>
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Full Width Submit Button */}
-            <div className="md:col-span-2 pt-4">
+            <div className="pt-4">
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-bold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5 flex items-center justify-center gap-3"
+                className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl hover:from-blue-700 hover:to-indigo-800 transition-all font-bold shadow-xl hover:shadow-2xl transform active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-50"
               >
                 {loading ? (
-                  <>
-                    <i className="fas fa-spinner fa-spin"></i>
-                    Creating Your Account...
-                  </>
+                  <i className="fas fa-spinner fa-spin"></i>
                 ) : (
-                  <>
-                    <i className="fas fa-rocket"></i>
-                    Start Learning Journey
-                  </>
+                  <i className="fas fa-rocket"></i>
                 )}
+                Register Account
               </button>
             </div>
           </form>
 
-          {/* Enhanced Login Link */}
-          <div className="text-center mt-8 pt-6 border-t border-gray-100">
-            <p className="text-gray-600 font-medium">
+          {/* Footer Section */}
+          <div className="mt-8 pt-6 border-t border-gray-100 text-center">
+            <p className="text-gray-600 text-sm flex items-center justify-center gap-2">
               Already have an account?{" "}
-              <Link
-                to="/login"
-                className="text-blue-600 hover:text-blue-700 font-bold transition-colors duration-200 flex items-center justify-center gap-2 mt-2"
-              >
-                <i className="fas fa-sign-in-alt text-sm"></i>
-                Sign in to your account
+              <Link to="/login" className="text-blue-600 hover:text-blue-700 font-bold transition-all flex items-center gap-1">
+                <i className="fas fa-sign-in-alt text-xs"></i>
+                Sign in here
               </Link>
             </p>
           </div>
 
-          {/* Benefits Section */}
-          <div className="mt-8 bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-200">
-            <h3 className="font-bold text-gray-800 text-sm uppercase tracking-wider mb-4 flex items-center justify-center gap-2">
-              <i className="fas fa-gift text-blue-600"></i>
-              Start your journey with amazing benefits
+          {/* Benefits Section - Reverting to previous design */}
+          <div className="mt-8 bg-blue-50/50 p-5 rounded-xl border border-blue-100">
+            <h3 className="font-bold text-blue-800 text-[10px] uppercase tracking-wider mb-4 flex items-center justify-center gap-2">
+              <i className="fas fa-gift"></i>
+              START YOUR JOURNEY WITH AMAZING BENEFITS
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-              {[
-                { icon: "fas fa-play-circle", text: "Free Trial Classes", color: "text-green-600" },
-                { icon: "fas fa-chart-line", text: "Progress Tracking", color: "text-blue-600" },
-                { icon: "fas fa-users", text: "Expert Faculty", color: "text-purple-600" },
-              ].map((benefit, index) => (
-                <div key={index} className="flex items-center justify-center gap-2 text-sm text-gray-700">
-                  <i className={`${benefit.icon} ${benefit.color} text-lg`}></i>
-                  <span className="font-medium">{benefit.text}</span>
-                </div>
-              ))}
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-gray-700 font-semibold">
+              <div className="flex items-center gap-2">
+                <i className="fas fa-play-circle text-green-600 text-sm"></i>
+                <span>Free Trial Classes</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <i className="fas fa-chart-line text-blue-600 text-sm"></i>
+                <span>Progress Tracking</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <i className="fas fa-users text-purple-600 text-sm"></i>
+                <span>Expert Faculty</span>
+              </div>
             </div>
           </div>
         </div>

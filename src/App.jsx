@@ -1,6 +1,6 @@
 "use client"
 
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, Navigate, Link } from "react-router-dom"
 import { useEffect, useState } from "react"
 import Home from "./pages/Home"
 import Login from "./pages/Login"
@@ -18,6 +18,8 @@ import Contact from "./pages/Contact"
 import PrivacyPolicy from "./pages/PrivacyPolicy"
 import TermsAndConditions from "./pages/TermsAndConditions"
 import RefundPolicy from "./pages/RefundPolicy"
+import SocialComingSoon from "./pages/SocialComingSoon"
+import NotFound from "./pages/NotFound"
 
 export default function App() {
   const [user, setUser] = useState(null)
@@ -33,6 +35,20 @@ export default function App() {
   }, [])
 
   useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === "user" || e.key === "token") {
+        const storedUser = localStorage.getItem("user")
+        if (storedUser) {
+          setUser(JSON.parse(storedUser))
+        } else {
+          setUser(null)
+          if (window.location.pathname !== "/" && !["/login", "/register", "/contact"].includes(window.location.pathname)) {
+            window.location.href = "/login"
+          }
+        }
+      }
+    }
+
     const handlePopState = () => {
       const previousPath = sessionStorage.getItem("previousPath")
       if (previousPath) {
@@ -40,8 +56,12 @@ export default function App() {
       }
     }
 
+    window.addEventListener("storage", handleStorageChange)
     window.addEventListener("popstate", handlePopState)
-    return () => window.removeEventListener("popstate", handlePopState)
+    return () => {
+      window.removeEventListener("storage", handleStorageChange)
+      window.removeEventListener("popstate", handlePopState)
+    }
   }, [])
 
   const handleLogout = () => {
@@ -104,7 +124,7 @@ export default function App() {
           }
         />
         <Route
-          path="/student-dashboard"
+          path="/student-dashboard/*"
           element={
             <ProtectedRoute user={user} role="student">
               <StudentDashboard user={user} onLogout={handleLogout} />
@@ -112,7 +132,7 @@ export default function App() {
           }
         />
         <Route
-          path="/faculty-dashboard"
+          path="/faculty-dashboard/*"
           element={
             <ProtectedRoute user={user} role="faculty">
               <FacultyDashboard user={user} onLogout={handleLogout} />
@@ -120,13 +140,15 @@ export default function App() {
           }
         />
         <Route
-          path="/admin-dashboard"
+          path="/admin-dashboard/*"
           element={
             <ProtectedRoute user={user} role="admin">
               <AdminDashboard user={user} onLogout={handleLogout} />
             </ProtectedRoute>
           }
         />
+        <Route path="/social-coming-soon" element={<SocialComingSoon />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   )

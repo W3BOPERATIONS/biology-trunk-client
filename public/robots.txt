@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin-dashboard
+Disallow: /faculty-dashboard
+Disallow: /login
+Disallow: /register
+
+Sitemap: https://biologytrunk.in/sitemap.xml

@@ -187,7 +187,7 @@ export default function Home({ user, onLogout }) {
     {
       question: "What is the refund policy?",
       answer:
-        "We offer a 7-day money-back guarantee from the date of enrollment if you are not satisfied with the course or if it doesn't meet your expectations. Please refer to our refund policy page for complete details.",
+        "At Biology.Trunk, we follow a strict no-refund policy. Once you enroll in a course and complete the payment, no refund is provided. We encourage students to watch our demo classes before enrolling.",
     },
     {
       question: "How are the faculty members selected?",
@@ -1086,7 +1086,7 @@ export default function Home({ user, onLogout }) {
           )}
           <p className="text-blue-200 mt-3 sm:mt-4 text-xs">
             <i className="fas fa-shield-alt mr-1"></i>
-            7-day money back guarantee • 24/7 student support
+            Strict No-Refund Policy • 24/7 student support
           </p>
         </div>
       </section>

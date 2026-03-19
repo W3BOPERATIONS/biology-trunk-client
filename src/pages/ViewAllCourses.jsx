@@ -28,22 +28,27 @@ export default function ViewAllCourses() {
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search)
     const categoryParam = searchParams.get("category")
-    if (categoryParam) {
-      setSelectedCategory(decodeURIComponent(categoryParam))
-      // Scroll to courses section after state update and data load
-      setTimeout(() => {
-        const coursesSection = document.getElementById("courses-section")
-        if (coursesSection) {
-          const headerOffset = 100
-          const elementPosition = coursesSection.getBoundingClientRect().top
-          const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+    try {
+      if (categoryParam) {
+        setSelectedCategory(decodeURIComponent(categoryParam))
+        // Scroll to courses section after state update and data load
+        setTimeout(() => {
+          const coursesSection = document.getElementById("courses-section")
+          if (coursesSection) {
+            const headerOffset = 100
+            const elementPosition = coursesSection.getBoundingClientRect().top
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset
 
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: "smooth"
-          })
-        }
-      }, 500) // Increased timeout to ensure data is loaded
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: "smooth"
+            })
+          }
+        }, 500) // Increased timeout to ensure data is loaded
+      }
+    } catch (e) {
+      console.error("Malformed URL:", e)
+      navigate("/404", { replace: true })
     }
   }, [location.search])
 
@@ -616,8 +621,8 @@ export default function ViewAllCourses() {
                 </button>
               </div>
               <p className="text-gray-500 text-xs sm:text-sm mt-4 sm:mt-6">
-                <i className="fas fa-shield-alt text-green-600 mr-1"></i>
-                7-day money-back guarantee • Lifetime access • Certificate included
+                <i className="fas fa-shield-alt text-red-600 mr-1"></i>
+                Strict No-Refund Policy • Lifetime access • Certificate included
               </p>
             </div>
           </div>

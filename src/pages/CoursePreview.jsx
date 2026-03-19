@@ -780,8 +780,8 @@ export default function CoursePreview({ user, onLogout }) {
                 )}
               </div>
               <p className="text-gray-500 text-xs sm:text-sm mt-4 sm:mt-6">
-                <i className="fas fa-shield-alt text-green-600 mr-1"></i>
-                7-day money-back guarantee • Lifetime access • Certificate included
+                <i className="fas fa-shield-alt text-red-600 mr-1"></i>
+                Strict No-Refund Policy • Lifetime access • Certificate included
               </p>
             </div>
           </div>

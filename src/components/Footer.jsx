@@ -28,30 +28,30 @@ const Footer = () => {
                             of government college teaching experience.
                         </p>
                         <div className="flex gap-2 sm:gap-3 mt-2">
-                            <a
-                                href="#"
+                            <Link
+                                to="/social-coming-soon?type=facebook"
                                 className="text-gray-400 hover:text-white transition cursor-pointer"
                             >
                                 <i className="fab fa-facebook text-sm"></i>
-                            </a>
-                            <a
-                                href="#"
+                            </Link>
+                            <Link
+                                to="/social-coming-soon?type=twitter"
                                 className="text-gray-400 hover:text-white transition cursor-pointer"
                             >
                                 <i className="fab fa-twitter text-sm"></i>
-                            </a>
-                            <a
-                                href="#"
+                            </Link>
+                            <Link
+                                to="/social-coming-soon?type=linkedin"
                                 className="text-gray-400 hover:text-white transition cursor-pointer"
                             >
                                 <i className="fab fa-linkedin text-sm"></i>
-                            </a>
-                            <a
-                                href="#"
+                            </Link>
+                            <Link
+                                to="/social-coming-soon?type=instagram"
                                 className="text-gray-400 hover:text-white transition cursor-pointer"
                             >
                                 <i className="fab fa-instagram text-sm"></i>
-                            </a>
+                            </Link>
                         </div>
                     </div>
                     <div>

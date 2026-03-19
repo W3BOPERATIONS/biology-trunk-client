@@ -5,7 +5,7 @@ import axios from "axios"
 import { API_URL } from "../utils/api.js"
 import { showSuccessToast, showErrorToast } from "../utils/toast.js"
 import logo from "../assets/biology-trunk-logo.png"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 
 export default function FacultyDashboard({ user, onLogout }) {
   const navigate = useNavigate()
@@ -30,7 +30,10 @@ export default function FacultyDashboard({ user, onLogout }) {
   const [totalEarnings, setTotalEarnings] = useState(0)
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState("all")
-  const [activeTab, setActiveTab] = useState("overview")
+  const location = useLocation()
+  const segments = location.pathname.split("/")
+  const activeTab = segments[2] || "overview"
+  const validTabs = ["overview", "students", "upload"]
   const [courseContent, setCourseContent] = useState([])
   const [performanceStats, setPerformanceStats] = useState({
     totalViews: 0,
@@ -42,6 +45,8 @@ export default function FacultyDashboard({ user, onLogout }) {
   const [editingContent, setEditingContent] = useState(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteContentId, setDeleteContentId] = useState(null)
+  const [showDeleteCourseConfirm, setShowDeleteCourseConfirm] = useState(false)
+  const [deleteCourseId, setDeleteCourseId] = useState(null)
 
   const formatCourseTitle = (title) => {
     if (!title) return "";
@@ -58,6 +63,14 @@ export default function FacultyDashboard({ user, onLogout }) {
     fetchFacultyCourses()
     fetchNotifications()
   }, [])
+
+  useEffect(() => {
+    if (segments[2] && !validTabs.includes(segments[2])) {
+      navigate("/404", { replace: true })
+    } else if (!segments[2]) {
+      navigate("/faculty-dashboard/overview", { replace: true })
+    }
+  }, [segments, navigate])
 
   useEffect(() => {
     if (courses.length > 0) {
@@ -233,6 +246,26 @@ export default function FacultyDashboard({ user, onLogout }) {
     }
   }
 
+  const handleDeleteCourseClick = (courseId) => {
+    setDeleteCourseId(courseId)
+    setShowDeleteCourseConfirm(true)
+  }
+
+  const confirmDeleteCourse = async () => {
+    try {
+      await axios.delete(`${API_URL}/courses/${deleteCourseId}`)
+      showSuccessToast("Course deleted successfully!")
+      setShowDeleteCourseConfirm(false)
+      setDeleteCourseId(null)
+      setSelectedCourse(null)
+      fetchFacultyCourses()
+      navigate("/faculty-dashboard/overview")
+    } catch (error) {
+      console.error("Failed to delete course:", error)
+      showErrorToast("Failed to delete course")
+    }
+  }
+
   const startEditContent = (content) => {
     setEditingContentId(content._id)
     setEditingContent({
@@ -245,7 +278,7 @@ export default function FacultyDashboard({ user, onLogout }) {
       liveClassDate: content.liveClassDate || "",
       liveClassTime: content.liveClassTime || "",
     })
-    setActiveTab("upload")
+    navigate("/faculty-dashboard/upload")
   }
 
   const handleUpdateContent = async (e) => {
@@ -348,6 +381,38 @@ export default function FacultyDashboard({ user, onLogout }) {
               <button
                 onClick={confirmDeleteContent}
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Course Confirmation Modal */}
+      {showDeleteCourseConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
+          <div className="bg-white rounded-xl p-6 sm:p-8 max-w-sm w-full shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i className="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 text-center mb-2">Delete Course?</h3>
+            <p className="text-gray-600 text-center mb-8">
+              Are you sure you want to delete this course? This action cannot be undone and will remove all content and student enrollments associated with it.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowDeleteCourseConfirm(false)
+                  setDeleteCourseId(null)
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteCourse}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold"
               >
                 Delete
               </button>
@@ -648,7 +713,7 @@ export default function FacultyDashboard({ user, onLogout }) {
                             <button
                               key={tab.id}
                               onClick={() => {
-                                setActiveTab(tab.id)
+                                navigate(`/faculty-dashboard/${tab.id}`)
                                 if (tab.id !== "upload" && editingContentId) {
                                   cancelEdit()
                                 }
@@ -1005,8 +1070,9 @@ export default function FacultyDashboard({ user, onLogout }) {
                       <p className="text-gray-600 text-lg">No courses created yet</p>
                       <button
                         onClick={() => navigate("/faculty/course/create")}
-                        className="mt-4 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                        className="mt-4 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 mx-auto"
                       >
+                        <i className="fas fa-plus-circle"></i>
                         Create Your First Course
                       </button>
                     </div>
@@ -1015,26 +1081,44 @@ export default function FacultyDashboard({ user, onLogout }) {
                       {getFilteredCourses().map((course) => (
                         <div
                           key={course._id}
-                          className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200 hover:shadow-lg transition flex flex-col h-full"
+                          onClick={() => setSelectedCourse(course)}
+                          className={`bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border transition flex flex-col h-full cursor-pointer hover:shadow-xl hover:scale-[1.01] duration-300 ${
+                            selectedCourse?._id === course._id ? "border-blue-600 ring-2 ring-blue-600/20" : "border-blue-200"
+                          }`}
                         >
                           {/* Fixed: Heading container with fixed height */}
-                          <div className="min-h-[4.5rem] mb-4">
-                            <div className="flex justify-between items-start">
-                              <h3 className="text-lg font-bold text-gray-900 flex-1 line-clamp-3">
+                          <div className="min-h-[4rem] mb-4">
+                            <div className="flex justify-between items-start gap-2">
+                              <h3 className="text-lg font-bold text-gray-900 flex-1 line-clamp-2 leading-tight">
                                 {course.title || "Untitled Course"}
                               </h3>
-                              <button
-                                onClick={() => navigate(`/faculty/course/${course._id}/edit`)}
-                                className="ml-2 p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition flex-shrink-0"
-                                title="Edit course description"
-                              >
-                                <i className="fas fa-edit"></i>
-                              </button>
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    navigate(`/faculty/course/${course._id}/edit`)
+                                  }}
+                                  className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors border-none"
+                                  title="Edit course description"
+                                >
+                                  <i className="fas fa-edit"></i>
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleDeleteCourseClick(course._id)
+                                  }}
+                                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border-none"
+                                  title="Delete course"
+                                >
+                                  <i className="fas fa-trash-alt"></i>
+                                </button>
+                              </div>
                             </div>
                           </div>
 
                           {/* Fixed: Description starts at same position for all cards */}
-                          <div className="mb-6 flex-grow">
+                          <div className="mb-6">
                             <div className="min-h-[4.5rem]">
                               <p className="text-gray-700 text-sm line-clamp-3 leading-relaxed">
                                 {course.description || "No description available."}
@@ -1042,28 +1126,30 @@ export default function FacultyDashboard({ user, onLogout }) {
                             </div>
                           </div>
 
-                          {/* Course details with consistent spacing */}
-                          <div className="space-y-3 text-sm mb-6">
-                            <div className="flex justify-between items-center min-h-[1.5rem]">
-                              <span className="text-gray-600">Duration:</span>
-                              <span className="font-semibold text-gray-900">{course.duration || "Not specified"}</span>
-                            </div>
-                            <div className="flex justify-between items-center min-h-[1.5rem]">
-                              <span className="text-gray-600">Price:</span>
-                              <span className="font-semibold text-gray-900">₹{course.price || "Free"}</span>
-                            </div>
-                            <div className="flex justify-between items-center min-h-[1.5rem]">
-                              <span className="text-gray-600">Students:</span>
-                              <span className="font-semibold text-gray-900">
-                                {(allEnrollments[course._id] || []).length}
-                              </span>
+                          {/* Course details with consistent spacing and height */}
+                          <div className="min-h-[7rem] mb-6">
+                            <div className="space-y-3 text-sm">
+                              <div className="flex justify-between items-center min-h-[1.5rem]">
+                                <span className="text-gray-600">Duration:</span>
+                                <span className="font-semibold text-gray-900">{course.duration || "Not specified"}</span>
+                              </div>
+                              <div className="flex justify-between items-center min-h-[1.5rem]">
+                                <span className="text-gray-600">Price:</span>
+                                <span className="font-semibold text-gray-900">₹{course.price || "Free"}</span>
+                              </div>
+                              <div className="flex justify-between items-center min-h-[1.5rem]">
+                                <span className="text-gray-600">Students:</span>
+                                <span className="font-semibold text-gray-900">
+                                  {(allEnrollments[course._id] || []).length}
+                                </span>
+                              </div>
                             </div>
                           </div>
 
-                          {/* INCLUDES section at bottom */}
-                          <div className="border-t pt-4 mt-auto">
-                            <p className="text-xs font-semibold text-gray-600 mb-2">INCLUDES:</p>
-                            <div className="flex flex-wrap gap-2">
+                          {/* INCLUDES section starts at the same line for all cards */}
+                          <div className="border-t pt-4">
+                            <p className="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wider">INCLUDES:</p>
+                            <div className="flex flex-wrap gap-2 min-h-[2rem]">
                               {course.courseIncludes?.videos && (
                                 <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded flex-shrink-0">
                                   Videos

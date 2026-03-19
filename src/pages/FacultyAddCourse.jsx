@@ -39,7 +39,7 @@ export default function FacultyAddCourse({ user, onLogout }) {
     const fetchCategories = async () => {
       try {
         const response = await axios.get(`${API_URL}/courses`)
-        const coursesData = response.data
+        const coursesData = response.data.courses || []
 
         // Extract unique categories
         const categoryMap = {}
@@ -177,7 +177,7 @@ export default function FacultyAddCourse({ user, onLogout }) {
       }, 500)
     } catch (error) {
       console.error("Failed to create course:", error)
-      showErrorToast(error.response?.data?.message || "Failed to create course")
+      showErrorToast(error.response?.data?.message || error.response?.data?.error || "Failed to create course")
     } finally {
       setSaving(false)
     }
