@@ -10,9 +10,9 @@ import useSEO from "../hooks/useSEO.js"
 
 export default function Contact() {
   useSEO({
-    title: "Contact Us",
-    description: "Get in touch with the Biology Trunk team. Reach out to our Ph.D. qualified faculty for course inquiries, academic support, and technical help.",
-    keywords: "contact biology trunk, biology tutoring support, biology email, Noida biology center"
+    title: "Contact Us | Biology Trunk",
+    description: "Get in touch with the Biology Trunk team. Reach out for course inquiries, academic support, and details about our preparation programs for NEET, TGT/PGT, and Board exams.",
+    keywords: "contact biology trunk, exam prep support, coaching center contact, Kanpur coaching center"
   });
 
   const [formData, setFormData] = useState({
@@ -281,10 +281,10 @@ export default function Contact() {
                       <h3 className="text-lg font-bold text-gray-900 mb-1">Phone Support</h3>
                       <p className="text-gray-600 mb-2">For urgent queries and technical assistance</p>
                       <a
-                        href="tel:+91XXXXXXXXXX"
+                        href="tel:+919455133830"
                         className="text-green-600 hover:text-green-700 font-medium inline-flex items-center gap-1"
                       >
-                        +91 XXXXX XXXXX
+                        +91 9455133830
                         <i className="fas fa-phone-alt text-xs"></i>
                       </a>
                       <p className="text-sm text-gray-500 mt-1">Available: Mon-Sat, 9 AM - 8 PM IST</p>

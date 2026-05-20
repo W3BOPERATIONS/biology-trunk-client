@@ -12,9 +12,9 @@ const COURSES_PER_PAGE = 9
 
 export default function ViewAllCourses() {
   useSEO({
-    title: "Browse All Biology Courses",
-    description: "Explore comprehensive biology courses for NEET, Class 11, Class 12, TGT/PGT, AIIMS, and Foreign Languages. Taught by PhD faculty.",
-    keywords: "NEET biology courses, online classes class 12, class 11 biology, TGT biology coaching, PGT biology prep"
+    title: "Explore Our Courses - NEET, TGT, PGT, Board Exams & More | Biology Trunk",
+    description: "Explore our catalog of courses covering NEET, Class 11, Class 12, TGT/PGT, AIIMS, and competitive exams. Learn from PhD-qualified and expert faculty.",
+    keywords: "NEET prep classes, online classes class 12, class 11 coaching, TGT coaching, PGT exam preparation, competitive exam courses"
   });
 
   const navigate = useNavigate()

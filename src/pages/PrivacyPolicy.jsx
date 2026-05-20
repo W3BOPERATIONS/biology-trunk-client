@@ -6,9 +6,9 @@ import useSEO from "../hooks/useSEO.js"
 
 export default function PrivacyPolicy() {
   useSEO({
-    title: "Privacy Policy",
-    description: "Read the Biology Trunk Privacy Policy. Understand how we collect, use, and protect your personal information on our educational platform.",
-    keywords: "privacy policy, data protection, student privacy, biology trunk terms"
+    title: "Privacy Policy | Biology Trunk",
+    description: "Read the Biology Trunk Privacy Policy. Understand how we collect, use, and protect your personal information on our exam preparation platform.",
+    keywords: "privacy policy, data protection, student privacy, biology trunk privacy"
   });
   return (
     <div className="min-h-screen bg-white">
@@ -398,17 +398,17 @@ export default function PrivacyPolicy() {
                           please contact our Data Protection Officer:
                         </p>
                         <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <i className="fas fa-envelope text-blue-600"></i>
+                          <div className="flex items-start sm:items-center gap-2">
+                            <i className="fas fa-envelope text-blue-600 mt-1 sm:mt-0 flex-shrink-0"></i>
                             <a
                               href="mailto:biologytrunk145@gmail.com"
-                              className="text-blue-600 hover:text-blue-700 font-medium"
+                              className="text-blue-600 hover:text-blue-700 font-medium break-all"
                             >
                               biologytrunk145@gmail.com
                             </a>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <i className="fas fa-clock text-gray-600"></i>
+                          <div className="flex items-start sm:items-center gap-2">
+                            <i className="fas fa-clock text-gray-600 mt-1 sm:mt-0 flex-shrink-0"></i>
                             <span className="text-gray-700">Response time: Within 48 hours</span>
                           </div>
                         </div>

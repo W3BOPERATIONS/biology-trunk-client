@@ -6,9 +6,9 @@ import useSEO from "../hooks/useSEO.js"
 
 export default function RefundPolicy() {
   useSEO({
-    title: "Refund Policy",
-    description: "Read the Biology Trunk Refund Policy. Understand our cancellation and refund guidelines for all course enrollments.",
-    keywords: "refund policy, refund guidelines, biology trunk cancellation, course transfer policy"
+    title: "Refund Policy | Biology Trunk",
+    description: "Read the Biology Trunk Refund Policy. Understand our cancellation and refund guidelines for all course enrollments on our platform.",
+    keywords: "refund policy, course refund, biology trunk refund, enrollment cancellation"
   });
   return (
     <div className="min-h-screen bg-white">
@@ -260,17 +260,17 @@ export default function RefundPolicy() {
                           If you have any questions or concerns regarding our refund policy, please reach out to our support team:
                         </p>
                         <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <i className="fas fa-envelope text-blue-600"></i>
+                          <div className="flex items-start sm:items-center gap-2">
+                            <i className="fas fa-envelope text-blue-600 mt-1 sm:mt-0 flex-shrink-0"></i>
                             <a
                               href="mailto:biologytrunk145@gmail.com"
-                              className="text-blue-600 hover:text-blue-700 font-medium"
+                              className="text-blue-600 hover:text-blue-700 font-medium break-all"
                             >
                               biologytrunk145@gmail.com
                             </a>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <i className="fas fa-clock text-gray-600"></i>
+                          <div className="flex items-start sm:items-center gap-2">
+                            <i className="fas fa-clock text-gray-600 mt-1 sm:mt-0 flex-shrink-0"></i>
                             <span className="text-gray-700">Response time: Within 48 hours</span>
                           </div>
                         </div>

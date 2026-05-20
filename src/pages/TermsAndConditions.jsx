@@ -6,9 +6,9 @@ import useSEO from "../hooks/useSEO.js"
 
 export default function TermsAndConditions() {
   useSEO({
-    title: "Terms and Conditions",
-    description: "Read the Biology Trunk Terms & Conditions. Learn about the rules, responsibilities, and guidelines for using our educational platform.",
-    keywords: "terms and conditions, terms of service, biology trunk agreement, user responsibilities"
+    title: "Terms and Conditions | Biology Trunk",
+    description: "Read the Biology Trunk Terms & Conditions. Learn about the rules, responsibilities, and guidelines for using our educational and preparation platform.",
+    keywords: "terms and conditions, terms of service, biology trunk terms, user agreement"
   });
   return (
     <div className="min-h-screen bg-white">
@@ -428,17 +428,17 @@ export default function TermsAndConditions() {
                           If you have any questions, concerns, or require clarification about these Terms & Conditions, please contact our legal team:
                         </p>
                         <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <i className="fas fa-envelope text-blue-600"></i>
+                          <div className="flex items-start sm:items-center gap-2">
+                            <i className="fas fa-envelope text-blue-600 mt-1 sm:mt-0 flex-shrink-0"></i>
                             <a
                               href="mailto:biologytrunk145@gmail.com"
-                              className="text-blue-600 hover:text-blue-700 font-medium"
+                              className="text-blue-600 hover:text-blue-700 font-medium break-all"
                             >
                               biologytrunk145@gmail.com
                             </a>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <i className="fas fa-clock text-gray-600"></i>
+                          <div className="flex items-start sm:items-center gap-2">
+                            <i className="fas fa-clock text-gray-600 mt-1 sm:mt-0 flex-shrink-0"></i>
                             <span className="text-gray-700">Response time: Within 3 business days</span>
                           </div>
                         </div>

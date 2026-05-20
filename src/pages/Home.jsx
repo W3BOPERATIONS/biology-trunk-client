@@ -21,9 +21,9 @@ import gallery8 from "../assets/image-gallery/study8.jpg";
 
 export default function Home({ user, onLogout }) {
   useSEO({
-    title: "Expert Biology Education by PhD Faculty",
-    description: "Biology Trunk offers comprehensive online courses for class 11, class 12, NEET, board exams, and competitive biology. Learn directly from PhD holders and expert faculty.",
-    keywords: "biology classes, online biology courses, NEET preparation, PhD biology faculty, class 12 board biology, class 11 biology, biology study material"
+    title: "Biology Trunk - Expert Prep for NEET, TGT, PGT & Board Exams",
+    description: "Biology Trunk offers comprehensive online courses and expert preparation for NEET, Class 11 & 12 Boards, TGT, PGT, and other major competitive exams with PhD-qualified faculty.",
+    keywords: "NEET prep online, TGT biology coaching, PGT biology prep, Class 12 science boards, Class 11 coaching, competitive exams prep, expert faculty coaching, biology trunk"
   });
 
   const navigate = useNavigate();
@@ -31,8 +31,8 @@ export default function Home({ user, onLogout }) {
   const galleryIntervalRef = useRef(null);
   const [stats, setStats] = useState({
     totalCourses: 0,
-    premiumCourses: 0,
-    totalFaculty: 0,
+    premiumCourses: 4,
+    totalFaculty: 1,
     totalStudents: 0,
   });
   const [faqOpen, setFaqOpen] = useState(null);
@@ -192,7 +192,7 @@ export default function Home({ user, onLogout }) {
     {
       question: "What is the track record of Biology.Trunk students?",
       answer:
-        "Our students have an exceptional track record with 98% success rate in competitive exams. Many have secured top ranks in JEE, NEET, AIIMS, CUET, and teaching examinations with our structured learning approach.",
+        "Our students have an exceptional track record with 98% success rate in competitive exams. Many have secured top ranks in NEET, AIIMS, CUET, and teaching examinations (TGT/PGT) with our structured learning approach.",
     },
     {
       question: "Do you provide study materials?",
@@ -673,13 +673,13 @@ export default function Home({ user, onLogout }) {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-5">
             {categories.length > 0 ? (
               categories.map((cat) => (
                 <div
                   key={cat._id}
                   onClick={() => handleCategoryClick(cat._id)}
-                  className="bg-white p-4 sm:p-5 rounded-xl border border-gray-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 cursor-pointer group"
+                  className="bg-white p-4 sm:p-5 rounded-xl border border-gray-200 hover:shadow-xl hover:border-blue-300 transition-all duration-300 cursor-pointer group w-[calc(50%-8px)] sm:w-[calc(50%-10px)] md:w-[calc(25%-15px)]"
                 >
                   <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
                     <div className="w-12 h-12 sm:w-14 sm:h-14 bg-blue-100 rounded-xl flex items-center justify-center transition-colors group-hover:bg-blue-600">
@@ -924,11 +924,11 @@ export default function Home({ user, onLogout }) {
             {[
               {
                 name: "Rohit Kumar",
-                score: "95%",
-                exam: "JEE Main",
+                score: "Score: 135/150",
+                exam: "TGT Exam",
                 feedback:
-                  "The Ph.D. faculty's structured curriculum and expert guidance helped me secure a top rank in JEE Main. Their teaching methodology is exceptional.",
-                achievement: "AIR 1245",
+                  "The Ph.D. faculty's structured curriculum and expert guidance helped me secure a top rank in the TGT Exam. Their teaching methodology is exceptional.",
+                achievement: "Govt Teacher Selection",
               },
               {
                 name: "Priya Singh",

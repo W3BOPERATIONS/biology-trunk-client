@@ -8,9 +8,9 @@ import useSEO from "../hooks/useSEO.js"
 
 export default function Register({ setUser }) {
   useSEO({
-    title: "Register Account",
-    description: "Create your Biology Trunk student account to start learning biology from Ph.D. qualified faculty. Get access to NEET courses, live classes, and study materials.",
-    keywords: "biology registration, create account, student signup, NEET course registration"
+    title: "Register Account | Biology Trunk",
+    description: "Create your Biology Trunk account to start preparing for NEET, Board Exams (Class 11 & 12), and TGT/PGT. Learn from PhD-qualified and expert faculty.",
+    keywords: "biology trunk registration, create account, student signup, NEET course registration, competitive exam prep signup"
   });
 
   const [formData, setFormData] = useState({

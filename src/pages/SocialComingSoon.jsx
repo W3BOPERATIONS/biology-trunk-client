@@ -19,12 +19,17 @@ const SocialComingSoon = () => {
     { type: "linkedin", icon: "fab fa-linkedin", color: "hover:text-blue-700", activeColor: "text-blue-700" },
   ]
 
+  const activeSocial = socialIcons.find((s) => s.type === activeType)
+  const currentIcon = activeSocial ? activeSocial.icon : "fas fa-share-alt"
+  const currentIconColor = activeSocial ? activeSocial.activeColor : "text-blue-600"
+  const activeName = activeSocial ? activeSocial.type.charAt(0).toUpperCase() + activeSocial.type.slice(1) : "our social media"
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center px-4 py-8">
       <div className="max-w-md w-full text-center">
         <div className="mb-8 flex justify-center">
           <div className="w-24 h-24 bg-white rounded-3xl shadow-xl flex items-center justify-center transform rotate-12 hover:rotate-0 transition-transform duration-300">
-            <i className="fas fa-share-alt text-4xl text-blue-600"></i>
+            <i className={`${currentIcon} text-4xl ${currentIconColor}`}></i>
           </div>
         </div>
         
@@ -33,7 +38,7 @@ const SocialComingSoon = () => {
         </h1>
         
         <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-          We're currently setting up our social media presence to bring you even more value and updates.
+          We're currently setting up our {activeName} presence to bring you even more value and updates.
         </p>
         
         <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-100 mb-8">

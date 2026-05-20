@@ -16,9 +16,9 @@ export default function CoursePreview({ user, onLogout }) {
   const [course, setCourse] = useState(null)
 
   useSEO({
-    title: course?.title ? `${course.title} Preview` : "Course Preview",
-    description: course?.description || "Preview this biology course on Biology Trunk. See the curriculum, outcomes, and schedule.",
-    keywords: course?.category ? `${course.category}, biology course, course preview, syllabus` : "biology course preview"
+    title: course?.title ? `${course.title} Preview | Biology Trunk` : "Course Preview",
+    description: course?.description || "Preview this course on Biology Trunk. See the curriculum, outcomes, and syllabus.",
+    keywords: course?.category ? `${course.category}, competitive exam course, course syllabus, board exam prep` : "course preview"
   });
   const [isEnrolled, setIsEnrolled] = useState(false)
   const [loading, setLoading] = useState(true)

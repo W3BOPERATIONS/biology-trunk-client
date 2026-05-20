@@ -8,9 +8,9 @@ import useSEO from "../hooks/useSEO.js"
 
 export default function Login({ setUser }) {
   useSEO({
-    title: "Login",
-    description: "Sign in to your Biology Trunk account to access your courses, interactive classes, and study materials.",
-    keywords: "biology login, biology trunk sign in, student login, faculty login"
+    title: "Login | Biology Trunk",
+    description: "Sign in to your Biology Trunk account to access your competitive exam courses, interactive classes, and study materials.",
+    keywords: "biology trunk login, student sign in, faculty login, exam portal login"
   });
 
   const [email, setEmail] = useState("")

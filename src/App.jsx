@@ -1,6 +1,8 @@
 
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from "react-router-dom"
+import ScrollToTop from "./components/ScrollToTop"
 import { useEffect, useState } from "react"
+import { showSuccessToast } from "./utils/toast"
 import Home from "./pages/Home"
 import Login from "./pages/Login"
 import Register from "./pages/Register"
@@ -31,6 +33,33 @@ export default function App() {
       setUser(JSON.parse(storedUser))
     }
     setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    // Intercept tel: and mailto: links inside Android WebViews to prevent crashes
+    const isAndroidWebView = /wv/.test(navigator.userAgent) && /Android/.test(navigator.userAgent);
+    
+    if (isAndroidWebView) {
+      const handleGlobalClick = (e) => {
+        const link = e.target.closest('a');
+        if (!link) return;
+        
+        const href = link.getAttribute('href');
+        if (href && (href.startsWith('tel:') || href.startsWith('mailto:'))) {
+          e.preventDefault();
+          const value = href.replace('tel:', '').replace('mailto:', '');
+          
+          navigator.clipboard.writeText(value).then(() => {
+            showSuccessToast(`Copied ${value} to clipboard!`);
+          }).catch(() => {
+            alert(`Please copy this text manually: ${value}`);
+          });
+        }
+      };
+
+      document.addEventListener('click', handleGlobalClick);
+      return () => document.removeEventListener('click', handleGlobalClick);
+    }
   }, [])
 
   useEffect(() => {
@@ -81,6 +110,7 @@ export default function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home user={user} onLogout={handleLogout} />} />
         <Route

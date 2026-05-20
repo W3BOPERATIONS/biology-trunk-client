@@ -8,3 +8,28 @@ button,
 .cursor-pointer {
   cursor: pointer;
 }
+
+/* React Toastify custom styles for perfect scaling */
+.Toastify__toast {
+  border-radius: 12px !important;
+  font-family: inherit !important;
+  font-size: 0.95rem !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Override default mobile full-width behavior */
+@media only screen and (max-width: 480px) {
+  .Toastify__toast-container {
+    width: 92vw !important;
+    left: 4vw !important;
+    right: 4vw !important;
+    top: 1rem !important;
+    padding: 0 !important;
+  }
+  .Toastify__toast {
+    margin-bottom: 0.75rem !important;
+    border-radius: 12px !important;
+    font-size: 0.875rem !important;
+    min-height: 56px !important;
+  }
+}
