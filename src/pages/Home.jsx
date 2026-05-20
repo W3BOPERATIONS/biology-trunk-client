@@ -1,4 +1,3 @@
-"use client";
 
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
@@ -8,6 +7,7 @@ import logo from "../assets/biology-trunk-logo.png";
 import roadmapVideo from "../assets/biology-trunk-introduction.mp4";
 import { showErrorToast } from "../utils/toast.js";
 import Footer from "../components/Footer";
+import useSEO from "../hooks/useSEO.js";
 
 // Import all 8 gallery images from assets/image-gallery folder
 import gallery1 from "../assets/image-gallery/study1.jpg";
@@ -20,6 +20,12 @@ import gallery7 from "../assets/image-gallery/study7.jpg";
 import gallery8 from "../assets/image-gallery/study8.jpg";
 
 export default function Home({ user, onLogout }) {
+  useSEO({
+    title: "Expert Biology Education by PhD Faculty",
+    description: "Biology Trunk offers comprehensive online courses for class 11, class 12, NEET, board exams, and competitive biology. Learn directly from PhD holders and expert faculty.",
+    keywords: "biology classes, online biology courses, NEET preparation, PhD biology faculty, class 12 board biology, class 11 biology, biology study material"
+  });
+
   const navigate = useNavigate();
   const videoRef = useRef(null);
   const galleryIntervalRef = useRef(null);
@@ -47,28 +53,7 @@ export default function Home({ user, onLogout }) {
     { src: gallery8, alt: "Biology Trunk Success Celebration" },
   ]);
 
-  const hasCalledFetchStatsRef = useRef(false);
   const [categories, setCategories] = useState([]);
-
-  useEffect(() => {
-    if (!hasCalledFetchStatsRef.current) {
-      fetchStats();
-      fetchCategories();
-      hasCalledFetchStatsRef.current = true;
-    }
-
-    // Start auto-scroll only if enabled
-    if (isAutoScroll) {
-      startAutoScroll();
-    }
-
-    return () => {
-      // Cleanup interval on component unmount
-      if (galleryIntervalRef.current) {
-        clearInterval(galleryIntervalRef.current);
-      }
-    };
-  }, [isAutoScroll]); // Re-run when auto-scroll state changes
 
   const startAutoScroll = () => {
     // Clear existing interval
@@ -117,34 +102,24 @@ export default function Home({ user, onLogout }) {
       return videoId
         ? `https://www.youtube.com/embed/${videoId}?autoplay=1`
         : "";
-    } catch (error) {
+    } catch {
       return "";
     }
   };
 
   const fetchStats = async () => {
     try {
-      const [courses, faculty, students] = await Promise.all([
-        axios.get(`${API_URL}/courses?limit=1000`),
-        axios.get(`${API_URL}/users/role/faculty`),
-        axios.get(`${API_URL}/users/role/student`),
-      ]);
-
-      const courseCount = courses.data.courses
-        ? courses.data.courses.length
-        : courses.data.length;
-      const premiumCourses = courses.data.courses
-        ? courses.data.courses.filter((c) => c.price > 0).length
-        : courses.data.filter((c) => c.price > 0).length;
+      const response = await axios.get(`${API_URL}/courses/stats`);
+      const { totalCourses, premiumCourses, totalFaculty, totalStudents } = response.data;
 
       setStats({
-        totalCourses: courseCount,
-        premiumCourses: premiumCourses,
-        totalFaculty: faculty.data.length,
-        totalStudents: students.data.length,
+        totalCourses: totalCourses || 0,
+        premiumCourses: premiumCourses || 0,
+        totalFaculty: totalFaculty || 0,
+        totalStudents: totalStudents || 0,
       });
-    } catch (error) {
-      console.error("Failed to fetch stats:", error);
+    } catch {
+      console.error("Failed to fetch stats");
       if (stats.totalCourses > 0) {
         showErrorToast("Failed to reload homepage statistics");
       }
@@ -170,6 +145,26 @@ export default function Home({ user, onLogout }) {
   const handleCategoryClick = (category) => {
     navigate(`/view-all-courses?category=${encodeCategoryForURL(category)}`);
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchStats();
+    fetchCategories();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    // Start auto-scroll only if enabled
+    if (isAutoScroll) {
+      startAutoScroll();
+    }
+
+    return () => {
+      // Cleanup interval on component unmount
+      if (galleryIntervalRef.current) {
+        clearInterval(galleryIntervalRef.current);
+      }
+    };
+  }, [isAutoScroll]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
 

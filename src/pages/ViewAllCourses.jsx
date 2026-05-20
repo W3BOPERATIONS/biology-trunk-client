@@ -1,4 +1,3 @@
-"use client"
 
 import { useState, useEffect } from "react"
 import { useNavigate, useLocation, Link } from "react-router-dom"
@@ -7,10 +6,17 @@ import { API_URL } from "../utils/api.js"
 import { showErrorToast } from "../utils/toast.js"
 import logo from "../assets/biology-trunk-logo.png"
 import Footer from "../components/Footer"
+import useSEO from "../hooks/useSEO.js"
 
 const COURSES_PER_PAGE = 9
 
 export default function ViewAllCourses() {
+  useSEO({
+    title: "Browse All Biology Courses",
+    description: "Explore comprehensive biology courses for NEET, Class 11, Class 12, TGT/PGT, AIIMS, and Foreign Languages. Taught by PhD faculty.",
+    keywords: "NEET biology courses, online classes class 12, class 11 biology, TGT biology coaching, PGT biology prep"
+  });
+
   const navigate = useNavigate()
   const location = useLocation()
   const [courses, setCourses] = useState([])
@@ -51,14 +57,6 @@ export default function ViewAllCourses() {
       navigate("/404", { replace: true })
     }
   }, [location.search])
-
-  useEffect(() => {
-    fetchCourses()
-  }, [])
-
-  useEffect(() => {
-    filterAndSortCourses()
-  }, [courses, searchTerm, selectedCategory, selectedLevel, sortBy, currentPage])
 
   const fetchCourses = async () => {
     try {
@@ -156,6 +154,14 @@ export default function ViewAllCourses() {
 
     setFilteredCourses(paginatedCourses)
   }
+
+  useEffect(() => {
+    fetchCourses()
+  }, [])
+
+  useEffect(() => {
+    filterAndSortCourses()
+  }, [courses, searchTerm, selectedCategory, selectedLevel, sortBy, currentPage])
 
   const handleCourseClick = (courseId) => {
     navigate(`/course-preview/${courseId}`)

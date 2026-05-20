@@ -1,12 +1,18 @@
-"use client"
 
 import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import axios from "axios"
 import { API_URL } from "../utils/api.js"
 import { showSuccessToast, showErrorToast } from "../utils/toast.js"
+import useSEO from "../hooks/useSEO.js"
 
 export default function Register({ setUser }) {
+  useSEO({
+    title: "Register Account",
+    description: "Create your Biology Trunk student account to start learning biology from Ph.D. qualified faculty. Get access to NEET courses, live classes, and study materials.",
+    keywords: "biology registration, create account, student signup, NEET course registration"
+  });
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",

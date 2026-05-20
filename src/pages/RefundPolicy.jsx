@@ -1,10 +1,15 @@
-"use client"
 
 import { Link } from "react-router-dom"
 import logo from "../assets/biology-trunk-logo.png"
 import Footer from "../components/Footer"
+import useSEO from "../hooks/useSEO.js"
 
 export default function RefundPolicy() {
+  useSEO({
+    title: "Refund Policy",
+    description: "Read the Biology Trunk Refund Policy. Understand our cancellation and refund guidelines for all course enrollments.",
+    keywords: "refund policy, refund guidelines, biology trunk cancellation, course transfer policy"
+  });
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation - Same as Home */}

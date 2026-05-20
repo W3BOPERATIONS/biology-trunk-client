@@ -1,10 +1,15 @@
-"use client"
 
 import { Link } from "react-router-dom"
 import logo from "../assets/biology-trunk-logo.png"
 import Footer from "../components/Footer"
+import useSEO from "../hooks/useSEO.js"
 
 export default function PrivacyPolicy() {
+  useSEO({
+    title: "Privacy Policy",
+    description: "Read the Biology Trunk Privacy Policy. Understand how we collect, use, and protect your personal information on our educational platform.",
+    keywords: "privacy policy, data protection, student privacy, biology trunk terms"
+  });
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation - Same as Home */}

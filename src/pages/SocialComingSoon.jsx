@@ -1,7 +1,13 @@
 import React from "react"
 import { Link, useLocation } from "react-router-dom"
+import useSEO from "../hooks/useSEO.js"
 
 const SocialComingSoon = () => {
+  useSEO({
+    title: "Social Media Coming Soon",
+    description: "Stay tuned! We are setting up our social media presence to connect and share quality educational updates.",
+    keywords: "social media, coming soon, biology trunk facebook, biology trunk instagram"
+  });
   const location = useLocation()
   const queryParams = new URLSearchParams(location.search)
   const activeType = queryParams.get("type")
@@ -55,15 +61,16 @@ const SocialComingSoon = () => {
         
         <div className="mt-12 flex justify-center gap-8 text-3xl">
           {socialIcons.map((social) => (
-            <div
+            <Link
               key={social.type}
+              to={`/social-coming-soon?type=${social.type}`}
               className={`transition-all duration-300 transform hover:scale-125 cursor-pointer ${
                 activeType === social.type ? `${social.activeColor} scale-125 drop-shadow-lg` : `text-gray-300 ${social.color}`
               }`}
               title={social.type.charAt(0).toUpperCase() + social.type.slice(1)}
             >
               <i className={social.icon}></i>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

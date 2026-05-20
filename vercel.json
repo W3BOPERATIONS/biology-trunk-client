@@ -19,6 +19,9 @@
       "dest": "/assets/$1"
     },
     {
+      "handle": "filesystem"
+    },
+    {
       "src": "/(.*)",
       "headers": {
         "cache-control": "public, max-age=0, must-revalidate"

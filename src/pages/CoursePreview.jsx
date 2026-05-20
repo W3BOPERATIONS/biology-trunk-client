@@ -1,4 +1,3 @@
-"use client"
 
 import { useState, useEffect } from "react"
 import { useParams, useNavigate, Link } from "react-router-dom"
@@ -9,11 +8,18 @@ import { API_URL } from "../utils/api.js"
 import { getEmbedUrl } from "../utils/videoHelper.js"
 import RazorpayPayment from "../components/RazorpayPayment.jsx"
 import logo from "../assets/biology-trunk-logo.png"
+import useSEO from "../hooks/useSEO.js"
 
 export default function CoursePreview({ user, onLogout }) {
   const { courseId } = useParams()
   const navigate = useNavigate()
   const [course, setCourse] = useState(null)
+
+  useSEO({
+    title: course?.title ? `${course.title} Preview` : "Course Preview",
+    description: course?.description || "Preview this biology course on Biology Trunk. See the curriculum, outcomes, and schedule.",
+    keywords: course?.category ? `${course.category}, biology course, course preview, syllabus` : "biology course preview"
+  });
   const [isEnrolled, setIsEnrolled] = useState(false)
   const [loading, setLoading] = useState(true)
   const [checkingEnrollment, setCheckingEnrollment] = useState(false)

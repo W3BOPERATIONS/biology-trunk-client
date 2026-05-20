@@ -1,10 +1,15 @@
-"use client"
 
 import { Link } from "react-router-dom"
 import logo from "../assets/biology-trunk-logo.png"
 import Footer from "../components/Footer"
+import useSEO from "../hooks/useSEO.js"
 
 export default function TermsAndConditions() {
+  useSEO({
+    title: "Terms and Conditions",
+    description: "Read the Biology Trunk Terms & Conditions. Learn about the rules, responsibilities, and guidelines for using our educational platform.",
+    keywords: "terms and conditions, terms of service, biology trunk agreement, user responsibilities"
+  });
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation - Same as Home */}

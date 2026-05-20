@@ -1,12 +1,18 @@
-"use client"
 
 import { useState, useEffect } from "react"
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import axios from "axios"
 import { API_URL } from "../utils/api.js"
 import { showSuccessToast, showErrorToast } from "../utils/toast.js"
+import useSEO from "../hooks/useSEO.js"
 
 export default function Login({ setUser }) {
+  useSEO({
+    title: "Login",
+    description: "Sign in to your Biology Trunk account to access your courses, interactive classes, and study materials.",
+    keywords: "biology login, biology trunk sign in, student login, faculty login"
+  });
+
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")

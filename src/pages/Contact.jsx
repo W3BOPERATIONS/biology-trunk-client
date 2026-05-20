@@ -1,4 +1,3 @@
-"use client"
 
 import { useState } from "react"
 import { Link } from "react-router-dom"
@@ -7,8 +6,15 @@ import { API_URL } from "../utils/api.js"
 import logo from "../assets/biology-trunk-logo.png"
 import { showSuccessToast, showErrorToast } from "../utils/toast.js"
 import Footer from "../components/Footer"
+import useSEO from "../hooks/useSEO.js"
 
 export default function Contact() {
+  useSEO({
+    title: "Contact Us",
+    description: "Get in touch with the Biology Trunk team. Reach out to our Ph.D. qualified faculty for course inquiries, academic support, and technical help.",
+    keywords: "contact biology trunk, biology tutoring support, biology email, Noida biology center"
+  });
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",

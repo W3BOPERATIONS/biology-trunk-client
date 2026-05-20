@@ -1,7 +1,13 @@
 import React from "react"
 import { Link } from "react-router-dom"
+import useSEO from "../hooks/useSEO.js"
 
 const NotFound = () => {
+  useSEO({
+    title: "Page Not Found",
+    description: "The page you are looking for does not exist on Biology Trunk.",
+    keywords: "404, not found, page not found, biology trunk"
+  });
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4 text-center">
       <div className="mb-8">
